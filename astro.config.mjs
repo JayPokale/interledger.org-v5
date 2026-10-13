@@ -25,7 +25,7 @@ export default defineConfig({
   // Astro 7 changed the default to 'jsx', which removes the whitespace
   // between inline elements across line breaks. `true` keeps the HTML rules.
   // .prettierrc sets astroCompressHTML to the same mode.
-  compressHTML: true,
+  compressHTML: false,
   build: {
     // Inline project CSS so Lighthouse does not wait on extra /_astro/*.css round trips.
     inlineStylesheets: 'always'
