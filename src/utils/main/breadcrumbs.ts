@@ -43,6 +43,14 @@ function toLabel(segmentPath: string, segment: string, t: Translate): string {
     .join(' ')
 }
 
+/** `routeLocale` is the URL locale; see {@link buildSectionEntryBreadcrumbs}. */
+export function buildHomeBreadcrumb(
+  routeLocale: Locale,
+  t: Translate
+): BreadcrumbItem {
+  return { name: t('nav.home'), href: localizeRoute('/', routeLocale) }
+}
+
 /**
  * Builds Home > [section base?] > [pathSlug parents] > label breadcrumbs for
  * a cross-section template entry (profiles, reports). `section` only
@@ -67,7 +75,7 @@ export function buildSectionEntryBreadcrumbs(
   const parentParts = fullPath.split('/').slice(0, -1)
 
   return [
-    { name: t('nav.home'), href: localizeRoute('', routeLocale) },
+    buildHomeBreadcrumb(routeLocale, t),
     ...parentParts.map((_, i) => {
       const segmentPath = parentParts.slice(0, i + 1).join('/')
 

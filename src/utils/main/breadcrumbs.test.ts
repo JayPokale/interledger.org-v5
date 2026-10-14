@@ -14,11 +14,21 @@ vi.mock('astro:content', async () => {
   return { z }
 })
 
-const { buildSectionEntryBreadcrumbs } = await import('./breadcrumbs')
+const { buildHomeBreadcrumb, buildSectionEntryBreadcrumbs } =
+  await import('./breadcrumbs')
 const { ui } = await import('@/data/ui')
 
 const translator = (locale: keyof typeof ui) => (key: keyof typeof ui.en) =>
   ui[locale][key]
+
+describe('buildHomeBreadcrumb', () => {
+  it.each([
+    ['en', { name: 'Home', href: '/' }],
+    ['es', { name: 'Inicio', href: '/es/' }]
+  ] as const)('links %s home', (locale, expected) => {
+    expect(buildHomeBreadcrumb(locale, translator(locale))).toEqual(expected)
+  })
+})
 
 describe('buildSectionEntryBreadcrumbs', () => {
   it('builds Home > parents > label for a foundation entry with a nested pathSlug', () => {

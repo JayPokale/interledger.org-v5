@@ -115,6 +115,7 @@ export {
 } from './main/static-paths'
 export {
   type BreadcrumbItem,
+  buildHomeBreadcrumb,
   buildSectionEntryBreadcrumbs
 } from './main/breadcrumbs'
 export { getSectionPageLayout } from './main/sectionLayout'
