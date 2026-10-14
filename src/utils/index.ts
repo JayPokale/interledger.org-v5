@@ -9,6 +9,7 @@
 export {
   stripTrailingSlash,
   addTrailingSlash,
+  joinPagePath,
   trimSlashes,
   ensureLeadingSlash,
   hasUrlScheme,
@@ -124,7 +125,6 @@ export {
   getTermSlug,
   getTermUrl,
   translateTerm,
-  buildContentLangHrefs,
   paginateAllPosts,
   paginatePostsByTerm,
   ALL_TERM_SLUG,

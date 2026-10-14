@@ -39,8 +39,8 @@ describe('getLanguageSwitcherHrefs', () => {
     expect(
       getLanguageSwitcherHrefs('category/announcements/3', '/blog')
     ).toEqual({
-      en: '/blog/category/announcements',
-      es: '/es/blog/category/announcements'
+      en: '/blog/category/announcements/',
+      es: '/es/blog/category/announcements/'
     })
   })
 
@@ -90,15 +90,24 @@ describe('getLanguageSwitcherHrefs', () => {
 
   it('does not strip a numeric-looking blog category name with no page number', () => {
     expect(getLanguageSwitcherHrefs('category/2024', '/blog')).toEqual({
-      en: '/blog/category/2024',
-      es: '/es/blog/category/2024'
+      en: '/blog/category/2024/',
+      es: '/es/blog/category/2024/'
     })
   })
 
   it('drops the page number but keeps a numeric-looking blog category name', () => {
     expect(getLanguageSwitcherHrefs('category/2024/2', '/blog')).toEqual({
-      en: '/blog/category/2024',
-      es: '/es/blog/category/2024'
+      en: '/blog/category/2024/',
+      es: '/es/blog/category/2024/'
+    })
+  })
+
+  it('keeps an explicit content language on a blog category page', () => {
+    expect(
+      getLanguageSwitcherHrefs('category/announcements/lang/es', '/blog')
+    ).toEqual({
+      en: '/blog/category/announcements/lang/es/',
+      es: '/es/blog/category/announcements/lang/es/'
     })
   })
 

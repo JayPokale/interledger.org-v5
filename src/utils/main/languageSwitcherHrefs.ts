@@ -4,6 +4,7 @@ import { localizeRoute, normalizeBasePath } from './routes'
 import { buildRoutePath } from './translatePath'
 import { CATEGORY_SEGMENT } from './tagFilter'
 import { hasStrippablePageNumber } from './paginatedRouteShape'
+import { joinPagePath } from '../shared/url'
 
 function isBlogPath(basePath: string): boolean {
   return basePath.endsWith('/blog')
@@ -46,12 +47,11 @@ function buildBlogSwitchHref(
   const { term, contentLang } = parseBlogSlug(slug)
   const targetContentLang = contentLang ?? targetLocale
   const hasExplicitLang = contentLang !== undefined
-  let href = localizeRoute(normalizeBasePath(basePath), targetLocale)
-  if (term) {
-    href += `/${CATEGORY_SEGMENT}/${term}`
-  }
-  if (hasExplicitLang) href += `/lang/${targetContentLang}`
-  return href
+  return joinPagePath(
+    localizeRoute(normalizeBasePath(basePath), targetLocale),
+    term ? `${CATEGORY_SEGMENT}/${term}` : '',
+    hasExplicitLang ? `lang/${targetContentLang}` : ''
+  )
 }
 
 export function getLanguageSwitcherHrefs(

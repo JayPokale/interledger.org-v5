@@ -7,6 +7,16 @@ export function addTrailingSlash(path: string): string {
 }
 
 /**
+ * Appends path segments to a page path and returns it slashed, e.g.
+ * `('/blog', 'category', 'news')` → `/blog/category/news/`. Empty segments
+ * are dropped, and a slashed or slashless base gives the same result.
+ */
+export function joinPagePath(base: string, ...segments: string[]): string {
+  const parts = [base.replace(/\/$/, ''), ...segments.filter(Boolean)]
+  return addTrailingSlash(parts.join('/'))
+}
+
+/**
  * Strips every leading and trailing slash, so `/about/`, `/about` and `about`
  * give one key. Content stores slugs as `/about/` (INTORG-1254) while route
  * params and translation-map keys stay bare.

@@ -9,8 +9,23 @@ import {
   getHostname,
   getSocialIconName,
   getSocialPlatformName,
+  joinPagePath,
   trimSlashes
 } from './url'
+
+describe('joinPagePath', () => {
+  it.each<[string, string[], string]>([
+    ['/blog/', ['category', 'news'], '/blog/category/news/'],
+    ['/blog', ['category', 'news'], '/blog/category/news/'],
+    ['/blog', [''], '/blog/'],
+    ['/blog/', [], '/blog/'],
+    ['/blog', ['', 'lang', '', 'es'], '/blog/lang/es/'],
+    ['/', [''], '/'],
+    ['/', ['blog'], '/blog/']
+  ])('joins %j with %j into %j', (base, segments, expected) => {
+    expect(joinPagePath(base, ...segments)).toBe(expected)
+  })
+})
 
 describe('trimSlashes', () => {
   it.each([
