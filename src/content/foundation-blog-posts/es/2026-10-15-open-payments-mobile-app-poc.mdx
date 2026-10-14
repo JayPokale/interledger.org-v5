@@ -1,0 +1,318 @@
+---
+title: 'Open Payments en una app móvil: una prueba de concepto práctica'
+description: Construya una app móvil que se conecta a una billetera, envía dinero a contactos y mantiene la sesión iniciada, con Open Payments y la Test Wallet.
+date: 2026-10-15
+pathSlug: /open-payments-mobile-app-poc/
+featured: false
+draft: true
+locale: es
+localizes: /open-payments-mobile-app-poc/
+articleBios:
+  - author: Adi Boros
+    link: https://github.com/adrianboros
+categories:
+  - Engineering
+  - Interledger Technology
+relatedArticles:
+  - /subscriptions-with-open-payments-poc/
+  - /simple-open-payments-guide/
+  - /web-monetization-open-payments-part-3-sending-money/
+legacy: true
+---
+
+La mayoría de los ejemplos de [Open Payments](https://openpayments.dev/) se ejecutan en un servidor o en un navegador. Pero mucha gente envía dinero desde su teléfono. Por eso nos hicimos una pregunta simple: **¿puede una app móvil usar Open Payments para enviar dinero desde la billetera del usuario, sin pedirle que inicie sesión de nuevo en cada pago?**
+
+La respuesta es sí. En este artículo construimos una pequeña prueba de concepto (PoC) con [Expo](https://expo.dev/) y React Native. La app funciona con la [Interledger Test Wallet](https://wallet.interledger-test.dev/), así que puede usar dinero de prueba.
+
+Esta es una guía práctica. Si participa en el hackathon de Interledger en Colombia este fin de semana, puede seguirla paso a paso, ejecutar la app y construir su propia idea sobre ella.
+
+---
+
+## Lo que va a construir
+
+La app tiene cuatro pestañas:
+
+- **Wallet**: conectar su billetera. El teléfono crea su propia clave, la agrega a su billetera, y su billetera confirma que usted es el dueño de la dirección.
+- **Send**: una lista de contactos. Elija un contacto, escriba un monto, toque **Proceed**, apruebe el pago en su billetera y listo.
+- **History**: todas las transferencias hechas desde la app, con su estado en vivo desde la billetera.
+- **Budget**: un segundo modelo, donde un servidor guarda la clave y el usuario aprueba un presupuesto mensual una sola vez. No lo cubrimos en este artículo.
+
+<ImageBlock
+  src="/img/foundation-blog/2026-10-15/send-flow.png"
+  alt="Tres pantallas del teléfono: la lista de contactos, el formulario del monto con el botón Proceed y la pantalla de consentimiento de la Test Wallet pidiendo aprobar 1 dólar"
+  needsFullView={true}
+/>
+
+La parte importante es la última pantalla. Es la página real de consentimiento de la billetera, mostrada **dentro** de la app. El usuario ya inició sesión, así que solo toca **Accept**. Después, la pantalla se cierra sola y la app hace el pago.
+
+## Antes de empezar
+
+Necesita:
+
+- **Dos direcciones de billetera en la Test Wallet**. Regístrese en [wallet.interledger-test.dev](https://wallet.interledger-test.dev/), complete el KYC (simulado) y agregue dinero de prueba. Una dirección es la suya (quien envía). La otra es un contacto (quien recibe). Una moneda diferente funciona bien, por ejemplo de USD a MXN o COP.
+- **Node.js 22** y **npm**.
+- **Xcode** con un simulador de iOS, o Android Studio con un emulador. La app usa un _development build_, no Expo Go, porque usa módulos nativos.
+
+Descargue el código y ejecútelo:
+
+<CodeBlock language="bash" code={`git clone https://github.com/TODO/rafikiupclose.git
+  cd rafikiupclose/mobile/app
+  npm install
+  npx expo run:ios       # o: npx expo run:android`} />
+
+## La visión general
+
+Antes del código, estas son las cuatro ideas que hacen que todo funcione.
+
+**1. El cliente es la propia dirección de billetera del usuario.** En Open Payments, cada solicitud está firmada por un _cliente_. El servidor de autorización busca la clave pública del cliente en `{walletAddress}/jwks.json`. En esta app, el cliente es la dirección de billetera del usuario, y la clave vive en el teléfono. Es el mismo modelo que usa la [extensión de Web Monetization](https://github.com/interledger/web-monetization-extension). No hay backend.
+
+**2. El teléfono firma cada solicitud.** El SDK oficial de JavaScript depende de la criptografía de Node.js, así que no funciona en React Native. En su lugar, la app tiene un cliente pequeño (unas 200 líneas) basado en `fetch`. Firma cada solicitud con [HTTP Message Signatures](https://openpayments.dev/identity/http-signatures/).
+
+**3. La billetera se abre en un WebView dentro de la app.** El inicio de sesión y el consentimiento ocurren en las páginas web de la billetera. Un WebView conserva sus cookies cuando la app se reinicia. Así, el usuario inicia sesión **una sola vez**, dentro de la app, y después cada pantalla de consentimiento se abre directamente. La sesión de la Test Wallet dura cerca de un mes.
+
+**4. Open Payments solo admite redirecciones.** El servidor de autorización envía al usuario a la página de consentimiento de la billetera y luego lo redirige a una URI `finish` con un `interact_ref` y un `hash`. Nuestra URI es `rafikiupclose://op/finish`. El WebView captura esta redirección, se cierra y le pasa los valores a la app.
+
+<ImageBlock
+  src="/img/foundation-blog/2026-10-15/send-sequence.png"
+  alt="Diagrama de secuencia del envío: pago entrante en el receptor, cotización, grant interactivo de pago saliente, consentimiento en el WebView, redirección final, continuación del grant, pago saliente y, al final, completar el pago entrante"
+  needsFullView={true}
+/>
+
+Todo el código de Open Payments está en `mobile/app/src/op/`. No importa nada de React Native, así que también puede ejecutarlo desde Node.js (hay un script de prueba para eso).
+
+## Paso 1: Crear una clave en el teléfono
+
+La app crea un par de claves Ed25519 con [`@noble/ed25519`](https://github.com/paulmillr/noble-ed25519). Le damos a la librería una función SHA-512 síncrona, porque React Native (Hermes) no tiene WebCrypto.
+
+<CodeBlock language="typescript" title="src/op/keys.ts" code={`import * as ed from '@noble/ed25519'
+  import { sha512 } from '@noble/hashes/sha2.js'
+
+  ed.hashes.sha512 = sha512
+
+  export function publicJwk(key: DeviceKey): Jwk {
+    return {
+      kid: key.keyId, // un UUID aleatorio
+      kty: 'OKP',
+      crv: 'Ed25519',
+      alg: 'EdDSA',
+      x: toBase64Url(ed.getPublicKey(key.privateKey))
+    }
+  }`} />
+
+Los 32 bytes aleatorios vienen de `expo-crypto`. La clave privada se guarda en el Keychain de iOS (o el Keystore de Android) con `expo-secure-store`. Nunca sale del teléfono. Nota: el Secure Enclave de iOS no admite Ed25519, así que el Keychain es la mejor opción aquí.
+
+## Paso 2: Firmar cada solicitud
+
+Open Payments usa HTTP Message Signatures. Para cada solicitud, la app construye un texto llamado "signature base" y lo firma con la clave del dispositivo:
+
+<CodeBlock language="typescript" title="src/op/signatures.ts (simplificado)" code={`const components = ['@method', '@target-uri']
+  if (headers['authorization']) components.push('authorization')
+  if (body) components.push('content-digest', 'content-length', 'content-type')
+
+  const params = '(' + components.map((c) => '"' + c + '"').join(' ') + ')'
+    + ';keyid="' + key.keyId + '";created=' + Math.floor(Date.now() / 1000)
+
+  const base = components.map((c) => '"' + c + '": ' + valueOf(c)).join('\\n')
+    + '\\n"@signature-params": ' + params
+
+  headers['signature-input'] = 'sig1=' + params
+  headers['signature'] = 'sig1=:' + toBase64(ed.sign(utf8(base), key.privateKey)) + ':'`} />
+
+El encabezado `content-digest` es `sha-512=:<base64>:` del cuerpo JSON. Es fácil equivocarse con las firmas, así que las pruebas unitarias verifican nuestro resultado con `@interledger/http-signature-utils`, la misma librería que usa Rafiki para validar firmas.
+
+## Paso 3: Agregar la clave a la billetera, automáticamente
+
+El servidor de autorización debe encontrar la clave del dispositivo en el `jwks.json` de la billetera. Open Payments no tiene una API para registrar claves, así que cada billetera lo hace a su manera. En la Test Wallet puede pegar la clave en la página **Developer Keys**. Eso funciona, pero queríamos evitar copiar y pegar.
+
+La extensión de Web Monetization resuelve esto con un script que corre dentro de la página de la billetera, con la sesión ya iniciada. Un WebView nos permite hacer lo mismo. La app abre la página Developer Keys e inyecta un script pequeño. Si el usuario todavía no inició sesión, la billetera muestra primero su página de inicio de sesión.
+
+<CodeBlock language="javascript" title="src/device/testWallet.ts (script inyectado, simplificado)" code={`// Corre dentro de https://wallet.interledger-test.dev, así que la propia
+  // cookie de sesión de la billetera autentica estas llamadas.
+  const api = 'https://api-' + location.host
+  const res = await fetch(api + '/accounts?include[]=walletAddresses&include[]=walletAddressKeys',
+    { credentials: 'include' })
+  const accounts = (await res.json()).result
+  // ... buscar la cuenta y la dirección de billetera que coinciden con la nuestra, y luego:
+  await fetch(api + '/accounts/' + accountId + '/wallet-addresses/' + walletAddressId + '/upload-key', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ base64Key: btoa(JSON.stringify(jwk)), nickname: 'Rafiki Upclose mobile' })
+  })
+  window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'key-upload', ok: true }))`} />
+
+La app nunca ve la contraseña ni la cookie. Cuando el script informa que todo salió bien, el WebView se cierra y la app revisa `jwks.json` para confirmar que la clave está ahí.
+
+<ImageBlock
+  src="/img/foundation-blog/2026-10-15/connect-login-and-steps.png"
+  alt="Izquierda: la página de inicio de sesión de la Test Wallet dentro del WebView de la app. Derecha: la pestaña Wallet con la clave del dispositivo creada y agregada a la billetera, y la propiedad todavía sin confirmar"
+  needsFullView={true}
+/>
+
+Una nota para productos reales: este truco depende de la API privada de la billetera. Funciona con la Test Wallet, pero no es un estándar.
+
+## Paso 4: Conectar la billetera (verificar la propiedad)
+
+Ahora la app tiene una clave en la billetera. Pero, ¿el usuario realmente es dueño de esta dirección? Open Payments tiene un flujo para esto: [verificar la propiedad de una dirección de billetera](https://openpayments.dev/guides/verify-wallet-address-ownership/). Es un grant interactivo con un `subject` en lugar de un `access_token`. No da permisos de pago. Solo le pregunta a la billetera: "¿este usuario es el dueño de esta dirección?"
+
+<CodeBlock language="typescript" title="src/op/connect.ts" code={`const wallet = await client.getWalletAddress(walletAddressUrl)
+  const grant = await client.requestGrant(wallet.authServer, {
+    subject: { sub_ids: [{ id: wallet.id, format: 'uri' }] },
+    interact: {
+      start: ['redirect'],
+      finish: { method: 'redirect', uri: 'rafikiupclose://op/finish', nonce }
+    }
+  })
+  // abrir grant.interact.redirect en el WebView ...`} />
+
+La app abre `grant.interact.redirect` en el mismo WebView. El usuario ya inició sesión en el Paso 3, así que no hay un segundo inicio de sesión. La Test Wallet confirma la propiedad sola, después de unos segundos. Luego la app revisa el `hash` de la redirección y continúa el grant. La respuesta trae `subject.sub_ids` con la dirección confirmada.
+
+<ImageBlock
+  src="/img/foundation-blog/2026-10-15/connect-ownership.png"
+  alt="Izquierda: la página de la Test Wallet que confirma la propiedad de la dirección. Derecha: la pestaña Wallet con los tres pasos de conexión completados"
+  needsFullView={true}
+/>
+
+Ahora la billetera está conectada. Esto se hace una sola vez.
+
+## Paso 5: Enviar dinero a un contacto
+
+Cada pago usa su propio grant interactivo. Es un checkout normal: el usuario ve el monto exacto y lo aprueba. El flujo tiene tres partes.
+
+**Preparar.** La app crea un pago entrante en la billetera del receptor, luego una cotización en su billetera, y después pide un grant de pago saliente limitado **exactamente** a esa cotización:
+
+<CodeBlock language="typescript" title="src/op/checkout.ts (prepareCheckout)" code={`// 1. Pago entrante en el receptor (grant no interactivo)
+  const incomingGrant = await client.requestGrant(receiver.authServer, {
+    access_token: { access: [{ type: 'incoming-payment', actions: ['create', 'read', 'complete'] }] }
+  })
+  const incomingPayment = await client.createIncomingPayment(
+    receiver.resourceServer, incomingGrant.access_token.value, receiver.id)
+
+  // 2. Cotización en quien envía (grant no interactivo)
+  const quote = await client.createQuote(sender.resourceServer, quoteToken, {
+    walletAddress: sender.id, receiver: incomingPayment.id, method: 'ilp',
+    debitAmount: { value: '100', assetCode: 'USD', assetScale: 2 } // 1.00 USD
+  })
+
+  // 3. Grant de pago saliente (interactivo), solo para este pago
+  const grant = await client.requestGrant(sender.authServer, {
+    access_token: {
+      access: [{
+        type: 'outgoing-payment',
+        actions: ['create', 'read'],
+        identifier: sender.id,
+        limits: { debitAmount: quote.debitAmount, receiver: incomingPayment.id }
+      }]
+    },
+    interact: {
+      start: ['redirect'],
+      finish: { method: 'redirect', uri: 'rafikiupclose://op/finish', nonce }
+    }
+  })`} />
+
+**Aprobar.** La app abre `grant.interact.redirect` en el WebView. El usuario ve "just dollars is requesting access to $1.00" y toca **Accept**. La billetera redirige a nuestra URI final. El WebView la captura antes de cargarla y se cierra:
+
+<CodeBlock language="typescript" title="src/components/WalletWebView.tsx" code={`<WebView
+    source={{ uri: redirectUrl }}
+    originWhitelist={['*']} // para que nuestro esquema llegue al manejador de abajo
+    onShouldStartLoadWithRequest={(request) => {
+      if (request.url.startsWith('rafikiupclose://op/finish')) {
+        onFinish(parseQuery(request.url)) // { interact_ref, hash } o { result: 'grant_rejected' }
+        return false // no la carga; el modal se cierra
+      }
+      return true
+    }}
+  />`} />
+
+**Pagar.** La app revisa el `hash`, continúa el grant para obtener un token de acceso y crea el pago saliente:
+
+<CodeBlock language="typescript" title="src/op/checkout.ts (completeCheckout)" code={`// hash = base64(sha256(clientNonce + '\\n' + interact.finish + '\\n' + interact_ref + '\\n' + authServer))
+  if (!verifyInteractionHash({ clientNonce, asFinishNonce, interactRef, grantEndpointUri, receivedHash })) {
+    throw new Error('Interaction hash mismatch')
+  }
+  const finalized = await client.continueGrant(continueUri, continueToken, interactRef)
+  const payment = await client.createOutgoingPayment(sender.resourceServer, finalized.access_token.value, {
+    walletAddress: sender.id,
+    quoteId: quote.id
+  })`} />
+
+Siempre revise el `hash`. Demuestra que la redirección realmente viene del servidor de autorización de su billetera y que pertenece a este grant.
+
+## Paso 6: Completar el pago entrante
+
+Este paso es fácil de olvidar. Fijamos el monto del lado de **quien envía** (`debitAmount`), así que creamos el pago entrante **sin** un `incomingAmount`. En este caso, la billetera del receptor no sabe cuándo termina el pago. El pago entrante queda abierto hasta que vence.
+
+La solución está en la [documentación](https://openpayments.dev/sdk/incoming-complete/): cuando termine de enviar, llame a `POST {incomingPayment}/complete`. Para eso necesita la acción `complete` en un grant de pago entrante. Los grants de pago entrante no son interactivos, así que la app pide uno nuevo cuando lo necesita:
+
+<CodeBlock language="typescript" title="src/op/checkout.ts (settleCheckout, simplificado)" code={`const grant = await client.requestGrant(receiverAuthServer, {
+    access_token: { access: [{ type: 'incoming-payment', actions: ['read', 'complete'] }] }
+  })
+  const token = grant.access_token.value
+
+  // Esperar hasta que el receptor reciba el monto cotizado
+  let incoming = await client.getIncomingPayment(incomingPaymentId, token)
+  while (BigInt(incoming.receivedAmount.value) < BigInt(quote.receiveAmount.value)) {
+    await sleep(1000)
+    incoming = await client.getIncomingPayment(incomingPaymentId, token)
+  }
+  await client.completeIncomingPayment(incomingPaymentId, token) // POST .../complete`} />
+
+Una pequeña trampa que encontramos: el pago saliente tiene un `sentAmount`, pero Rafiki lo da en la moneda de **quien envía**. Si lo compara con `receiveAmount` (moneda del receptor), un pago de USD a COP nunca parece terminado. Revise la entrega del lado del receptor: el `receivedAmount` del pago entrante, en la moneda del receptor.
+
+## Paso 7: Historial y estado en vivo
+
+La pestaña **History** muestra todas las transferencias hechas desde la app. Toque una para ver su estado en vivo desde la billetera: completada, en proceso o fallida, y cuánto se entregó.
+
+<ImageBlock
+  src="/img/foundation-blog/2026-10-15/history-and-detail.png"
+  alt="Izquierda: la pestaña History con dos transferencias. Derecha: el detalle de una transferencia de 3.97 USD a 12652.37 COP, completada, con el pago entrante del receptor completado"
+  needsFullView={true}
+/>
+
+Para leer el pago más tarde, la app guarda el grant del pago en el Keychain. Esto es seguro: el grant está limitado a ese pago exacto, que ya se hizo, así que no puede mover más dinero. Los tokens de acceso vencen después de 10 minutos. Cuando eso pasa, la app rota el token con la URL `manage` del grant, sin preguntarle al usuario:
+
+<CodeBlock language="typescript" title="src/op/payment-status.ts" code={`try {
+    return await client.getOutgoingPayment(paymentUrl, grant.accessToken)
+  } catch (error) {
+    if (!isExpiredToken(error)) throw error // 401, o 403 "Inactive Token"
+    const { access_token } = await client.rotateToken(grant.manageUrl, grant.accessToken)
+    return await client.getOutgoingPayment(paymentUrl, access_token.value)
+  }`} />
+
+La página de detalle también completa el pago entrante si sigue abierto, por ejemplo cuando el usuario cerró la app demasiado pronto.
+
+## Lo que aprendimos
+
+- **Solo se admite `redirect`.** Tanto para iniciar la interacción como para terminarla. Puede comprobarlo en cualquier servidor de autorización en `/discovery`.
+- **Empezar y terminar en el mismo navegador.** Rafiki revisa en `/interact/.../finish` una cookie de sesión que creó al inicio. Si la página de consentimiento pasa a otro navegador o a otra app en el medio, el grant falla con `invalid session`.
+- **Un WebView conserva la sesión, el navegador del sistema no permite scripts.** `ASWebAuthenticationSession` (iOS) y Custom Tabs (Android) comparten cookies con Safari o Chrome, y son la opción recomendada para un inicio de sesión real. Pero no se puede inyectar un script en ellos, así que ahí no es posible subir la clave automáticamente.
+- **La pantalla de consentimiento muestra el nombre del cliente.** Aquí el cliente es la dirección de billetera del propio usuario, así que la pantalla dice "just dollars is requesting access to $1.00". La Test Wallet muestra el monto, pero no el receptor.
+- **Complete el pago entrante.** Si no hay `incomingAmount`, nadie más lo hará.
+- **Revise la entrega del lado del receptor.** `sentAmount` usa la moneda de quien envía.
+- **La identidad dirigida no reemplaza la carga de la clave.** La opción más nueva `client: { jwk }` envía la clave pública en el cuerpo de la solicitud, pero solo funciona para grants no interactivos (pagos entrantes y cotizaciones). Los pagos salientes todavía necesitan una clave en `jwks.json`.
+- **iOS 27 necesita el ciclo de vida de escenas.** Con el SDK de iOS 27, las apps que no lo usan se cierran al abrirse. Expo SDK 57 ya trae el _scene delegate_; el repositorio incluye un pequeño plugin de configuración que lo activa.
+
+## Qué construir en el hackathon
+
+Algunas ideas, de fácil a difícil:
+
+- **Pedir dinero**: cree un pago entrante con un `incomingAmount` y compártalo como código QR.
+- **Dividir la cuenta**: envíe a varios contactos, con una confirmación para cada uno.
+- **Pagos recurrentes**: pida un grant de pago saliente con un `interval` (por ejemplo `R/2026-10-18T00:00:00Z/P1M`) y pague cada mes sin un nuevo consentimiento. Nuestra [PoC de suscripciones](/es/blog/subscriptions-with-open-payments-poc/) lo muestra en un servidor.
+- **Historial completo de la billetera**: pida un grant de solo lectura (`outgoing-payment` con `list` y `read`) y muestre todos los pagos, no solo los hechos desde la app.
+- **Android**: el código es multiplataforma, pero solo lo probamos en el simulador de iOS.
+
+## Cierre
+
+Esta PoC muestra que una app móvil puede trabajar con Open Payments de principio a fin:
+
+1. Guarda su propia clave.
+2. Se conecta a la billetera del usuario con una verificación de propiedad estándar.
+3. Envía dinero con una aprobación clara para cada pago.
+4. Termina el pago en ambos lados.
+
+El WebView dentro de la app es la razón por la que el usuario inicia sesión una sola vez.
+
+El código está en el [repositorio de la PoC](https://github.com/TODO/rafikiupclose). Es experimental y sirve como punto de partida, no como una billetera para producción. La documentación de Open Payments está en [openpayments.dev](https://openpayments.dev/). Si construye algo con esto, o se queda atascado, escríbanos en el [Slack de Interledger](https://join.slack.com/t/interledger/shared_invite/zt-44g089zrn-XdSIiHF~cs8Oo_MBmSfECA) o abra un issue en GitHub.
+
+¡Nos vemos en el hackathon! 🚀
