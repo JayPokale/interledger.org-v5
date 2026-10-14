@@ -1,3 +1,4 @@
+import { addTrailingSlash } from '../shared/url'
 import { defaultLocale, type Locale } from './locales'
 
 export const HOME_CONTENT_SLUG = 'home'
@@ -54,12 +55,8 @@ export function grantGranteeDirectoryPath(): string {
   return grantOverviewRouteParam(GRANT_GRANTEE_DIRECTORY_SLUG)
 }
 
+/** Locale-prefixed page path, always slashed: `/`, `/es/`, `/es/blog/`. */
 export function localizeRoute(basePath: string, locale: Locale): string {
-  const normalizedBasePath = normalizeBasePath(basePath)
-
-  if (locale === defaultLocale) {
-    return normalizedBasePath || '/'
-  }
-
-  return normalizedBasePath ? `/${locale}${normalizedBasePath}` : `/${locale}`
+  const localePrefix = locale === defaultLocale ? '' : `/${locale}`
+  return addTrailingSlash(`${localePrefix}${normalizeBasePath(basePath)}`)
 }
