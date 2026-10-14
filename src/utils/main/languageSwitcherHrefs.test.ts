@@ -5,8 +5,8 @@ import { describe, it, expect, vi } from 'vitest'
 // `astro:content`'s getCollection eagerly at import time to build
 // `translationMap` — mock all three (see breadcrumbs.test.ts / navigation.test.ts
 // for the same convention). An empty collection list keeps translationMap
-// empty, which is fine here: these cases all exercise the pagination-stripping
-// fix via the plain slug pass-through branch, not translationMap lookups.
+// empty, which is fine here: these cases exercise slug handling (pagination,
+// blog filters, the 404 page), not translationMap lookups.
 vi.mock('astro:config/client', () => ({
   i18n: { locales: ['en', 'es'], defaultLocale: 'en' }
 }))

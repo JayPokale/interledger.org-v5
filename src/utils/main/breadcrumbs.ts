@@ -52,8 +52,8 @@ function toLabel(segmentPath: string, segment: string, t: Translate): string {
  * `routeLocale` must be the URL locale (`Astro.locals.routeLocale`), not the
  * locale of the content entry being rendered. On a localized route that
  * falls back to EN content (`isFallback`), those two differ — using the
- * content locale here would generate non-localized hrefs (e.g. `/grant/faq`
- * instead of `/es/grant/faq`) and bounce visitors out of the localized site.
+ * content locale here would generate non-localized hrefs (e.g. `/grant/faq/`
+ * instead of `/es/grant/faq/`) and bounce visitors out of the localized site.
  */
 export function buildSectionEntryBreadcrumbs(
   pathSlug: string,

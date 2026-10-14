@@ -20,8 +20,8 @@
  * only a Force Reset production publish sets — see {@link isStrict}. A page
  * link without a trailing slash fails every build — see
  * {@link formatSlashlessReport}.
- * `INTERNAL_LINK_EXCEPTIONS` permanently exempts a target, each with a comment
- * saying why.
+ * `INTERNAL_LINK_EXCEPTIONS` permanently exempts a target from the findings,
+ * each with a comment saying why. It never exempts a slashless link.
  */
 import type { AstroIntegration, IntegrationResolvedRoute } from 'astro'
 import { readdir, readFile } from 'node:fs/promises'
@@ -81,7 +81,7 @@ const REASON_LABEL: Record<LinkFindingReason, string> = {
 
 const MAX_REPORTED = 25
 
-/** The 404 page's address: Netlify serves `404.html` at `/404`, never `/404/`. */
+/** The 404 page's address: Netlify serves `404.html` at `/404`, with no slash. */
 const NOT_FOUND_PATH = '/404'
 
 // ---------------------------------------------------------------------------

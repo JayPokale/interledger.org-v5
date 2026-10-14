@@ -662,7 +662,7 @@ describe('findBrokenRedirects', () => {
   })
 
   it('normalises a trailing slash on the destination', () => {
-    // Five real destinations are written this way; the index has no slash.
+    // Real destinations are written slashed; the index keys have no slash.
     expect(
       findBrokenRedirects(index(new Map([['/a', '/tech/overview/']])))
     ).toEqual([])
