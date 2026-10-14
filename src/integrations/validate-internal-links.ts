@@ -363,7 +363,7 @@ export function parseNetlifyRedirectRules(toml: string): NetlifyRedirect[] {
 const DEFAULT_REDIRECT_STATUS = 301
 
 /** From here up, a rule serves an error page rather than its destination. */
-const FIRST_ERROR_STATUS = 400
+export const FIRST_ERROR_STATUS = 400
 
 /** Parses a Netlify `_redirects` file: one `from to [status]` rule per line. */
 export function parseRedirectsFile(
