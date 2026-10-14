@@ -53,7 +53,7 @@ function buildBlogSwitchHref(
   const targetContentLang = contentLang ?? targetLocale
   const hasExplicitLang = contentLang !== undefined
   return joinPagePath(
-    localizeRoute(normalizeBasePath(basePath), targetLocale),
+    localizeRoute(basePath, targetLocale),
     term ? `${CATEGORY_SEGMENT}/${term}` : '',
     hasExplicitLang ? `lang/${targetContentLang}` : ''
   )

@@ -27,7 +27,7 @@ const t = useTranslations(lang)
 const { entry, year, isFallback = false } = Astro.props
 const speakers = await getSpeakers(year, entry.id)
 
-// the path for current summit is /summit, instead of /summit/{year}
+// the path for current summit is /summit/, instead of /summit/{year}/
 const baseHref = localizeRoute(currentBasePath, lang)
 const isCurrentYear = currentSummitYear === year
 const summitHref = joinPagePath(baseHref, isCurrentYear ? '' : year)

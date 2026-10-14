@@ -180,7 +180,7 @@ function decodeOrSelf(value: string): string {
 const FILE_EXTENSION = /\.[A-Za-z0-9]+$/
 
 /** True when the last segment ends in an extension: an asset, not a page. */
-function isFilePath(pathname: string): boolean {
+export function isFilePath(pathname: string): boolean {
   const lastSegment = pathname.slice(pathname.lastIndexOf('/') + 1)
   return FILE_EXTENSION.test(lastSegment)
 }
@@ -393,7 +393,7 @@ export function parseNetlifyRedirectRules(toml: string): NetlifyRedirect[] {
 const DEFAULT_REDIRECT_STATUS = 301
 
 /** From here up, a rule serves an error page rather than its destination. */
-export const FIRST_ERROR_STATUS = 400
+const FIRST_ERROR_STATUS = 400
 
 /** Parses a Netlify `_redirects` file: one `from to [status]` rule per line. */
 export function parseRedirectsFile(

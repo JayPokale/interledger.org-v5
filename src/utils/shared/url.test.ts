@@ -21,7 +21,9 @@ describe('joinPagePath', () => {
     ['/blog/', [], '/blog/'],
     ['/blog', ['', 'lang', '', 'es'], '/blog/lang/es/'],
     ['/', [''], '/'],
-    ['/', ['blog'], '/blog/']
+    ['/', ['blog'], '/blog/'],
+    ['/a', ['/b/', 'c/'], '/a/b/c/'],
+    ['/blog/', ['/', 'lang/es'], '/blog/lang/es/']
   ])('joins %j with %j into %j', (base, segments, expected) => {
     expect(joinPagePath(base, ...segments)).toBe(expected)
   })

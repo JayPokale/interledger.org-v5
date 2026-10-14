@@ -1076,6 +1076,15 @@ describe('validateInternalLinks', () => {
       expect(error?.message).toContain('2 link(s)')
     })
 
+    it('are not suppressed by INTERNAL_LINK_EXCEPTIONS', async () => {
+      const { error } = await runCheck(
+        { 'index.html': '<a href="/known-broken">x</a>' },
+        [],
+        { strict: false }
+      )
+      expect(error?.message).toContain('/known-broken (no trailing slash')
+    })
+
     it('pass the root, the 404 page and files', async () => {
       const { error } = await runCheck(
         {

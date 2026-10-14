@@ -9,10 +9,14 @@ export function addTrailingSlash(path: string): string {
 /**
  * Appends path segments to a page path and returns it slashed, e.g.
  * `('/blog', 'category', 'news')` → `/blog/category/news/`. Empty segments
- * are dropped, and a slashed or slashless base gives the same result.
+ * are dropped, and neither a trailing slash on the base nor slashes around a
+ * segment change the result.
  */
 export function joinPagePath(base: string, ...segments: string[]): string {
-  const parts = [base.replace(/\/$/, ''), ...segments.filter(Boolean)]
+  const parts = [
+    base.replace(/\/$/, ''),
+    ...segments.map(trimSlashes).filter(Boolean)
+  ]
   return addTrailingSlash(parts.join('/'))
 }
 
