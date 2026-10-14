@@ -20,14 +20,19 @@
 #    exist are served as files; missing ones stop here with a 404.
 # 3. The legacy /:year/:tag rules.
 #
+# Page destinations end in "/", except after :splat. The * keeps the
+# request's trailing slash, so ":splat/" would turn /all/x/2/ into …/2//.
+# Without it, /all/x/2/ redirects once; /all/x/2 gets a second 301 from
+# Netlify to add the slash.
+#
 # These live here, not in redirects.ts: Astro appends its rules after this
 # file and emits a dynamic [...page] destination as a literal "*", so every
 # match lands on a 404.
 
 /grant/grantee-directory/all/:tag    /grant/grantee-directory/tag/:tag/         301
-/grant/grantee-directory/all/:tag/*  /grant/grantee-directory/tag/:tag/:splat/  301
+/grant/grantee-directory/all/:tag/*  /grant/grantee-directory/tag/:tag/:splat    301
 /es/grant/grantee-directory/all/:tag    /es/grant/grantee-directory/tag/:tag/         301
-/es/grant/grantee-directory/all/:tag/*  /es/grant/grantee-directory/tag/:tag/:splat/  301
+/es/grant/grantee-directory/all/:tag/*  /es/grant/grantee-directory/tag/:tag/:splat    301
 
 /grant/grantee-directory/:year/tag/*    /404.html    404
 /grant/grantee-directory/tag/*          /404.html    404
@@ -35,6 +40,6 @@
 /es/grant/grantee-directory/tag/*          /404.html    404
 
 /grant/grantee-directory/:year/:tag    /grant/grantee-directory/:year/tag/:tag/         301
-/grant/grantee-directory/:year/:tag/*  /grant/grantee-directory/:year/tag/:tag/:splat/  301
+/grant/grantee-directory/:year/:tag/*  /grant/grantee-directory/:year/tag/:tag/:splat    301
 /es/grant/grantee-directory/:year/:tag    /es/grant/grantee-directory/:year/tag/:tag/         301
-/es/grant/grantee-directory/:year/:tag/*  /es/grant/grantee-directory/:year/tag/:tag/:splat/  301
+/es/grant/grantee-directory/:year/:tag/*  /es/grant/grantee-directory/:year/tag/:tag/:splat    301
