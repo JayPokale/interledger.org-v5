@@ -1,6 +1,11 @@
 import { switcherLocales, type Locale } from './locales'
 import { translationMap } from './translationMapData'
-import { localizeRoute, normalizeBasePath } from './routes'
+import {
+  HOME_CONTENT_SLUG,
+  NOT_FOUND_SLUG,
+  localizeRoute,
+  normalizeBasePath
+} from './routes'
 import { buildRoutePath } from './translatePath'
 import { CATEGORY_SEGMENT } from './tagFilter'
 import { hasStrippablePageNumber } from './paginatedRouteShape'
@@ -58,10 +63,15 @@ export function getLanguageSwitcherHrefs(
   currentSlug: string,
   currentBasePath: string
 ): Record<Locale, string> {
+  // The 404 page has no ES twin, so its switcher points to home.
+  const isNotFoundPage =
+    currentSlug === NOT_FOUND_SLUG && !normalizeBasePath(currentBasePath)
   // Switching locale always targets page 1 of the current section — a
   // paginated page number from one locale's listing has no guarantee of
   // existing (or meaning the same thing) in the other.
-  const slug = stripSlugPagination(currentBasePath, currentSlug)
+  const slug = isNotFoundPage
+    ? HOME_CONTENT_SLUG
+    : stripSlugPagination(currentBasePath, currentSlug)
   const fullSlug = normalizeBasePath(
     buildRoutePath(currentBasePath, slug)
   ).slice(1)

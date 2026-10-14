@@ -4,6 +4,9 @@ import { defaultLocale, type Locale } from './locales'
 export const HOME_CONTENT_SLUG = 'home'
 export const HACKATHON_HOME_SLUG = 'overview'
 
+/** Slug of the 404 page, served at `/404`. EN-only, so it has no translation. */
+export const NOT_FOUND_SLUG = '404'
+
 /** pathSlug for the primary grant overview at `/grant/our-grantmaking`. */
 export const GRANT_OVERVIEW_PRIMARY_SLUG = 'our-grantmaking'
 

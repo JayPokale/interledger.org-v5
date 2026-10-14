@@ -18,9 +18,21 @@ vi.mock('astro:content', async () => {
   return { z, getCollection: vi.fn().mockResolvedValue([]) }
 })
 
-const { getLanguageSwitcherHrefs } = await import('./languageSwitcherHrefs')
+const { getLanguageSwitcherHrefs, getAlternateLocaleHref } =
+  await import('./languageSwitcherHrefs')
 
 describe('getLanguageSwitcherHrefs', () => {
+  it('points the 404 page at home in every locale', () => {
+    expect(getLanguageSwitcherHrefs('404', '')).toEqual({ en: '/', es: '/es/' })
+  })
+
+  it('only treats 404 as the 404 page at the site root', () => {
+    expect(getLanguageSwitcherHrefs('404', '/grant')).toEqual({
+      en: '/grant/404/',
+      es: '/es/grant/404/'
+    })
+  })
+
   it('drops the page number for a paginated blog root page', () => {
     expect(getLanguageSwitcherHrefs('2', '/blog')).toEqual({
       en: '/blog/',
@@ -123,5 +135,11 @@ describe('getLanguageSwitcherHrefs', () => {
       en: '/podcast/category/2024/',
       es: '/es/podcast/category/2024/'
     })
+  })
+})
+
+describe('getAlternateLocaleHref', () => {
+  it('points the 404 page at the alternate home', () => {
+    expect(getAlternateLocaleHref('en', '404', '')).toBe('/es/')
   })
 })
