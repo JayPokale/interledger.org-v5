@@ -28,10 +28,6 @@ export { formatDocumentTitle } from './shared/documentTitle'
 export { twMerge } from './shared/twMerge'
 export { getVisiblePages } from './shared/pagination'
 export {
-  normalizeBlockIntro,
-  type NormalizedBlockIntro
-} from './shared/blockIntro'
-export {
   parseRedirectConfig,
   redirectTargetPath,
   toAstroRedirects
@@ -247,6 +243,10 @@ export {
   type ResolvedCtaLink
 } from './main/cta'
 export { isFundraiseUpElementHref } from './main/fundraiseUp'
+export {
+  normalizeBlockIntro,
+  type NormalizedBlockIntro
+} from './main/blockIntro'
 export {
   SELF_SPACED_BLOCKS,
   getPreviewBlockGapClass
