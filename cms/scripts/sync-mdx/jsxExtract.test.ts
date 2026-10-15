@@ -380,11 +380,11 @@ describe('getIntroAttr', () => {
     expect(getIntroAttr(node)).toEqual({ heading: 'Questions' })
   })
 
-  it('returns undefined when every field is empty', () => {
+  it('returns null when every field is empty', () => {
     expect(
       getIntroAttr(parseJsx('<Faq intro={{ heading: " " }} />'))
-    ).toBeUndefined()
-    expect(getIntroAttr(parseJsx('<Faq intro={{}} />'))).toBeUndefined()
+    ).toBeNull()
+    expect(getIntroAttr(parseJsx('<Faq intro={{}} />'))).toBeNull()
   })
 
   it.each([
@@ -411,13 +411,31 @@ describe('getIntroAttr', () => {
     )
   })
 
-  it('round-trips what serializeIntroProp writes, special characters included', () => {
-    const intro = {
-      heading: 'Braces } and { quotes "x"',
-      subheading: 'Back\\slash',
-      description: 'Line one with a [link](/x/).\n\n- item {a}\n- `code`'
-    }
+  it.each([
+    ['quotes and backslashes', { heading: 'Say "hi" \\ bye' }],
+    ['braces', { heading: 'a } b {', description: 'x {y} z' }],
+    [
+      'unicode and emoji',
+      { heading: 'Ñandú – 🚀', subheading: 'Line\u2028sep' }
+    ],
+    ['JSX-like text', { description: 'Use <Foo bar="1"> and </Faq> here.' }],
+    ['template syntax', { description: 'A `code` span and ${x}' }],
+    [
+      'markdown with newlines',
+      { description: 'One [link](/x/).\n\n- item\n- two' }
+    ]
+  ])('round-trips %s from serializeIntroProp', (_label, intro) => {
     const node = parseJsx(`<Faq${serializeIntroProp(intro)} />`)
     expect(getIntroAttr(node)).toEqual(intro)
+  })
+
+  it('reads an intro that prettier reformatted', () => {
+    const node = parseJsx(
+      "<Faq\n  intro={{\n    heading: 'Questions',\n    description: 'Ask us.'\n  }}\n/>"
+    )
+    expect(getIntroAttr(node)).toEqual({
+      heading: 'Questions',
+      description: 'Ask us.'
+    })
   })
 })

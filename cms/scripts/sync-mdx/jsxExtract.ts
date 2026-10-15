@@ -15,7 +15,7 @@ import {
   BLOCK_INTRO_FIELDS,
   type BlockIntroField,
   type SerializedBlockIntro
-} from '../../src/utils/blockIntro'
+} from '../../src/utils/contentTypes'
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -694,8 +694,11 @@ function isBlockIntroField(key: string): key is BlockIntroField {
  * Extract the `intro` prop that `serializeIntroProp` writes: a static object
  * with optional `heading`, `subheading` and `description` strings. Values are
  * trimmed and empty ones dropped, so the result maps straight onto the
- * `shared.block-intro` component. Returns `undefined` when the prop is absent
- * or every field is empty.
+ * `shared.block-intro` component.
+ *
+ * Returns `undefined` when the prop is absent and `null` when it is present
+ * with every field empty. A handler passes either on as `intro: null`, so
+ * removing an intro from the MDX clears it in Strapi.
  *
  * An unknown key throws rather than being dropped, so a typo such as `title`
  * fails the sync instead of losing the author's text on the next export.
@@ -708,7 +711,7 @@ function isBlockIntroField(key: string): key is BlockIntroField {
  */
 export function getIntroAttr(
   node: JsxBlockNode
-): SerializedBlockIntro | undefined {
+): SerializedBlockIntro | null | undefined {
   const value = getStaticLiteralAttr(node, 'intro')
   if (value === undefined) return undefined
 
@@ -743,7 +746,7 @@ export function getIntroAttr(
     if (text) intro[key] = text
   }
 
-  return Object.keys(intro).length > 0 ? intro : undefined
+  return Object.keys(intro).length > 0 ? intro : null
 }
 
 // ---------------------------------------------------------------------------
