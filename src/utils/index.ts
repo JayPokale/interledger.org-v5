@@ -28,6 +28,10 @@ export { formatDocumentTitle } from './shared/documentTitle'
 export { twMerge } from './shared/twMerge'
 export { getVisiblePages } from './shared/pagination'
 export {
+  normalizeBlockIntro,
+  type NormalizedBlockIntro
+} from './shared/blockIntro'
+export {
   parseRedirectConfig,
   redirectTargetPath,
   toAstroRedirects
