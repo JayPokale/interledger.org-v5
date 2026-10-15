@@ -75,60 +75,6 @@
       --space-section: calc(var(--spacing-4xl) * 2);
     }
 
-    /* Block intro and block spacing (INTORG-1154, Figma "Spacing
-       Consistency" board). A block with `data-intro-variant` owns its own
-       spacing: the intro supplies the top, `--block-pb` the bottom.
-
-       The intro spacers are padding, never margin, so they add up and never
-       collapse, which is how the design builds them. Each spacer belongs to
-       the element above it and disappears with it:
-
-         --intro-top      above the intro, whenever it has content
-         --intro-h2-pt    above the heading text
-         --intro-h2-h3    below the heading
-         --intro-h3-pt    above the subheading text
-         --intro-h3-desc  below the subheading
-         --intro-desc     below the description
-
-       Two blocks therefore sit pb + top + h2-pt = 72/96/120 apart, heading
-       to content, and the desktop value equals --space-section.
-
-       --media-pt/--media-pb pad an image, table or list inside a Paragraph
-       block. Variant overrides are under [data-intro-variant] below. */
-    --intro-top: var(--spacing-xl);
-    --intro-h2-pt: var(--spacing-xl);
-    --intro-h2-h3: var(--spacing-3xl-tight);
-    --intro-h3-pt: var(--spacing-lg);
-    --intro-h3-desc: var(--spacing-xl);
-    --intro-desc: var(--spacing-xl);
-    --block-pb: var(--spacing-xl);
-    --media-pt: var(--spacing-xl);
-    --media-pb: var(--spacing-xl);
-
-    @variant tablet {
-      --intro-top: var(--spacing-2xl);
-      --intro-h2-pt: var(--spacing-2xl);
-      --intro-h2-h3: var(--spacing-3xl);
-      --intro-h3-pt: var(--spacing-xl);
-      --intro-h3-desc: var(--spacing-2xl);
-      --intro-desc: var(--spacing-2xl);
-      --block-pb: var(--spacing-2xl);
-      --media-pt: var(--spacing-2xl);
-      --media-pb: var(--spacing-2xl);
-    }
-
-    @variant desktop {
-      --intro-top: var(--spacing-3xl-tight);
-      --intro-h2-pt: var(--spacing-3xl-tight);
-      --intro-h2-h3: var(--spacing-4xl);
-      --intro-h3-pt: var(--spacing-2xl);
-      --intro-h3-desc: var(--spacing-3xl-tight);
-      --intro-desc: var(--spacing-4xl);
-      --block-pb: var(--spacing-3xl-tight);
-      --media-pt: var(--spacing-4xl);
-      --media-pb: var(--spacing-3xl-tight);
-    }
-
     /* Homepage hero layout (referenced from HomepageHero.astro utilities).
        54rem lets the 76/84 title wrap to two lines, not three. */
     --layout-homepage-hero-copy-max-lg: 54rem;
@@ -171,6 +117,67 @@
   }
   [data-pillar='values'] {
     --color-primary: var(--color-orchid-100);
+  }
+
+  /* Block intro and block spacing (INTORG-1154, Figma "Spacing
+     Consistency" board). A block with `data-intro-variant` owns its own
+     spacing: the intro supplies the top, `--block-pb` the bottom.
+
+     The intro spacers are padding, never margin, so they add up and never
+     collapse, which is how the design builds them. Each spacer belongs to
+     the element above it and disappears with it:
+
+       --intro-top      above the intro, whenever it has content
+       --intro-h2-pt    above the heading text
+       --intro-h2-h3    below the heading
+       --intro-h3-pt    above the subheading text
+       --intro-h3-desc  below the subheading
+       --intro-desc     below the description
+
+     Two blocks therefore sit pb + top + h2-pt = 72/96/120 apart, heading
+     to content, and the desktop value equals --space-section.
+
+     --media-pt/--media-pb pad an image, table or list inside a Paragraph
+     block.
+
+     Declared on every intro block as well as on :root, so a block nested in
+     another (say inside a Split layout) starts from the defaults again
+     instead of inheriting its parent's variant overrides below. */
+  :root,
+  [data-intro-variant] {
+    --intro-top: var(--spacing-xl);
+    --intro-h2-pt: var(--spacing-xl);
+    --intro-h2-h3: var(--spacing-3xl-tight);
+    --intro-h3-pt: var(--spacing-lg);
+    --intro-h3-desc: var(--spacing-xl);
+    --intro-desc: var(--spacing-xl);
+    --block-pb: var(--spacing-xl);
+    --media-pt: var(--spacing-xl);
+    --media-pb: var(--spacing-xl);
+
+    @variant tablet {
+      --intro-top: var(--spacing-2xl);
+      --intro-h2-pt: var(--spacing-2xl);
+      --intro-h2-h3: var(--spacing-3xl);
+      --intro-h3-pt: var(--spacing-xl);
+      --intro-h3-desc: var(--spacing-2xl);
+      --intro-desc: var(--spacing-2xl);
+      --block-pb: var(--spacing-2xl);
+      --media-pt: var(--spacing-2xl);
+      --media-pb: var(--spacing-2xl);
+    }
+
+    @variant desktop {
+      --intro-top: var(--spacing-3xl-tight);
+      --intro-h2-pt: var(--spacing-3xl-tight);
+      --intro-h2-h3: var(--spacing-4xl);
+      --intro-h3-pt: var(--spacing-2xl);
+      --intro-h3-desc: var(--spacing-3xl-tight);
+      --intro-desc: var(--spacing-4xl);
+      --block-pb: var(--spacing-3xl-tight);
+      --media-pt: var(--spacing-4xl);
+      --media-pb: var(--spacing-3xl-tight);
+    }
   }
 
   /* Block intro variants: only the spacers that differ from Universal.

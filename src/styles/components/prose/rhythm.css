@@ -106,9 +106,10 @@
     }
 
     /* Transitional (INTORG-1154): a page mixing blocks that own their
-       spacing with legacy ones. Two self-spaced blocks meet at
-       --block-pb + intro, which totals --space-section on desktop. These
-       rules give a legacy neighbour the same total:
+       spacing with legacy ones. An intro block opens with its intro
+       (--intro-top plus the heading's padding) and closes with
+       --block-pb; on desktop the two add up to --space-section when the
+       intro has a heading. These rules give a legacy neighbour the same:
 
        - Before an intro block, the legacy element stands in for the
          padding-bottom it doesn't have yet.
@@ -117,14 +118,29 @@
          same on that h2, whose own section margin would otherwise collapse
          through the wrapper and win.
 
+       An intro block with an empty intro has no top, so a legacy element
+       sits --block-pb above it: the minimum A2 of the spec gives every
+       block. Astro emits a component's <script> as its next sibling, so
+       each rule also reaches across one script. CtaButtons and CtaLink set
+       their bottom margin with a utility, which this layer cannot beat;
+       they handle the intro block themselves.
+
        Each selector matches the block rule's specificity or beats it, and
        comes after it. Delete once every block owns its spacing. */
-    > :not([data-intro-variant]):has(+ [data-intro-variant]) {
+    > :not([data-intro-variant], script):has(
+        + [data-intro-variant],
+        + script + [data-intro-variant]
+      ) {
       margin-block-end: var(--block-pb);
     }
 
-    > [data-intro-variant] + :not([data-intro-variant]),
-    > [data-intro-variant] + [data-component='Paragraph'] > h2:first-child {
+    > [data-intro-variant] + :not([data-intro-variant], script),
+    > [data-intro-variant] + script + :not([data-intro-variant], script),
+    > [data-intro-variant] + [data-component='Paragraph'] > h2:first-child,
+    > [data-intro-variant]
+      + script
+      + [data-component='Paragraph']
+      > h2:first-child {
       margin-block-start: calc(var(--space-section) - var(--block-pb));
     }
 
