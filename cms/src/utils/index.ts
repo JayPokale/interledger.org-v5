@@ -214,6 +214,15 @@ export {
   removeLocalizesFromLocaleFiles
 } from './localeMdxUtils'
 
+// Block intro (serializers, sync handlers)
+export {
+  BLOCK_INTRO_FIELDS,
+  normalizeBlockIntro,
+  serializeIntroProp,
+  type BlockIntroField,
+  type SerializedBlockIntro
+} from './blockIntro'
+
 // Report text types (serializers, sync handlers)
 export {
   REPORT_TEXT_TYPES,
