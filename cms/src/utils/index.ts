@@ -2,7 +2,7 @@
 export { tryCatchAsync } from './tryCatch'
 
 // Shared content-type shapes
-export { type AuthorBio } from './contentTypes'
+export { type AuthorBio, type BlockIntroInput } from './contentTypes'
 
 // Code block
 export { CODE_BLOCK_LANGUAGES, type CodeBlockLanguage } from './codeBlock'

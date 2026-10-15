@@ -14,3 +14,15 @@ export interface AuthorBio {
     alternativeText?: string | null
   }
 }
+
+/**
+ * Shape of the `shared.block-intro` Strapi component, the optional intro on a
+ * dynamic-zone block. `description` is CKEditor markdown. Mirrors `BlockIntro`
+ * in src/types/blockIntro.ts.
+ */
+export interface BlockIntroInput {
+  // Nullable: Strapi returns an unset field of a saved component as null.
+  heading?: string | null
+  subheading?: string | null
+  description?: string | null
+}
