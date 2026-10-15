@@ -11,8 +11,10 @@ import {
   getStringArrayAttr,
   getChildElements,
   getMismatchedChildElements,
-  getLooseChildText
+  getLooseChildText,
+  getIntroAttr
 } from './jsxExtract'
+import { serializeIntroProp } from '../../src/utils/blockIntro'
 import { MdxParserError, ParserErrorCode } from './parserErrors'
 
 // ---------------------------------------------------------------------------
@@ -348,5 +350,74 @@ describe('getLooseChildText', () => {
   it('returns null when there are no children', () => {
     const node = parseJsx('<Grid />')
     expect(getLooseChildText(node)).toBeNull()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// getIntroAttr
+// ---------------------------------------------------------------------------
+
+describe('getIntroAttr', () => {
+  it('returns undefined when the prop is absent', () => {
+    expect(getIntroAttr(parseJsx('<Faq />'))).toBeUndefined()
+  })
+
+  it('extracts a full intro', () => {
+    const node = parseJsx(
+      '<Faq intro={{"heading":"Questions","subheading":"Sub","description":"Ask **us**."}} />'
+    )
+    expect(getIntroAttr(node)).toEqual({
+      heading: 'Questions',
+      subheading: 'Sub',
+      description: 'Ask **us**.'
+    })
+  })
+
+  it('accepts unquoted keys and drops empty or null fields', () => {
+    const node = parseJsx(
+      '<Faq intro={{ heading: " Questions ", subheading: "", description: null }} />'
+    )
+    expect(getIntroAttr(node)).toEqual({ heading: 'Questions' })
+  })
+
+  it('returns undefined when every field is empty', () => {
+    expect(
+      getIntroAttr(parseJsx('<Faq intro={{ heading: " " }} />'))
+    ).toBeUndefined()
+    expect(getIntroAttr(parseJsx('<Faq intro={{}} />'))).toBeUndefined()
+  })
+
+  it.each([
+    ['a string', '<Faq intro="Questions" />'],
+    ['an array', '<Faq intro={["Questions"]} />'],
+    ['null', '<Faq intro={null} />'],
+    ['an unknown key', '<Faq intro={{ title: "Questions" }} />'],
+    ['a non-string field', '<Faq intro={{ heading: 42 }} />']
+  ])('rejects %s', (_label, mdx) => {
+    expect(() => getIntroAttr(parseJsx(mdx))).toThrow(
+      expect.objectContaining({
+        code: ParserErrorCode.INVALID_PROP_VALUE,
+        component: 'Faq',
+        prop: 'intro'
+      })
+    )
+  })
+
+  it('rejects a dynamic expression', () => {
+    expect(() =>
+      getIntroAttr(parseJsx('<Faq intro={{ heading: someVar }} />'))
+    ).toThrow(
+      expect.objectContaining({ code: ParserErrorCode.DYNAMIC_EXPRESSION })
+    )
+  })
+
+  it('round-trips what serializeIntroProp writes, special characters included', () => {
+    const intro = {
+      heading: 'Braces } and { quotes "x"',
+      subheading: 'Back\\slash',
+      description: 'Line one with a [link](/x/).\n\n- item {a}\n- `code`'
+    }
+    const node = parseJsx(`<Faq${serializeIntroProp(intro)} />`)
+    expect(getIntroAttr(node)).toEqual(intro)
   })
 })
