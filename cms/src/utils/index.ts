@@ -2,7 +2,13 @@
 export { tryCatchAsync } from './tryCatch'
 
 // Shared content-type shapes
-export { type AuthorBio, type BlockIntroInput } from './contentTypes'
+export {
+  type AuthorBio,
+  BLOCK_INTRO_FIELDS,
+  type BlockIntroField,
+  type BlockIntroInput,
+  type SerializedBlockIntro
+} from './contentTypes'
 
 // Code block
 export { CODE_BLOCK_LANGUAGES, type CodeBlockLanguage } from './codeBlock'
@@ -215,13 +221,7 @@ export {
 } from './localeMdxUtils'
 
 // Block intro (serializers, sync handlers)
-export {
-  BLOCK_INTRO_FIELDS,
-  normalizeBlockIntro,
-  serializeIntroProp,
-  type BlockIntroField,
-  type SerializedBlockIntro
-} from './blockIntro'
+export { normalizeBlockIntroForMdx, serializeIntroProp } from './blockIntro'
 
 // Report text types (serializers, sync handlers)
 export {

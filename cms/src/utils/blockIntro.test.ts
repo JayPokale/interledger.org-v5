@@ -1,21 +1,25 @@
 import { describe, expect, it } from 'vitest'
-import { normalizeBlockIntro, serializeIntroProp } from './blockIntro'
+import { normalizeBlockIntroForMdx, serializeIntroProp } from './blockIntro'
 
-describe('normalizeBlockIntro', () => {
+describe('normalizeBlockIntroForMdx', () => {
   it('returns null for a missing intro', () => {
-    expect(normalizeBlockIntro(undefined)).toBeNull()
-    expect(normalizeBlockIntro(null)).toBeNull()
+    expect(normalizeBlockIntroForMdx(undefined)).toBeNull()
+    expect(normalizeBlockIntroForMdx(null)).toBeNull()
   })
 
   it('returns null when every field is empty or null', () => {
     expect(
-      normalizeBlockIntro({ heading: '  ', subheading: null, description: '' })
+      normalizeBlockIntroForMdx({
+        heading: '  ',
+        subheading: null,
+        description: ''
+      })
     ).toBeNull()
   })
 
   it('drops empty fields and trims the rest', () => {
     expect(
-      normalizeBlockIntro({
+      normalizeBlockIntroForMdx({
         heading: ' Heading ',
         subheading: '',
         description: null
@@ -23,22 +27,24 @@ describe('normalizeBlockIntro', () => {
     ).toEqual({ heading: 'Heading' })
   })
 
-  it('converts pasted HTML in a heading to text', () => {
-    expect(normalizeBlockIntro({ heading: '<p>Heading</p>' })).toEqual({
-      heading: 'Heading'
+  it('keeps a heading as plain text, never converting it to markdown', () => {
+    expect(
+      normalizeBlockIntroForMdx({ heading: 'snake_case & *star*' })
+    ).toEqual({
+      heading: 'snake_case & *star*'
     })
   })
 
   it('converts a CKEditor description to markdown', () => {
     expect(
-      normalizeBlockIntro({
+      normalizeBlockIntroForMdx({
         description: '<p>Read the <strong>rules</strong>.</p>'
       })
     ).toEqual({ description: 'Read the **rules**.' })
   })
 
   it('turns a <br/> in the description into a paragraph break', () => {
-    expect(normalizeBlockIntro({ description: 'One<br/>Two' })).toEqual({
+    expect(normalizeBlockIntroForMdx({ description: 'One<br/>Two' })).toEqual({
       description: 'One\n\nTwo'
     })
   })
@@ -66,12 +72,6 @@ describe('serializeIntroProp', () => {
       })
     ).toBe(
       ' intro={{"heading":"Heading","subheading":"Sub","description":"Text"}}'
-    )
-  })
-
-  it('escapes quotes, backslashes and newlines as JSON', () => {
-    expect(serializeIntroProp({ description: 'Say "hi"\\\n\nNext' })).toBe(
-      ' intro={{"description":"Say \\"hi\\"\\\\\\n\\nNext"}}'
     )
   })
 

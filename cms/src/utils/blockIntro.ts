@@ -1,40 +1,25 @@
-import type { BlockIntroInput } from './contentTypes'
 import {
-  ckeditorFieldToParsedMarkdown,
-  htmlToMarkdown,
-  looksLikeHtmlField
-} from './mdx'
+  BLOCK_INTRO_FIELDS,
+  type BlockIntroField,
+  type BlockIntroInput,
+  type SerializedBlockIntro
+} from './contentTypes'
+import { ckeditorFieldToParsedMarkdown } from './mdx'
 
-/** Fields of `shared.block-intro`, in the order they are written to MDX. */
-export const BLOCK_INTRO_FIELDS = [
-  'heading',
-  'subheading',
-  'description'
-] as const satisfies ReadonlyArray<keyof BlockIntroInput>
-
-export type BlockIntroField = (typeof BLOCK_INTRO_FIELDS)[number]
-
-/** A block intro as written to MDX: trimmed, with empty fields left out. */
-export type SerializedBlockIntro = Partial<Record<BlockIntroField, string>>
-
-// heading and subheading are plain strings, converted only if pasted HTML
-// slipped in. description is CKEditor markdown that the site renders with
-// parseMarkdown, so a <br/> has to become a paragraph break.
-function normalizePlainText(value: string): string {
-  return (looksLikeHtmlField(value) ? htmlToMarkdown(value) : value).trim()
-}
-
+// heading and subheading are plain-text string fields, rendered as text, so
+// they are only trimmed. description is CKEditor markdown that the site
+// renders with parseMarkdown, so a <br/> has to become a paragraph break.
 function normalizeField(field: BlockIntroField, value: string): string {
   return field === 'description'
     ? ckeditorFieldToParsedMarkdown(value)
-    : normalizePlainText(value)
+    : value.trim()
 }
 
 /**
  * Normalizes a `shared.block-intro` component, or returns `null` when no
  * field has content, so an empty intro writes nothing to MDX.
  */
-export function normalizeBlockIntro(
+export function normalizeBlockIntroForMdx(
   intro: BlockIntroInput | null | undefined
 ): SerializedBlockIntro | null {
   if (!intro) return null
@@ -62,9 +47,9 @@ export function normalizeBlockIntro(
 export function serializeIntroProp(
   intro: BlockIntroInput | null | undefined
 ): string {
-  const normalized = normalizeBlockIntro(intro)
+  const normalized = normalizeBlockIntroForMdx(intro)
   if (!normalized) return ''
 
-  // normalizeBlockIntro adds the keys in BLOCK_INTRO_FIELDS order.
+  // normalizeBlockIntroForMdx adds the keys in BLOCK_INTRO_FIELDS order.
   return ` intro={${JSON.stringify(normalized)}}`
 }
