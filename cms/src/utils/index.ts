@@ -89,6 +89,7 @@ export {
   type HeroCta,
   heroFrontmatter,
   getPreservedFields,
+  draftFrontmatter,
   MATTER_STRINGIFY_OPTIONS,
   yamlSingleQuoteScalar,
   yamlLiteralBlockScalar,

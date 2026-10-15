@@ -397,6 +397,8 @@ Each style has up to three tiers (Mobile → Tablet → Desktop). Apply via Tail
 
 Each `text-*` utility carries font-size, line-height, and font-weight together. Breakpoints follow `tablet:` (≥810px) and `desktop:` (≥1200px) from `tailwind.config.mjs`. `md:` (≥768px) and `lg:` (≥1024px) are Tailwind defaults retained for legacy code; use `tablet:` / `desktop:` for redesign work.
 
+Header nav layout uses its own pair, `nav-bar:` (full menu bar) and `nav-drawer:` (hamburger drawer), defined in `tailwind.css`. They switch at 1360px inside `.foundation-header`, where the ES labels need the room, and at 1200px in every other header. Use them, not `desktop:`, for anything that differs between the bar and the drawer. Header height stays on `desktop:`, because page offsets depend on it.
+
 #### Bare headings already get the right size — don't add the class above by default
 
 `base/reset.css` sets `h1`–`h6` to their matching `text-h*` token automatically (`h6` shares `h5`, since no `--text-h6` token exists):
@@ -575,6 +577,8 @@ Use `@utility` in `src/styles/utilities/` when a single `@theme` token isn't eno
 ```
 
 Import the new file from `tailwind.css` so it lands in the utilities layer.
+
+**Next to `animation-timeline`, keep `animation` a `var()` or use the longhands.** The example is safe only because its shorthand is a `var()`. With a literal value (`animation: rise 1s linear both`), the build minifier folds the timeline into the shorthand, browsers reject the result, and the animation is static in production while `astro dev` still animates it. Use `animation-name`, `animation-duration` and the other longhands instead. For a full view range, write `animation-range: cover`, not `entry 0% exit 100%`: the minifier turns the end into `exit 0%`. `src/scrollDrivenAnimations.test.ts` checks both.
 
 **Don't name a `@utility` the same as an existing `--<namespace>-*` token** (e.g. `@utility animate-fade-in` alongside `--animate-fade-in`) — they collide and the `@utility` can be silently dropped. Either use a different class name (as `animate-rise-in-view` does, consuming `--animate-scroll-rise` via `var()`) or skip the token.
 

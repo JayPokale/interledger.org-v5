@@ -1,5 +1,11 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { panelMaxHeightSteps, panelOverflowShift } from './header-nav'
+import {
+  DEFAULT_NAV_BAR_QUERY,
+  FOUNDATION_NAV_BAR_QUERY,
+  panelMaxHeightSteps,
+  panelOverflowShift
+} from './header-nav'
 
 const state = (overrides: Partial<Parameters<typeof panelMaxHeightSteps>[0]>) =>
   panelMaxHeightSteps({
@@ -59,5 +65,37 @@ describe('panelOverflowShift', () => {
 
   it('pins the left edge when the panel is wider than the space', () => {
     expect(panelOverflowShift(450, 1800, VIEWPORT)).toBe(GUTTER - 450)
+  })
+})
+
+describe('nav bar queries', () => {
+  const tailwindCss = readFileSync('src/styles/tailwind.css', 'utf8')
+
+  /** The widths a nav variant in tailwind.css compares against, in order. */
+  const variantWidths = (name: string, operator: '>=' | '<') => {
+    const variant = tailwindCss.match(
+      new RegExp(`@custom-variant ${name} \\{[\\s\\S]*?\\n\\}`)
+    )?.[0]
+    return [
+      ...(variant ?? '').matchAll(new RegExp(`width ${operator} (\\d+px)`, 'g'))
+    ].map((match) => match[1])
+  }
+
+  const queryWidth = (query: string) => query.match(/(\d+px)/)?.[1]
+  const expectedWidths = [
+    queryWidth(FOUNDATION_NAV_BAR_QUERY),
+    queryWidth(DEFAULT_NAV_BAR_QUERY)
+  ]
+
+  // The JS drawer state and the CSS layout must flip at the same width, or
+  // the bar renders with an inert, offscreen menu (or the reverse).
+  it('match the widths in the nav-bar CSS variant', () => {
+    expect(variantWidths('nav-bar', '>=')).toEqual(expectedWidths)
+  })
+
+  // nav-drawer must end exactly where nav-bar starts. A gap leaves a band
+  // with neither layout, and an overlap applies both at once.
+  it('match the widths in the nav-drawer CSS variant', () => {
+    expect(variantWidths('nav-drawer', '<')).toEqual(expectedWidths)
   })
 })

@@ -30,8 +30,8 @@ const navLinkClass =
 const labelSpanClass =
   'relative inline-block after:absolute after:inset-x-0 after:-bottom-[4px] after:h-[2px] ' +
   'after:origin-left after:bg-current after:scale-x-0 after:transition-transform after:duration-200 after:ease-out after:content-[""] ' +
-  'after:hidden desktop:after:block desktop:group-hover/navlink:after:scale-x-100 desktop:group-focus-visible/navlink:after:scale-x-100 ' +
-  'desktop:group-data-[active=true]/navlink:after:scale-x-100 group-data-[active=true]/navlink:after:transition-none ' +
+  'after:hidden nav-bar:after:block nav-bar:group-hover/navlink:after:scale-x-100 nav-bar:group-focus-visible/navlink:after:scale-x-100 ' +
+  'nav-bar:group-data-[active=true]/navlink:after:scale-x-100 group-data-[active=true]/navlink:after:transition-none ' +
   'motion-reduce:after:transition-none'
 
 const className = [
@@ -39,8 +39,8 @@ const className = [
   'text-base',
   itemTextClass,
   'block',
-  'max-desktop:-mx-lg max-desktop:px-lg max-desktop:py-md',
-  'px-0 desktop:py-md desktop:pe-md'
+  'nav-drawer:-mx-lg nav-drawer:px-lg nav-drawer:py-md',
+  'px-0 nav-bar:py-md nav-bar:pe-md'
 ].join(' ')
 ---
 
