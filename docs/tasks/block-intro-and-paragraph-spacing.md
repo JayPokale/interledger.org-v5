@@ -1,0 +1,134 @@
+# Block intro and block spacing: implementation plan
+
+> Status 2026-10-15. Implementation phases for INTORG-1154. **The definitions live in [ADR-009: Every block owns its intro and its spacing](../decisions/009-block-intro-and-block-owned-spacing.md)**: the global spec (A0–A6), the per-block spec (B1–B14), the decisions (D1–D8) and the open design items (E-Q1–E-Q17). IDs below link to those sections. All values are written **Mobile / Tablet / Desktop**.
+
+## Phases
+
+Each phase is one PR into `staging`.
+
+### Phase 0: Foundation (no visual change)
+
+1. **`cms/src/components/shared/block-intro.json`:** `heading` and `subheading` (localized strings), and `description` (CKE `basicMarkdownPreset`, localized). Regenerate `contentTypes.d.ts`.
+2. **Types:**
+   - `src/types/`: `BlockIntro` and `BlockIntroVariant = 'universal' | 'button-cta' | 'profile-grid' | 'split-layout'`.
+   - CMS: a matching input type.
+3. **Tokens** in `src/styles/base/variables.css`, following the `--space-section` `@variant` pattern:
+   - `--intro-top`, `--intro-h2-pt`, `--intro-h3-pt`, `--intro-h2-h3`, `--intro-h3-desc`, `--intro-desc`
+   - `--block-pb`
+   - `--media-pt` / `--media-pb` ([A5](../decisions/009-block-intro-and-block-owned-spacing.md#a5-paragraph-block-media-image--video-table-list))
+   - variant overrides for Split layout (desktop) and Button CTA, via `[data-intro-variant=…]`
+4. **`src/components/shared/BlockIntro.astro`:**
+   - `<header>` with an optional `<h2 id>`, `<h3>` and description (through `parseMarkdown`)
+   - padding-based spacers, with the [A1](../decisions/009-block-intro-and-block-owned-spacing.md#a1-intro-every-block) conditions
+   - renders nothing when the intro is empty
+5. **Self-spacing hook:**
+   - The block root gets `data-intro-variant`. `block-intro.css` gives it `padding-block-end: var(--block-pb)`.
+   - `rhythm.css` excludes these blocks from the `--space-section` margin, and adds the transitional rules for mixed pages ([how spacing ownership works](../decisions/009-block-intro-and-block-owned-spacing.md#how-spacing-ownership-works)).
+   - `DynamicZone.astro` skips `mt-section` for them.
+6. **Serializer helper** `serializeIntroProp(intro)` in `cms/src/utils/blockIntro.ts`, exported from the barrel. Normalise the description like Agenda does. Braces need no escaping: MDX parses the expression with acorn.
+7. **Sync helper** `getIntroAttr(node)` in `cms/scripts/sync-mdx/jsxExtract.ts`, with shape validation that throws `MdxParserError` on a bad shape.
+8. **Tests:**
+   - BlockIntro drop rules
+   - serializer empty, partial and full
+   - sync round-trip and malformed input
+   - special characters round-trip
+
+**Phase 0 review follow-ups** (left open on purpose; settle before or during the phase named):
+
+- **Phase 1, first block on the page.** An intro block that is the first child of the prose keeps its intro padding (80 on desktop) on top of the page's own gap. Today a first block's margin is zeroed. Decide whether the intro's top spacer drops when the block opens the page.
+- **Phase 1, `aria-labelledby`.** Only the h2 gets `headingId`. A block must label its `<section>` only when the intro has a heading (use `normalizeBlockIntro`). An intro with a subheading but no heading renders an h3 with no h2 above it; flag that to design.
+- **Phase 1, sync handlers.** `getIntroAttr` returns `undefined` (prop absent) or `null` (all fields empty). Both map to `intro: null` in Strapi.
+- **Phase 1, preview list.** `SELF_SPACED_BLOCKS` (`src/utils/main/dynamicZoneSpacing.ts`) must list every block that sets `data-intro-variant`. Add a test that ties the two together when the first block is migrated. In the preview, an intro block at the end keeps its 40 bottom padding, which the live page drops.
+- **Phase 2, `page-stack`.** `page-stack` (`utilities/spacing.css`) still adds `--space-section` between `<main>` sections. Exclude `[data-intro-variant]` there before InfoCards and GrantFaqSection adopt the intro.
+- **Known transitional gaps.** A fake-intro Paragraph (ending on `## Heading`) before an intro block gives 128 on desktop, not 120. A legacy block before an intro block whose intro is empty sits 40 above it ([A2](../decisions/009-block-intro-and-block-owned-spacing.md#a2-block-padding-bottom-every-block-including-paragraph)'s minimum).
+
+### Phase 1: Pilot (CardGrid, FAQ, NumberTiles)
+
+Per block, following the dynamic-zone block checklist:
+
+- **Schema:** add `intro`, keeping `title`/`heading` for now.
+- **Serializer:** emit `intro`, falling back to the legacy field.
+- **Sync handler:** reads `intro` and still accepts the legacy attribute.
+- **Component:** renders `<BlockIntro>`, keeps `aria-labelledby`, sets `data-intro-variant`.
+
+Then:
+
+- Run the migration script (`cms/scripts/migrate-block-intro.ts`, with `--dry-run` and `--fold` for fake intros), then `sync:mdx`.
+- Follow-up PR: remove the legacy fields.
+
+Restyle to the spec in the same PR:
+
+| Block       | Spec                                                                                      | Changes                                                                                                                              |
+| ----------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| CardGrid    | [B11](../decisions/009-block-intro-and-block-owned-spacing.md#b11-card-grid-547468122)    | mobile gap 16; Info-card no-image padding and gap 24; body colour `neutral-100`                                                      |
+| FAQ         | [B9](../decisions/009-block-intro-and-block-owned-spacing.md#b9-faq-547471806)            | mobile item pb 16                                                                                                                    |
+| NumberTiles | [B10](../decisions/009-block-intro-and-block-owned-spacing.md#b10-number-tiles-547167951) | 1 / 2 / 4 columns; gaps 48 / 48 / 0; mobile number 40/48; suffix 28/36 Medium, top-aligned; remove StatCard's leftover right padding |
+
+### Phase 2: Remaining blocks
+
+Same recipe as Phase 1. Restyle each one to its section of the ADR's [per-block spec](../decisions/009-block-intro-and-block-owned-spacing.md#b-per-block-spec).
+
+| Block                              | Variant      | Today                                           | Notes                                                                                                                                                                                                                                                                           |
+| ---------------------------------- | ------------ | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ImageBlock, VideoEmbed             | universal    | none                                            | [B3](../decisions/009-block-intro-and-block-owned-spacing.md#b3-image--video-embed-543142614), radius 24                                                                                                                                                                        |
+| PdfEmbed                           | universal    | none                                            | [B8](../decisions/009-block-intro-and-block-owned-spacing.md#b8-pdf-embed-546866900): container, responsive height, button reuse                                                                                                                                                |
+| Quote                              | universal    | none                                            | [B6](../decisions/009-block-intro-and-block-owned-spacing.md#b6-quote-546666281-and-blockquote-546766429): drop `my-2xl`; rule gap 12/16/24; author row sizes (avatar 40, name 14/22, icon 24, gaps 8/24)                                                                       |
+| Blockquote                         | universal    | none                                            | [B6](../decisions/009-block-intro-and-block-owned-spacing.md#b6-quote-546666281-and-blockquote-546766429), [D8](../decisions/009-block-intro-and-block-owned-spacing.md#decision)                                                                                               |
+| EventCard                          | universal    | `title`                                         | [B13](../decisions/009-block-intro-and-block-owned-spacing.md#b13-event-card-547473345): equal columns; 32 around the dividers; colours; icon 32; gap 12; show the arrow icon on Apply; heading colour `neutral-900`                                                            |
+| LogoCarousel                       | universal    | `heading`                                       | [B12](../decisions/009-block-intro-and-block-owned-spacing.md#b12-logo-carousel-547471790): left-aligned H2 intro; drop the centred h3, own gutters and `fixTrailingMainPadding` hack; core padding; desktop-only border; natural logo widths                                   |
+| CtaStrip                           | universal    | `heading` + description                         | [B14](../decisions/009-block-intro-and-block-owned-spacing.md#b14-cta-strip-547473965), [D6](../decisions/009-block-intro-and-block-owned-spacing.md#decision): heading → intro; in-strip text H5 type                                                                          |
+| CtaButtons                         | button-cta   | none                                            | [B2](../decisions/009-block-intro-and-block-owned-spacing.md#b2-cta-buttons-543261858-button-cta-intro); replaces `OWNS_ITS_SPACING` and the three CTA-pair hacks                                                                                                               |
+| ProfileGrid                        | profile-grid | `heading`                                       | [B7](../decisions/009-block-intro-and-block-owned-spacing.md#b7-profile-grid-546465604): 1 column on mobile; drop the tagline `mb-xl`                                                                                                                                           |
+| SplitLayout                        | split-layout | none                                            | [B5](../decisions/009-block-intro-and-block-owned-spacing.md#b5-split-layout-544163402-split-layout-intro), [D7](../decisions/009-block-intro-and-block-owned-spacing.md#decision): 4:3; gap 60; radius 24; alignment; button group; responsive order; fix the preview prop gap |
+| Agenda                             | universal    | `heading` per day                               | [B4](../decisions/009-block-intro-and-block-owned-spacing.md#b4-agenda-543262257), [D5](../decisions/009-block-intro-and-block-owned-spacing.md#decision): days model and migration; card restyle                                                                               |
+| InfoCards (grant), GrantFaqSection | universal    | `heading`; `title` + `subtitle` + `description` | single fields                                                                                                                                                                                                                                                                   |
+
+Not in Figma, so left alone: DonationCards, InternalAdvert, CodeBlock, CalloutText, ReportSection, HackathonAnimation, CtaLink.
+
+### Phase 3: Paragraph block (A3–A5)
+
+Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-paragraph-block-headings)–[A5](../decisions/009-block-intro-and-block-owned-spacing.md#a5-paragraph-block-media-image--video-table-list). CSS only, in `src/styles/components/prose/paragraph-block.css`, scoped to `[data-component='Paragraph']`:
+
+1. Zero the `default.css` bottom margins inside the block, and apply the [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-paragraph-block-headings)/[A4](../decisions/009-block-intro-and-block-owned-spacing.md#a4-paragraph-block-body) values as padding.
+2. Sibling selectors:
+   - `> :is(h2,h3,h4):first-child` and `> p:first-child` get the "first" values, only when the block is the first child of the prose container; otherwise the "not first" values.
+   - `h2 + p`, `h3 + p`, `h4 + p`, `p + p` get the [A4](../decisions/009-block-intro-and-block-owned-spacing.md#a4-paragraph-block-body) values.
+   - Media + p gets the [E-Q2](../decisions/009-block-intro-and-block-owned-spacing.md#still-open) value.
+3. Media wrappers `> :is(ul, ol, figure, .table-wrapper, p:has(> img:only-child))` get `padding-block: var(--media-pt) var(--media-pb)`. Marked wraps a lone image in a `<p>`.
+4. List restyle ([A5](../decisions/009-block-intro-and-block-owned-spacing.md#a5-paragraph-block-media-image--video-table-list)). Reconcile it with `prose/foundation.css` so there is a single list style.
+5. Block pb `var(--block-pb)`.
+6. Delete the `rhythm.css` h2 and fake-intro rules once no content relies on them.
+7. Check that the summit and hackathon `[&>h2]` overrides don't conflict.
+8. Update `src/styles/README.md` and the comment at the top of `rhythm.css`.
+
+### Phase 4: Cleanup
+
+- Remove the legacy fields, the transitional `rhythm.css` rules and unused `--space-block-heading` callers.
+- Add a short "every block owns its intro and spacing" section to `CLAUDE.md`.
+
+---
+
+## Verification
+
+- **Tests:** `pnpm test` (`src` suite) and `cd cms && pnpm test` (`cms` suite), plus `test:coverage` in both.
+- **New tests per phase:** intro serializer, sync handler, round-trip, BlockIntro rendering and migration scripts.
+- **Content checks:**
+  - `cd cms && pnpm run check:mdx-filenames`
+  - migration `--dry-run` reports
+  - `sync:mdx` against a dev Strapi, then confirm the intro and days fields in the Content Manager
+- **Build:** `IMAGE_CDN=on pnpm run build`, with no new image-audit or link-validator findings, and no duplicate `<h2>`.
+- **Visual:** `pnpm dev` at 375 / 810 / 1440. Measure the gaps against the ADR's [global](../decisions/009-block-intro-and-block-owned-spacing.md#a-global-spec) and [per-block](../decisions/009-block-intro-and-block-owned-spacing.md#b-per-block-spec) specs on:
+  - `/our-grantmaking` (fake intro)
+  - an FAQ page
+  - a NumberTiles page
+  - the hackathon timetable (Agenda)
+  - a Paragraph-heavy foundation page
+
+  Also check `/page-preview`.
+
+- **Accessibility:**
+  - Heading order: page H1 → block H2 → H3 (Agenda day).
+  - `aria-labelledby` resolves to the right heading.
+  - Focus is visible on FAQ toggles and buttons.
+  - The carousel respects `prefers-reduced-motion`.
+  - The layout holds at 200% zoom.
