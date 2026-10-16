@@ -92,10 +92,21 @@ const UPLOAD_URL_IN_TEXT = new RegExp(
 )
 
 /**
- * Inside an HTML tag, where the URL is an attribute value or srcset entry. An
- * escaped `\<` is prose: CKEditor escapes every literal `<` it writes.
+ * An open HTML tag up to the URL. An escaped `\<` is prose: CKEditor escapes
+ * every literal `<` it writes.
  */
-const INSIDE_HTML_TAG = /(?<!\\)<[a-zA-Z][^<>]*$/
+const HTML_TAG_OPEN = String.raw`(?<!\\)<[a-zA-Z][^<>]*`
+
+/** Anywhere inside an HTML tag. */
+const INSIDE_HTML_TAG = new RegExp(`${HTML_TAG_OPEN}$`)
+
+/**
+ * The start of an HTML attribute value, quoted or not (`src=`, `href="`), or
+ * of a later srcset entry (`500w, `): there the URL is the link itself.
+ */
+const HTML_ATTRIBUTE_VALUE_START = new RegExp(
+  String.raw`${HTML_TAG_OPEN}(?:\s[\w:-]+\s*=\s*["']?|,\s*)$`
+)
 
 /** A Markdown link or image destination: `](url` or `](<url`. */
 const MARKDOWN_DESTINATION = /\]\(<?$/
@@ -125,12 +136,15 @@ const TRAILING_PUNCTUATION = /[.,;:!?*_~]+$/
 type UrlInTextContext = 'target' | 'linkText' | 'autolink' | 'bare' | 'leave'
 
 /**
- * A nested URL is checked first, so a URL inside another one is left alone
- * even within an HTML attribute.
+ * An attribute value's start is checked first, so `src=https://…` is a link
+ * even though `=` reads as a preceding token. Then a URL nested in another
+ * one is left alone, even within an attribute. Any other URL in a tag sits in
+ * attribute prose (`title="see …"`) and is treated like link text.
  */
 function classifyUrlInText(before: string, after: string): UrlInTextContext {
+  if (HTML_ATTRIBUTE_VALUE_START.test(before)) return 'target'
   if (CONTINUES_PRECEDING_TOKEN.test(before)) return 'leave'
-  if (INSIDE_HTML_TAG.test(before)) return 'target'
+  if (INSIDE_HTML_TAG.test(before)) return 'linkText'
   if (MARKDOWN_DESTINATION.test(before)) return 'target'
   if (REFERENCE_DEFINITION.test(before.slice(before.lastIndexOf('\n') + 1)))
     return 'target'
@@ -152,9 +166,9 @@ type UrlRewrite = (
 
 /**
  * Rewrites each `pattern` match in prose (group 1 the origin, group 2 the
- * rest). It handles what every rewrite shares: a nested URL is left alone, an
- * autolink loses its `<…>`, and a bare URL's trailing sentence punctuation is
- * kept out of the rewrite.
+ * rest). It handles what every rewrite shares: a nested URL is left alone, a
+ * rewritten autolink loses its `<…>` (one left as is keeps them), and a bare
+ * URL's trailing sentence punctuation is kept out of the rewrite.
  */
 function rewriteUrlsInProse(
   segment: string,
@@ -176,11 +190,17 @@ function rewriteUrlsInProse(
       case 'leave':
         result += url
         break
-      case 'autolink':
+      case 'autolink': {
+        const replacement = rewrite(origin, rest, context)
+        if (replacement === url) {
+          result += url
+          break
+        }
         // Replace the surrounding `<…>` too: `</path>` is not an autolink.
-        result = result.slice(0, -1) + rewrite(origin, rest, context)
+        result = result.slice(0, -1) + replacement
         cursor += 1
         break
+      }
       case 'bare': {
         const trailing = rest.match(TRAILING_PUNCTUATION)?.[0] ?? ''
         const ownRest = rest.slice(0, rest.length - trailing.length)
@@ -202,17 +222,26 @@ const rewriteUploadUrl: UrlRewrite = (_origin, path, context) => {
 }
 
 /**
+ * Where our host ends in text: not before a port or a longer host
+ * (`interledger.org.evil.com`, `interledger.organization`). Italics (`_`)
+ * and a sentence's closing `.` still end it.
+ */
+const SITE_HOST_END = String.raw`(?![A-Za-z0-9-]|\.[A-Za-z0-9]|:\d)`
+
+/**
  * An own-site URL in text, with or without a scheme: group 1 the origin,
  * group 2 the rest. Unanchored, so it is classified by what surrounds it.
  */
 const SITE_URL_IN_TEXT = new RegExp(
-  `((?:https?://)?${SITE_HOST})((?:[/?#][^\\s"'()<>[\\]]*)?)`,
+  `((?:https?://)?${SITE_HOST})${SITE_HOST_END}((?:[/?#][^\\s"'()<>[\\]]*)?)`,
   'gi'
 )
 
 /**
- * What a text field holds: CKEditor rich text, where Markdown may be added,
- * or a plain field, which must never gain any.
+ * What a text field holds: CKEditor rich text, where a bare URL becomes a
+ * Markdown link, or a plain field, where it only gains its trailing slash.
+ * An `<url>` autolink is already Markdown in either, so it becomes an explicit
+ * link in both.
  */
 export type TextKind = 'richText' | 'plainText'
 

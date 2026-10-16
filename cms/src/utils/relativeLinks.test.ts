@@ -410,6 +410,30 @@ describe('stripUploadOriginsInText', () => {
     ).toBe('[^1]: [/uploads/img/original/a.pdf](/uploads/img/original/a.pdf)')
   })
 
+  it('reduces an upload URL in an unquoted HTML attribute', () => {
+    expect(
+      stripUploadOriginsInText(
+        '<img src=https://cms.example/uploads/img/original/a.png>'
+      )
+    ).toBe('<img src=/uploads/img/original/a.png>')
+  })
+
+  it('reduces a srcset entry after a comma and a space', () => {
+    expect(
+      stripUploadOriginsInText(
+        '<img srcset="/a.png 500w, https://cms.example/uploads/img/original/b.png 1000w">'
+      )
+    ).toBe('<img srcset="/a.png 500w, /uploads/img/original/b.png 1000w">')
+  })
+
+  it('only cuts the origin of an upload URL in attribute prose', () => {
+    expect(
+      stripUploadOriginsInText(
+        '<img title="see https://cms.example/uploads/img/original/a.png">'
+      )
+    ).toBe('<img title="see /uploads/img/original/a.png">')
+  })
+
   it('leaves an upload URL nested in another URL inside an HTML attribute', () => {
     const text =
       '<img src="https://proxy.example/?u=https://cms.example/uploads/img/original/a.png">'
@@ -508,9 +532,17 @@ describe('stripSiteOriginsInText in plain text', () => {
     '[x](mailto:programteam@interledger.org)',
     'hackathon @ interledger.org',
     '<a href="mailto:programteam@interledger.org">',
-    '<CtaStrip primaryButtonLink="https://podcast.interledger.org/@futuremoneypodcast/episodes/x">'
+    '<CtaStrip primaryButtonLink="https://podcast.interledger.org/@futuremoneypodcast/episodes/x">',
+    '<a title="see https://interledger.org/x">',
+    '<interledger.org/x>'
   ])('leaves %s unchanged', (text) => {
     expect(stripPlainText(text)).toBe(text)
+  })
+
+  it('makes an unquoted HTML attribute target relative', () => {
+    expect(stripPlainText('<a href=https://interledger.org/x>')).toBe(
+      '<a href=/x/>'
+    )
   })
 
   it('is idempotent', () => {
@@ -567,7 +599,12 @@ describe('stripSiteOriginsInText in rich text', () => {
     'hackathon @ interledger.org',
     'Visit interledger.org now',
     '[a](https://example.com/#https://interledger.org/x)',
-    '[https://interledger.org](/)'
+    '[https://interledger.org](/)',
+    // Another host that merely starts with ours, or a port.
+    'See https://interledger.org.evil.com/x',
+    '[a](https://interledger.org.evil.com/x)',
+    'See https://interledger.organization.com',
+    'See https://interledger.org:8080/x'
   ])('leaves %s unchanged', (text) => {
     expect(stripRichText(text)).toBe(text)
   })

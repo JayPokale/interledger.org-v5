@@ -11,10 +11,11 @@ const SRC_DIR = fileURLToPath(new URL('..', import.meta.url))
 
 /**
  * Reads a model from the real schema JSON, so the fixtures exercise the
- * fields as the CMS declares them. A plugin model (media) has no file here,
- * so it is `undefined` and `traverseEntity` passes the media value through
- * untouched. Any other unknown uid throws, so a typo in a fixture fails
- * loudly.
+ * fields as the CMS declares them. Plugin models have no file here, so a media
+ * value is passed through untouched. At runtime Strapi does return the upload
+ * file model and its strings are normalized too, as before INTORG-1300: its
+ * file `url` never gains a slash, and a save reads only the media `id`. Any
+ * other unknown uid throws, so a typo in a fixture fails loudly.
  */
 function getModel(uid: string): Model | undefined {
   if (uid.startsWith('plugin::')) return undefined
@@ -191,6 +192,18 @@ describe('normalizeRelativeLinksInDocumentData', () => {
         }
       })
     ).toEqual({ cta: { link: '/uploads/img/original/report_a1b2.pdf' } })
+  })
+
+  it('leaves an external video URL alone', async () => {
+    const block = {
+      __component: 'blocks.split-layout',
+      videoUrl: 'https://www.youtube.com/watch?v=abc'
+    }
+    expect(
+      await normalize('api::foundation-page.foundation-page', {
+        content: [block]
+      })
+    ).toEqual({ content: [block] })
   })
 
   it('only cuts the origin of an upload in a URL field', async () => {
