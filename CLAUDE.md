@@ -336,8 +336,10 @@ at build time.
     internal hrefs ended up slashless before this check.
   - Scope: rendered HTML only, in the validator's carriers (`href`, `src`,
     `srcset`, `action`, `poster`).
-  - Exempt: `/`; `/404`; files, i.e. a last segment matching
-    `/\.[A-Za-z0-9]+$/` (`FILE_EXTENSION`, mirrored from
+  - Exempt: `/`; `/404`; files, i.e. a last segment ending in an extension
+    with at least one letter, `/\.[A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*$/`, so
+    `report.pdf` and `episode.mp3` are files but `what-is-web3.0` is a page
+    (`FILE_EXTENSION`, mirrored from
     `cms/src/utils/relativeLinks.ts` — change both together); and everything the
     check already ignores (external URLs, `/.netlify/`, `/.well-known/`).
 - **Blind spots.** URLs built in client-side JS and the JSON search indexes

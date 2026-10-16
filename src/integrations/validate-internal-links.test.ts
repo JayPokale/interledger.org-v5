@@ -225,6 +225,17 @@ describe('classifyHref', () => {
       expect(slashless('/blog/foo.')).toBe(true)
     })
 
+    it('treats a trailing dot and digits as a page, not an extension', () => {
+      expect(slashless('/blog/what-is-web3.0')).toBe(true)
+      expect(slashless('/blog/what-is-web3.0/')).toBe(false)
+      expect(slashless('/release/1.2.3')).toBe(true)
+    })
+
+    it('still exempts an extension that has digits in it', () => {
+      expect(slashless('/audio/episode.mp3')).toBe(false)
+      expect(slashless('/archive.7z')).toBe(false)
+    })
+
     it('exempts the root and the 404 page', () => {
       expect(slashless('/')).toBe(false)
       expect(slashless('/404')).toBe(false)
@@ -804,6 +815,14 @@ describe('validateInternalLinks', () => {
       'index.html': '<a href="/node/1365/">drupal</a>'
     })
     expect(error?.message).toContain('/node/1365')
+    expect(error?.message).toContain('no page, redirect, or SSR route')
+  })
+
+  it('reports a dead link to a dotted page slug as a missing page', async () => {
+    const { error } = await runCheck({
+      'index.html': '<a href="/blog/what-is-web3.0/">web3</a>'
+    })
+    expect(error?.message).toContain('/blog/what-is-web3.0')
     expect(error?.message).toContain('no page, redirect, or SSR route')
   })
 
