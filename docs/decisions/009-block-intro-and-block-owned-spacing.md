@@ -135,6 +135,7 @@ Rules:
 
 - An intro with all three fields empty renders nothing, not even the top spacer.
 - Heading is always `<h2>` and Subheading always `<h3>`. Visual size stays tied to the level.
+- An intro with only a subheading renders it as `<h3>`, never promoted to `<h2>`. The editor decides the content and is told about the skipped level (designer, 2026-10-16). The same goes for a Paragraph that starts with an H3.
 - The description is rich text: paragraphs, links and bold.
 
 #### A2. Block padding-bottom (every block, including Paragraph)
@@ -231,16 +232,16 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 
 #### B5. Split layout ([`5441:63402`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5441-63402)), Split layout intro
 
-**Desktop:** 2 columns, gap 60.
+**Desktop:** 2 columns, gap **120** (designer, 2026-10-16; was 60).
 
 | Second column holds | First column (intro + buttons) | Second column |
 | ------------------- | ------------------------------ | ------------- |
 | Media               | full width, max **60%**        | max **40%**   |
 | FAQ accordions      | max **40%**                    | max **60%**   |
 
-- The intro column is top-aligned; the media column is vertically centred.
+- The intro column is top-aligned. A media column is vertically centred; an FAQ column is top-aligned.
 - Media is on the right, and its aspect ratio is **4:3**, the only ratio for now.
-- The FAQ-accordions variant already exists in production, so it is not drawn.
+- **FAQ variant** ([`5487:82409`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5487-82409), with CTA [`5487:82525`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5487-82525)): the second column holds the existing FAQ component (D9), unchanged. Only desktop is drawn ([E-Q24](#still-open)).
 
 **Tablet and mobile:** stacked, in the order **intro → buttons → media**.
 
@@ -352,7 +353,10 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 
 ### Still open
 
-1. **E-Q17. Canvas details (no action):**
+1. **E-Q24. Split layout, open details:**
+   - The 120 gap is only in the no-CTA frames; both CTA frames ([`5474:74383`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5474-74383), [`5487:82525`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5487-82525)) still use 60. We assume 120 for all.
+   - The FAQ variant has no tablet or mobile frames. We assume it stacks like the media variant: intro → buttons → FAQ.
+2. **E-Q17. Canvas details (no action):**
    - Spacer layers are named "Spacer between H1 & H2" but sit between H2 and H3.
    - Some spacers have opacity equal to their height (60%, 48%).
    - Several layers are named `his`.
