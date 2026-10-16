@@ -232,7 +232,7 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 
 #### B5. Split layout ([`5441:63402`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5441-63402)), Split layout intro
 
-**Desktop:** 2 columns, gap **120** (designer, 2026-10-16; was 60).
+**Desktop:** 2 columns, gap **120** in every variant, with or without a CTA (designer, 2026-10-16; was 60).
 
 | Second column holds | First column (intro + buttons) | Second column |
 | ------------------- | ------------------------------ | ------------- |
@@ -241,9 +241,9 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 
 - The intro column is top-aligned. A media column is vertically centred; an FAQ column is top-aligned.
 - Media is on the right, and its aspect ratio is **4:3**, the only ratio for now.
-- **FAQ variant** ([`5487:82409`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5487-82409), with CTA [`5487:82525`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5487-82525)): the second column holds the existing FAQ component (D9), unchanged. Only desktop is drawn ([E-Q24](#still-open)).
+- **FAQ variant** ([`5487:82409`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5487-82409), with CTA [`5487:82525`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5487-82525)): the second column holds the existing FAQ component (D9), unchanged. Only desktop is drawn.
 
-**Tablet and mobile:** stacked, in the order **intro → buttons → media**.
+**Tablet and mobile:** stacked, in the order **intro → buttons → media**, or **intro → buttons → FAQ** for the FAQ variant.
 
 **Details:**
 
@@ -350,13 +350,11 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 - ~~E-Q21 Quote~~ and ~~E-Q22 paragraph table~~: existing components, unchanged (D9).
 - ~~E-Q20 Split layout mobile pb without CTA~~: fixed to 24.
 - ~~E-Q23 Agenda~~: styles stay as built; only the day heading changes.
+- ~~E-Q24 Split layout gap and FAQ stacking~~: 120 on every desktop frame, CTA included. The FAQ variant stacks like the media one on tablet and mobile: intro → buttons → FAQ.
 
 ### Still open
 
-1. **E-Q24. Split layout, open details:**
-   - The 120 gap is only in the no-CTA frames; both CTA frames ([`5474:74383`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5474-74383), [`5487:82525`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5487-82525)) still use 60. We assume 120 for all.
-   - The FAQ variant has no tablet or mobile frames. We assume it stacks like the media variant: intro → buttons → FAQ.
-2. **E-Q17. Canvas details (no action):**
+1. **E-Q17. Canvas details (no action):**
    - Spacer layers are named "Spacer between H1 & H2" but sit between H2 and H3.
    - Some spacers have opacity equal to their height (60%, 48%).
    - Several layers are named `his`.
