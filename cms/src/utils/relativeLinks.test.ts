@@ -8,8 +8,10 @@ import {
   normalizeRelativeLinksInDocumentData,
   slashInternalMarkdownLinks,
   stripUploadOrigin,
-  stripUploadOriginsInText
+  stripUploadOriginsInText,
+  toStoredHref
 } from '@/utils'
+import { SITE_HOSTS } from './relativeLinks'
 
 describe('toSlashedPath', () => {
   it.each([
@@ -57,6 +59,54 @@ describe('toSlashedPath', () => {
     ''
   ])('leaves %j unchanged', (value) => {
     expect(toSlashedPath(value)).toBe(value)
+  })
+})
+
+describe('toStoredHref', () => {
+  it.each(SITE_HOSTS)('stores a %s URL relative and slashed', (host) => {
+    expect(toStoredHref(`https://${host}/es/blog`)).toBe('/es/blog/')
+    expect(toStoredHref(`${host}/es/blog`)).toBe('/es/blog/')
+  })
+
+  it('matches the scheme and host in any case', () => {
+    expect(toStoredHref('HTTP://Staging.Interledger.org/about')).toBe('/about/')
+  })
+
+  it('stores the origin alone as the root', () => {
+    expect(toStoredHref('https://interledger.org')).toBe('/')
+    expect(toStoredHref('interledger.org')).toBe('/')
+  })
+
+  it('keeps the query and fragment after the slash', () => {
+    expect(toStoredHref('https://interledger.org/about?x=1#team')).toBe(
+      '/about/?x=1#team'
+    )
+  })
+
+  it('collapses a double slash after the host', () => {
+    expect(toStoredHref('https://interledger.org//blog/x')).toBe('/blog/x/')
+  })
+
+  it('trims surrounding whitespace', () => {
+    expect(toStoredHref('  https://interledger.org/x  ')).toBe('/x/')
+  })
+
+  it('still reduces an upload URL to its file path', () => {
+    expect(toStoredHref('https://cms.example/uploads/img/original/a.pdf')).toBe(
+      '/uploads/img/original/a.pdf'
+    )
+  })
+
+  it.each(['https://community.interledger.org/x', 'https://example.com/x'])(
+    'leaves %j unchanged',
+    (value) => {
+      expect(toStoredHref(value)).toBe(value)
+    }
+  )
+
+  it('does not read a scheme-less subdomain as our site', () => {
+    const value = 'community.interledger.org/x'
+    expect(toStoredHref(value)).toBe(toSlashedPath(value))
   })
 })
 
@@ -125,6 +175,20 @@ describe('normalizeRelativeLinksInDocumentData', () => {
     expect(data).toEqual({
       pathSlug: '/our-grantmaking/',
       link: '/grant/apply/'
+    })
+  })
+
+  it('stores an own-site URL in a link field relative and slashed', () => {
+    const data = {
+      link: 'https://interledger.org/es/blog',
+      url: 'https://staging.interledger.org/about',
+      destination: 'https://staging.interledger.org/blog'
+    }
+    normalizeRelativeLinksInDocumentData(data)
+    expect(data).toEqual({
+      link: '/es/blog/',
+      url: '/about/',
+      destination: '/blog/'
     })
   })
 

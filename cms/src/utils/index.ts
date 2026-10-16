@@ -388,5 +388,6 @@ export {
   normalizeRelativeLinksInDocumentData,
   slashInternalMarkdownLinks,
   stripUploadOrigin,
-  stripUploadOriginsInText
+  stripUploadOriginsInText,
+  toStoredHref
 } from './relativeLinks'

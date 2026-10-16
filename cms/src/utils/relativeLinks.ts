@@ -4,16 +4,47 @@ const HREF_LIKE_FIELDS = new Set([
   'ctaLink',
   'primaryButtonLink',
   'secondaryButtonLink',
-  'authorLink'
+  'authorLink',
+  'url',
+  'videoUrl',
+  'externalUrl',
+  'destination'
 ])
 
 const PATH_SEGMENT_FIELDS = new Set(['pathSlug', 'slug'])
 
+/** Editors copy links from whichever environment they are working on. */
+export const SITE_HOSTS = [
+  'interledger.org',
+  'www.interledger.org',
+  'staging.interledger.org',
+  'staging--interledger-org-v5.netlify.app',
+  'playground--interledger-org-v5.netlify.app'
+]
+
+const SITE_HOST = `(?:${SITE_HOSTS.map((host) => host.replaceAll('.', '\\.')).join('|')})`
+
 /**
- * Fields whose value is a single URL, not Markdown: only the origin is cut, so
- * the value never turns into a Markdown link.
+ * A whole value that is a URL on one of our hosts, with or without a scheme:
+ * group 1 the origin, group 2 the rest. Anchored, so a port or a longer host
+ * (`interledger.org.evil.com`) does not match.
  */
-const SINGLE_URL_FIELDS = new Set(['url', 'videoUrl', 'externalUrl'])
+const SITE_URL = new RegExp(`^((?:https?://)?${SITE_HOST})((?:[/?#].*)?)$`, 'i')
+
+/** The site path for what follows our origin: `''` → `/`, `//blog` → `/blog/`. */
+function toSiteHref(afterOrigin: string): string {
+  return toSlashedPath(`/${afterOrigin}`.replace(/^\/+/, '/'))
+}
+
+/**
+ * The stored form of a link field: a URL on our own site becomes its relative,
+ * slashed path, so readers stay in the environment they are on (INTORG-1300).
+ */
+export function toStoredHref(value: string): string {
+  const siteUrl = value.trim().match(SITE_URL)
+  if (siteUrl) return toSiteHref(siteUrl[2])
+  return toSlashedPath(stripUploadOrigin(value))
+}
 
 /**
  * A value that is not a site path: any URL scheme (`https:`, `mailto:`,
@@ -292,11 +323,7 @@ export function normalizeRelativeLinksInDocumentData(data: unknown): void {
   for (const [key, value] of Object.entries(data)) {
     if (typeof value === 'string') {
       if (HREF_LIKE_FIELDS.has(key)) {
-        ;(data as Record<string, unknown>)[key] = toSlashedPath(
-          stripUploadOrigin(value)
-        )
-      } else if (SINGLE_URL_FIELDS.has(key)) {
-        ;(data as Record<string, unknown>)[key] = stripUploadOrigin(value)
+        ;(data as Record<string, unknown>)[key] = toStoredHref(value)
       } else if (PATH_SEGMENT_FIELDS.has(key)) {
         ;(data as Record<string, unknown>)[key] = toSlashedSlug(value)
       } else if (!CODE_FIELDS.has(key)) {
