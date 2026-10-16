@@ -385,10 +385,10 @@ export {
   toSlashedPath,
   toSlashedSlug,
   mapOutsideMarkdownCode,
-  normalizeRelativeLinksInDocumentData,
   slashInternalMarkdownLinks,
   stripUploadOrigin,
   stripSiteOriginsInText,
   stripUploadOriginsInText,
   toStoredHref
 } from './relativeLinks'
+export { normalizeRelativeLinksInDocumentData } from './documentLinks'

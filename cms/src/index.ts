@@ -51,6 +51,7 @@ import {
   sanitizeCardGridsInDocumentData
 } from './serializers/blocks'
 import { errors } from '@strapi/utils'
+import type { Model } from '@strapi/utils/dist/types'
 import {
   formatFileSize,
   imageOverSizeLimitError,
@@ -385,6 +386,7 @@ interface StrapiInstance {
     use: (middleware: DocumentValidationMiddleware) => void
   }
   log: StrapiLogger
+  getModel: (uid: string) => Model | undefined
   dirs: { static: { public: string } }
   db?: {
     lifecycles?: {
@@ -2359,7 +2361,11 @@ export default {
         // fields are stored as /path/) and strip the CMS origin CKEditor
         // prefixes onto upload URLs, before any validation below runs.
         if (!NAV_UIDS.has(ctx.uid)) {
-          normalizeRelativeLinksInDocumentData(ctx.params.data)
+          ctx.params.data = await normalizeRelativeLinksInDocumentData(
+            ctx.params.data,
+            strapi.getModel(ctx.uid),
+            (uid) => strapi.getModel(uid)
+          )
         }
 
         // Drop inactive card-grid variant arrays before schema/business

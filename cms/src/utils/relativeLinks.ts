@@ -1,18 +1,3 @@
-const HREF_LIKE_FIELDS = new Set([
-  'href',
-  'link',
-  'ctaLink',
-  'primaryButtonLink',
-  'secondaryButtonLink',
-  'authorLink',
-  'url',
-  'videoUrl',
-  'externalUrl',
-  'destination'
-])
-
-const PATH_SEGMENT_FIELDS = new Set(['pathSlug', 'slug'])
-
 /** Editors copy links from whichever environment they are working on. */
 export const SITE_HOSTS = [
   'interledger.org',
@@ -85,9 +70,6 @@ export function stripUploadOrigin(value: string): string {
   if (!parsed.pathname.startsWith(UPLOAD_PATH_PREFIX)) return value
   return `${parsed.pathname}${parsed.search}${parsed.hash}`
 }
-
-/** Fields holding source code, where a URL is an example, not a link. */
-const CODE_FIELDS = new Set(['code'])
 
 /**
  * Fenced blocks and inline code spans: example text, never rewritten. As in
@@ -228,37 +210,48 @@ const SITE_URL_IN_TEXT = new RegExp(
   'gi'
 )
 
-const rewriteSiteUrl: UrlRewrite = (origin, rest, context) => {
-  const url = origin + rest
-  // GFM autolinks a scheme-less host only after `www.`, so in prose any other
-  // one (`interledger.org/x`, an email's domain) is text, not a link.
-  const isProseLink = /^(?:https?:\/\/|www\.)/i.test(origin)
-  if (!isProseLink && context !== 'target') return url
+/**
+ * What a text field holds: CKEditor rich text, where Markdown may be added,
+ * or a plain field, which must never gain any.
+ */
+export type TextKind = 'richText' | 'plainText'
 
-  const href = toSiteHref(rest)
-  switch (context) {
-    case 'target':
-      return href
-    case 'linkText':
-      return url
-    case 'autolink':
-      return toMarkdownLink(url, href)
-    case 'bare':
-      // Only the slash is added: a plain field must not gain Markdown. An
-      // origin alone, or a file, comes back unchanged.
-      return rest ? origin + href : url
+function siteUrlRewrite(kind: TextKind): UrlRewrite {
+  return (origin, rest, context) => {
+    const url = origin + rest
+    // GFM autolinks a scheme-less host only after `www.`, so in prose any
+    // other one (`interledger.org/x`, an email's domain) is text, not a link.
+    const isProseLink = /^(?:https?:\/\/|www\.)/i.test(origin)
+    if (!isProseLink && context !== 'target') return url
+
+    const href = toSiteHref(rest)
+    switch (context) {
+      case 'target':
+        return href
+      case 'linkText':
+        return url
+      case 'autolink':
+        return toMarkdownLink(url, href)
+      case 'bare':
+        if (kind === 'richText') return toMarkdownLink(url, href)
+        // Only the slash is added. An origin alone, or a file, comes back
+        // unchanged.
+        return rest ? origin + href : url
+    }
   }
 }
 
 /**
  * Makes every own-site URL in a link target relative and slashed, so readers
  * stay in the environment they are on (INTORG-1300). An autolink becomes an
- * explicit link, a bare URL gains its trailing slash in place, link text is
- * kept, and code is left alone.
+ * explicit link, link text is kept, and code is left alone. A bare URL
+ * becomes an explicit link in rich text, and gains its trailing slash in
+ * place in a plain field.
  */
-export function stripSiteOriginsInText(text: string): string {
+export function stripSiteOriginsInText(text: string, kind: TextKind): string {
+  const rewrite = siteUrlRewrite(kind)
   return mapOutsideMarkdownCode(text, (prose) =>
-    rewriteUrlsInProse(prose, SITE_URL_IN_TEXT, rewriteSiteUrl)
+    rewriteUrlsInProse(prose, SITE_URL_IN_TEXT, rewrite)
   )
 }
 
@@ -389,32 +382,4 @@ export function toSlashedPath(value: string): string {
 
 function addTrailingSlash(path: string): string {
   return path.endsWith('/') ? path : `${path}/`
-}
-
-export function normalizeRelativeLinksInDocumentData(data: unknown): void {
-  if (Array.isArray(data)) {
-    data.forEach(normalizeRelativeLinksInDocumentData)
-    return
-  }
-  if (typeof data !== 'object' || data === null) return
-
-  for (const [key, value] of Object.entries(data)) {
-    if (typeof value === 'string') {
-      if (HREF_LIKE_FIELDS.has(key)) {
-        ;(data as Record<string, unknown>)[key] = toStoredHref(value)
-      } else if (PATH_SEGMENT_FIELDS.has(key)) {
-        ;(data as Record<string, unknown>)[key] = toSlashedSlug(value)
-      } else if (!CODE_FIELDS.has(key)) {
-        // Every other string, so each CKEditor field is covered wherever it
-        // sits (components, dynamic zones) without a field list to drift.
-        // The upload strip goes first, so an upload on a site host keeps its
-        // upload handling.
-        ;(data as Record<string, unknown>)[key] = slashInternalMarkdownLinks(
-          stripSiteOriginsInText(stripUploadOriginsInText(value))
-        )
-      }
-    } else {
-      normalizeRelativeLinksInDocumentData(value)
-    }
-  }
 }

@@ -5,7 +5,6 @@ import {
   slugVariants,
   toSlashedPath,
   toSlashedSlug,
-  normalizeRelativeLinksInDocumentData,
   slashInternalMarkdownLinks,
   stripUploadOrigin,
   stripSiteOriginsInText,
@@ -169,148 +168,6 @@ describe('slugVariants', () => {
   })
 })
 
-describe('normalizeRelativeLinksInDocumentData', () => {
-  it('normalizes a top-level pathSlug and href-like field', () => {
-    const data = { pathSlug: '/our-grantmaking', link: 'grant/apply' }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data).toEqual({
-      pathSlug: '/our-grantmaking/',
-      link: '/grant/apply/'
-    })
-  })
-
-  it('stores an own-site URL in a link field relative and slashed', () => {
-    const data = {
-      link: 'https://interledger.org/es/blog',
-      url: 'https://staging.interledger.org/about',
-      destination: 'https://staging.interledger.org/blog'
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data).toEqual({
-      link: '/es/blog/',
-      url: '/about/',
-      destination: '/blog/'
-    })
-  })
-
-  it('reduces an upload URL on the internal advert CTA, which sits two components deep', () => {
-    // The editor follows the Document Download helper text, presses Copy Link
-    // in the Media Library, and pastes the absolute CMS origin. The advert
-    // keeps its button in shared.secondary-cta-link inside a dynamic zone, so
-    // the walker has to reach `link` two levels down (Anca, #706).
-    const data = {
-      content: [
-        {
-          __component: 'blocks.internal-advert',
-          cta: {
-            text: 'Read the report',
-            link: 'http://localhost:1337/uploads/img/original/policy_blueprint_91f6021429.pdf',
-            document: true
-          }
-        }
-      ]
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data.content[0].cta.link).toBe(
-      '/uploads/img/original/policy_blueprint_91f6021429.pdf'
-    )
-  })
-
-  it('normalizes fields nested inside a single component', () => {
-    const data = {
-      ctaStrip: {
-        primaryButtonLink: 'grant/apply',
-        secondaryButtonLink: 'https://example.com'
-      }
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data.ctaStrip).toEqual({
-      primaryButtonLink: '/grant/apply/',
-      secondaryButtonLink: 'https://example.com'
-    })
-  })
-
-  it('normalizes a quote block authorLink', () => {
-    const data = {
-      content: [
-        {
-          __component: 'blocks.quote',
-          quote: 'Hi',
-          authorLink: 'team'
-        }
-      ]
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data.content).toEqual([
-      { __component: 'blocks.quote', quote: 'Hi', authorLink: '/team/' }
-    ])
-  })
-
-  it('normalizes fields nested inside a dynamic-zone array', () => {
-    const data = {
-      content: [
-        { __component: 'shared.cta-link', link: 'contact', text: 'Go' },
-        { __component: 'blocks.quote', quote: 'Hi', authorLink: '#section' },
-        { __component: 'blocks.paragraph', content: 'Unrelated text' }
-      ]
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data.content).toEqual([
-      { __component: 'shared.cta-link', link: '/contact/', text: 'Go' },
-      { __component: 'blocks.quote', quote: 'Hi', authorLink: '#section' },
-      { __component: 'blocks.paragraph', content: 'Unrelated text' }
-    ])
-  })
-
-  it('normalizes fields nested inside repeatable components', () => {
-    const data = {
-      mainMenu: [
-        { label: 'A', href: 'about-us' },
-        { label: 'B', href: 'mailto:info@interledger.org' }
-      ]
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data.mainMenu).toEqual([
-      { label: 'A', href: '/about-us/' },
-      { label: 'B', href: 'mailto:info@interledger.org' }
-    ])
-  })
-
-  // A related-article `slug` is a path segment like `pathSlug`.
-  it('stores a related-article slug with both slashes', () => {
-    const data = { relatedArticles: [{ slug: 'my-post' }, { slug: '/x/' }] }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data.relatedArticles).toEqual([
-      { slug: '/my-post/' },
-      { slug: '/x/' }
-    ])
-  })
-
-  it('leaves unrelated fields and non-string values untouched', () => {
-    const data = {
-      title: 'Hello',
-      required: true,
-      count: 3,
-      media: null
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data).toEqual({
-      title: 'Hello',
-      required: true,
-      count: 3,
-      media: null
-    })
-  })
-
-  it('reduces a media-library URL pasted into a link field to its path', () => {
-    const data = {
-      link: 'https://cms.example.org/uploads/img/original/report_a1b2.pdf'
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data).toEqual({ link: '/uploads/img/original/report_a1b2.pdf' })
-  })
-})
-
 describe('slashInternalMarkdownLinks', () => {
   it('slashes an internal link, keeping a fragment or query after it', () => {
     expect(
@@ -361,84 +218,6 @@ describe('slashInternalMarkdownLinks', () => {
       'Use `[x](/api)` like this:\n\n```md\n[y](/api)\n```\n\nthen [z](/api).'
     expect(slashInternalMarkdownLinks(text)).toBe(
       'Use `[x](/api)` like this:\n\n```md\n[y](/api)\n```\n\nthen [z](/api/).'
-    )
-  })
-})
-
-describe('normalizeRelativeLinksInDocumentData rich text', () => {
-  it('strips the CMS origin from an image nested in a dynamic zone', () => {
-    const data = {
-      content: [
-        {
-          __component: 'blocks.paragraph',
-          content:
-            'Intro\n\n![Chart](http://localhost:1337/uploads/img/original/chart_a1.png)'
-        }
-      ]
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data.content[0].content).toBe(
-      'Intro\n\n![Chart](/uploads/img/original/chart_a1.png)'
-    )
-  })
-  it('only cuts the origin in a single-URL field', () => {
-    const data = {
-      url: 'https://cms.example/uploads/img/original/clip.mp4',
-      videoUrl: 'https://cms.example/uploads/img/original/clip.mp4',
-      externalUrl: 'https://cms.example/uploads/img/original/a.pdf'
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data).toEqual({
-      url: '/uploads/img/original/clip.mp4',
-      videoUrl: '/uploads/img/original/clip.mp4',
-      externalUrl: '/uploads/img/original/a.pdf'
-    })
-  })
-
-  it('slashes an internal link in a paragraph block', () => {
-    const data = {
-      content: [
-        {
-          __component: 'blocks.paragraph',
-          content: 'Read [our grants](/grant/our-grantmaking).'
-        }
-      ]
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data.content[0].content).toBe(
-      'Read [our grants](/grant/our-grantmaking/).'
-    )
-  })
-
-  it('cuts the CMS origin from a pasted page link, then slashes it', () => {
-    const data = {
-      content: '[file](https://cms.example/uploads/img/original/a.pdf)'
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data.content).toBe('[file](/uploads/img/original/a.pdf)')
-  })
-
-  it('makes an own-site link in a paragraph relative and slashed', () => {
-    const data = {
-      content: [
-        {
-          __component: 'blocks.paragraph',
-          content: '[x](https://interledger.org/blog)'
-        }
-      ]
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data.content[0].content).toBe('[x](/blog/)')
-  })
-
-  it('leaves a code field alone', () => {
-    const data = {
-      __component: 'blocks.code-block',
-      code: 'fetch("https://cms.example/uploads/img/original/a.json")'
-    }
-    normalizeRelativeLinksInDocumentData(data)
-    expect(data.code).toBe(
-      'fetch("https://cms.example/uploads/img/original/a.json")'
     )
   })
 })
@@ -638,84 +417,81 @@ describe('stripUploadOriginsInText', () => {
   })
 })
 
-describe('stripSiteOriginsInText', () => {
+describe('stripSiteOriginsInText in plain text', () => {
+  const stripPlainText = (text: string) =>
+    stripSiteOriginsInText(text, 'plainText')
+
   it('makes the ticket’s link target relative', () => {
     expect(
-      stripSiteOriginsInText(
+      stripPlainText(
         '[View insights from the 2025 cycle](https://interledger.org/blog/call-papers-program/).'
       )
     ).toBe('[View insights from the 2025 cycle](/blog/call-papers-program/).')
   })
 
   it('slashes the relative link target', () => {
-    expect(stripSiteOriginsInText('[a](https://interledger.org/grant)')).toBe(
+    expect(stripPlainText('[a](https://interledger.org/grant)')).toBe(
       '[a](/grant/)'
     )
   })
 
   it('handles an angle-bracket destination', () => {
     expect(
-      stripSiteOriginsInText(
+      stripPlainText(
         '[a](<https://staging.interledger.org/grant/our-grantmaking>)'
       )
     ).toBe('[a](</grant/our-grantmaking/>)')
   })
 
   it('collapses a doubled slash after the host', () => {
-    expect(stripSiteOriginsInText('[a](https://interledger.org//blog/x)')).toBe(
+    expect(stripPlainText('[a](https://interledger.org//blog/x)')).toBe(
       '[a](/blog/x/)'
     )
   })
 
   it('keeps a Markdown-escaped path byte for byte', () => {
-    expect(stripSiteOriginsInText('[a](https://interledger.org/a\\_b)')).toBe(
+    expect(stripPlainText('[a](https://interledger.org/a\\_b)')).toBe(
       '[a](/a\\_b/)'
     )
   })
 
   it('keeps the URL as link text, so links never nest', () => {
     expect(
-      stripSiteOriginsInText(
-        '[https://interledger.org](https://interledger.org)'
-      )
+      stripPlainText('[https://interledger.org](https://interledger.org)')
     ).toBe('[https://interledger.org](/)')
   })
 
   it('turns an autolink into an explicit relative link', () => {
-    expect(stripSiteOriginsInText('<https://interledger.org/x>')).toBe(
+    expect(stripPlainText('<https://interledger.org/x>')).toBe(
       '[https://interledger.org/x](/x/)'
     )
   })
 
   it('slashes a bare URL in place, before sentence punctuation', () => {
-    expect(
-      stripSiteOriginsInText('Visit https://staging.interledger.org/blog.')
-    ).toBe('Visit https://staging.interledger.org/blog/.')
+    expect(stripPlainText('Visit https://staging.interledger.org/blog.')).toBe(
+      'Visit https://staging.interledger.org/blog/.'
+    )
   })
 
   it('slashes a bare URL in CKEditor italics, keeping the emphasis', () => {
-    expect(stripSiteOriginsInText('_https://interledger.org/blog_')).toBe(
+    expect(stripPlainText('_https://interledger.org/blog_')).toBe(
       '_https://interledger.org/blog/_'
     )
   })
 
   it('slashes a bare scheme-less www. URL, which GFM autolinks', () => {
-    expect(
-      stripSiteOriginsInText('Visit www.interledger.org/es/blog now')
-    ).toBe('Visit www.interledger.org/es/blog/ now')
+    expect(stripPlainText('Visit www.interledger.org/es/blog now')).toBe(
+      'Visit www.interledger.org/es/blog/ now'
+    )
   })
 
   it('makes a scheme-less link target relative, for every host', () => {
-    expect(stripSiteOriginsInText('[a](staging.interledger.org/x)')).toBe(
-      '[a](/x/)'
-    )
-    expect(stripSiteOriginsInText('[a](www.interledger.org/x)')).toBe(
-      '[a](/x/)'
-    )
+    expect(stripPlainText('[a](staging.interledger.org/x)')).toBe('[a](/x/)')
+    expect(stripPlainText('[a](www.interledger.org/x)')).toBe('[a](/x/)')
   })
 
   it('slashes a URL in a footnote in place, as prose', () => {
-    expect(stripSiteOriginsInText('[^4]: https://interledger.org/blog/x')).toBe(
+    expect(stripPlainText('[^4]: https://interledger.org/blog/x')).toBe(
       '[^4]: https://interledger.org/blog/x/'
     )
   })
@@ -734,15 +510,73 @@ describe('stripSiteOriginsInText', () => {
     '<a href="mailto:programteam@interledger.org">',
     '<CtaStrip primaryButtonLink="https://podcast.interledger.org/@futuremoneypodcast/episodes/x">'
   ])('leaves %s unchanged', (text) => {
-    expect(stripSiteOriginsInText(text)).toBe(text)
+    expect(stripPlainText(text)).toBe(text)
   })
 
   it('is idempotent', () => {
-    const once = stripSiteOriginsInText(
+    const once = stripPlainText(
       '[a](https://interledger.org/grant) and https://staging.interledger.org/blog. ' +
         '<https://interledger.org/x>'
     )
-    expect(stripSiteOriginsInText(once)).toBe(once)
+    expect(stripPlainText(once)).toBe(once)
+  })
+})
+
+describe('stripSiteOriginsInText in rich text', () => {
+  const stripRichText = (text: string) =>
+    stripSiteOriginsInText(text, 'richText')
+
+  it('links a bare origin', () => {
+    expect(
+      stripRichText('Read more on our https://interledger.org website')
+    ).toBe('Read more on our [https://interledger.org](/) website')
+  })
+
+  it('links a bare URL, before sentence punctuation', () => {
+    expect(stripRichText('Visit https://interledger.org/blog.')).toBe(
+      'Visit [https://interledger.org/blog](/blog/).'
+    )
+  })
+
+  it('links a bare URL in italics, keeping the emphasis', () => {
+    expect(stripRichText('See _https://interledger.org_ now')).toBe(
+      'See _[https://interledger.org](/)_ now'
+    )
+  })
+
+  it('links a bare scheme-less www. URL', () => {
+    expect(stripRichText('Visit www.interledger.org/es/blog.')).toBe(
+      'Visit [www.interledger.org/es/blog](/es/blog/).'
+    )
+  })
+
+  it('links a URL in a footnote', () => {
+    expect(stripRichText('[^4]: https://interledger.org/blog/x')).toBe(
+      '[^4]: [https://interledger.org/blog/x](/blog/x/)'
+    )
+  })
+
+  it('makes a link target relative, as in plain text', () => {
+    expect(stripRichText('[a](https://interledger.org/grant)')).toBe(
+      '[a](/grant/)'
+    )
+  })
+
+  it.each([
+    'Email programteam@interledger.org',
+    'hackathon @ interledger.org',
+    'Visit interledger.org now',
+    '[a](https://example.com/#https://interledger.org/x)',
+    '[https://interledger.org](/)'
+  ])('leaves %s unchanged', (text) => {
+    expect(stripRichText(text)).toBe(text)
+  })
+
+  it('is idempotent', () => {
+    const once = stripRichText(
+      'Visit https://interledger.org/blog. or _https://interledger.org_'
+    )
+    expect(stripRichText(once)).toBe(once)
   })
 })
 
