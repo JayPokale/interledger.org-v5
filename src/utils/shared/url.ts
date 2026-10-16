@@ -7,6 +7,20 @@ export function addTrailingSlash(path: string): string {
 }
 
 /**
+ * A last path segment that names a file, e.g. `report.pdf`. An extension needs
+ * a letter, so a slug like `what-is-web3.0` stays a page. Mirrors
+ * `FILE_EXTENSION` in `cms/src/utils/relativeLinks.ts`, so both sides agree
+ * on which links take a trailing slash.
+ */
+const FILE_EXTENSION = /\.[A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*$/
+
+/** True when the last segment ends in an extension: an asset, not a page. */
+export function isFilePath(pathname: string): boolean {
+  const lastSegment = pathname.slice(pathname.lastIndexOf('/') + 1)
+  return FILE_EXTENSION.test(lastSegment)
+}
+
+/**
  * Appends path segments to a page path and returns it slashed, e.g.
  * `('/blog', 'category', 'news')` → `/blog/category/news/`. Empty segments
  * are dropped, and neither a trailing slash on the base nor slashes around a

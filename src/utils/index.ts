@@ -9,6 +9,7 @@
 export {
   stripTrailingSlash,
   addTrailingSlash,
+  isFilePath,
   joinPagePath,
   trimSlashes,
   ensureLeadingSlash,

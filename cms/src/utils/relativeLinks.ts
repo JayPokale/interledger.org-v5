@@ -253,7 +253,8 @@ const PATH_SUFFIX = /[?#]/
 
 /**
  * A last path segment that names a file, e.g. `report.pdf`. An extension needs
- * a letter, so a slug like `what-is-web3.0` stays a page.
+ * a letter, so a slug like `what-is-web3.0` stays a page. Mirrors
+ * `FILE_EXTENSION` in `src/utils/shared/url.ts` — change both together.
  */
 const FILE_EXTENSION = /\.[A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*$/
 

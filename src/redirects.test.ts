@@ -6,8 +6,8 @@ import redirectConfigJson from './config/redirects.json'
 import redirectSchema from '../cms/src/api/redirect/content-types/redirect/schema.json'
 import { parseRedirectConfig } from './utils/shared/redirects'
 import { REDIRECT_CATEGORIES, type RedirectConfig } from './types/redirects'
+import { isFilePath } from './utils/shared/url'
 import {
-  isFilePath,
   parseNetlifyRedirectRules,
   parseRedirectsFile
 } from './integrations/validate-internal-links'
