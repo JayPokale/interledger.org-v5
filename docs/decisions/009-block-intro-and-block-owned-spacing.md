@@ -42,20 +42,21 @@ All designs are in the [ILF New Design](https://www.figma.com/design/Tjtpc6NlHgu
 
 ## Decision
 
-| #   | Decision                                                                                                                                                                                                                                                                                                                                                    | Status           |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| D1  | **Data model.** A shared Strapi component `shared.block-intro` = `{ heading: string, subheading: string, description: CKEditor basicMarkdown }`, added as an optional `intro` field on each block. It is serialized to MDX as one `intro={{…}}` prop. Existing `title`/`heading` values migrate into `intro.heading`.                                       | Agreed           |
-| D2  | **Spacing ownership.** A block whose root carries `data-intro-variant` owns its top (the intro) and its bottom (`--block-pb`, [A2](#a2-block-padding-bottom-every-block-including-paragraph)). It sits out the `--space-section` rhythm, both in `prose/rhythm.css` and in the Strapi preview (`DynamicZone.astro`). All spacers are padding, never margin. | Agreed           |
-| D3  | **Paragraph spec scope.** The paragraph rules ([A3](#a3-paragraph-block-headings)–[A5](#a5-paragraph-block-media-image--video-table-list)) apply only to `[data-component='Paragraph']`. Blog and profile (`.max-w-narrow`) running text is untouched.                                                                                                      | Agreed           |
-| D4  | **Rollout.** Blocks adopt the intro one at a time, piloting on CardGrid, FAQ and NumberTiles. While pages mix migrated and legacy blocks, transitional rules keep the gap between the two kinds at `--space-section` (see below).                                                                                                                           | Agreed           |
-| D5  | **Agenda days.** Agenda gets `intro` plus a repeatable `days: blocks.agenda-day = { date: date, items: agenda-item[] }`. "Day N" is rendered from the index (an i18n string), not stored. Editors pick the date with Strapi's native date picker. Consecutive per-day Agenda blocks are merged into one by migration.                                       | Pending sign-off |
-| D6  | **CTA strip.** `heading` moves into `intro.heading`. The strip keeps its own `description` (the in-strip copy) and buttons.                                                                                                                                                                                                                                 | Proposed         |
-| D7  | **Split layout.** Split layout gets `intro`. The left column becomes intro + an optional button group (primary + secondary, replacing the single `cta`). A `4:3` `displayRatio` is added and becomes the default. The CKEditor `content` body stays for "any component that fits", pending [E-Q11](#still-open).                                            | Pending sign-off |
-| D8  | **Blockquote `source`.** Keep the field and render it in the [B6](#b6-quote-546666281-and-blockquote-546766429) author-row style without an avatar, unless design drops it ([E-Q9](#still-open)).                                                                                                                                                           | Proposed         |
+| #   | Decision                                                                                                                                                                                                                                                                                                                                                                                | Status           |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| D1  | **Data model.** A shared Strapi component `shared.block-intro` = `{ heading: string, subheading: string, description: CKEditor basicMarkdown }`, added as an optional `intro` field on each block. It is serialized to MDX as one `intro={{…}}` prop. Existing `title`/`heading` values migrate into `intro.heading`.                                                                   | Agreed           |
+| D2  | **Spacing ownership.** A block whose root carries `data-intro-variant` owns its top (the intro) and its bottom (`--block-pb`, [A2](#a2-block-padding-bottom-every-block-including-paragraph)). It sits out the `--space-section` rhythm, both in `prose/rhythm.css` and in the Strapi preview (`DynamicZone.astro`). All spacers are padding, never margin.                             | Agreed           |
+| D3  | **Paragraph spec scope.** The paragraph rules ([A3](#a3-paragraph-block-headings)–[A5](#a5-paragraph-block-media-image--video-table-list)) apply only to `[data-component='Paragraph']`. Blog and profile (`.max-w-narrow`) running text is untouched.                                                                                                                                  | Agreed           |
+| D4  | **Rollout.** Blocks adopt the intro one at a time, piloting on CardGrid, FAQ and NumberTiles. While pages mix migrated and legacy blocks, transitional rules keep the gap between the two kinds at `--space-section` (see below).                                                                                                                                                       | Agreed           |
+| D5  | **Agenda days.** Agenda gets `intro` plus a repeatable `days: blocks.agenda-day = { date: date, items: agenda-item[] }`. "Day N" is rendered from the index (an i18n string), not stored. Editors pick the date with Strapi's native date picker. Consecutive per-day Agenda blocks are merged into one by migration.                                                                   | Pending sign-off |
+| D6  | **CTA strip.** `heading` moves into `intro.heading`. The strip keeps its own `description` (the in-strip copy) and buttons.                                                                                                                                                                                                                                                             | Proposed         |
+| D7  | **Split layout.** Split layout gets `intro`. The first column becomes intro + an optional button group (primary + secondary, replacing the single `cta`). The media is always 4:3. The second column holds media, or a list of FAQ accordions, which flips the column widths ([B5](#b5-split-layout-544163402-split-layout-intro)). The FAQ option is new to the Strapi model.          | Pending sign-off |
+| D8  | **Blockquote `source`.** Blockquote keeps its Strapi structure, `source` included, and its current rendering. Only the spacing rules change (designer, 2026-10-16).                                                                                                                                                                                                                     | Agreed           |
+| D9  | **Spacing only, existing components unchanged.** This work is about spacing between and within sections. Components that are already built keep their internal design and layout: FAQ, Number tiles, Event card, Logo carousel, Blockquote, Profile Grid (grid rules) and the PDF embed (no design; see [B8](#b8-pdf-embed-546866900)). They gain the intro and the block spacing only. | Agreed           |
 
 ### How spacing ownership works
 
-- **Tokens.** `src/styles/base/variables.css` defines `--intro-top`, `--intro-h2-pt`, `--intro-h2-h3`, `--intro-h3-pt`, `--intro-h3-desc`, `--intro-desc`, `--block-pb` and `--media-pt` / `--media-pb`, per breakpoint, from the existing spacing tokens. They are declared on `:root` and again on every `[data-intro-variant]`, so a nested block starts from the defaults. Variants override only what differs ([A1](#a1-intro-every-block)).
+- **Tokens.** `src/styles/base/variables.css` defines `--intro-top`, `--intro-h2-pt`, `--intro-h2-h3`, `--intro-h3-pt`, `--intro-h3-desc`, `--intro-desc`, `--block-pb` and `--media-pt`, per breakpoint, from the existing spacing tokens. They are declared on `:root` and again on every `[data-intro-variant]`, so a nested block starts from the defaults. Variants override only what differs ([A1](#a1-intro-every-block)).
 - **Intro.** `src/components/shared/BlockIntro.astro` renders a `<header>` with the h2, h3 and description. Each spacer is padding on the element above it, so it disappears with that element. An empty intro renders nothing.
 - **Block.** `[data-intro-variant]` gets `padding-block-end: var(--block-pb)` (`components/block-intro.css`). At the end of the prose that padding drops, like the trailing margins today.
 - **Mixed pages (transitional).** A legacy element before an intro block keeps only `--block-pb` below it. A legacy element after one takes `--space-section − --block-pb` above it. Both rules reach across the `<script>` Astro emits after a component, and CTAs apply the same rule through a utility. On desktop, with a heading in the intro, every pair of blocks therefore stays 120 apart. These rules are deleted once every block owns its spacing.
@@ -160,15 +161,15 @@ Gap between two blocks, from the end of one block's content to the next block's 
 
 Padding-bottom is **8 / 12 / 16**. Paragraphs inside one container stack with gap 16. Padding-top depends on what is directly above:
 
-| Above                                   | Mobile           | Tablet | Desktop |
-| --------------------------------------- | ---------------- | ------ | ------- |
-| nothing (block starts with a paragraph) | 60               | 80     | 120     |
-| H1 (hero-less page, see E-Q7)           | 32               | 40     | 60      |
-| H2                                      | 24               | 32     | 40      |
-| H3                                      | 16               | 24     | 32      |
-| H4                                      | 12               | 16     | 24      |
-| Paragraph                               | 16               | 24     | 32      |
-| Image, table or list                    | **pending E-Q2** |        |         |
+| Above                                     | Mobile | Tablet | Desktop |
+| ----------------------------------------- | ------ | ------ | ------- |
+| nothing (block starts with a paragraph)   | 60     | 80     | 120     |
+| H1 (see [A6](#a6-h1-hero-only-543261853)) | 32     | 40     | 60      |
+| H2                                        | 24     | 32     | 40      |
+| H3                                        | 16     | 24     | 32      |
+| H4                                        | 12     | 16     | 24      |
+| Paragraph                                 | 16     | 24     | 32      |
+| Image, table or list                      | 32     | 40     | 60      |
 
 Resulting desktop gaps:
 
@@ -179,6 +180,7 @@ Resulting desktop gaps:
 | H4 → p     | 12 + 24     | 36                                            |
 | **p → p**  | 16 + 32     | **48** (today 32: an intended visible change) |
 | p → H2     | 16 + 80     | 96                                            |
+| media → p  | 0 + 60      | 60                                            |
 
 #### A5. Paragraph block: media (image / video, table, list)
 
@@ -187,15 +189,15 @@ These are "used under a paragraph" sub-components ([`5420:28545`](https://www.fi
 |                          | Mobile | Tablet | Desktop |
 | ------------------------ | ------ | ------ | ------- |
 | Container padding-top    | 24     | 32     | **60**  |
-| Container padding-bottom | 24     | 32     | 40      |
+| Container padding-bottom | 0      | 0      | 0       |
 
-- The paragraph after the media: the examples use the "H2 on top" value (24 / 32 / 40), but the component set still has an "Image/table/list on top" variant (32 / 40 / 60). See E-Q2.
-- A heading after media uses its "not first" value.
+- Media inside a paragraph has **no padding-bottom** (designer, 2026-10-16). What follows supplies the whole gap: a paragraph uses its "Image, table or list on top" padding-top ([A4](#a4-paragraph-block-body), 32 / 40 / 60), and a heading uses its "not first" padding-top ([A3](#a3-paragraph-block-headings)).
 - **Image:** full content width, radius 24, aspect ratio kept (the heights drawn are sample-specific).
 - **List:**
   - custom orange triangle bullet, 16×24, with a 16 gap to the text
   - text 18/28 on mobile and tablet, 20/30 on desktop, `neutral-150` (#0d0d0d)
   - item gap 12 / 16 / 16
+  - full content width
 - **Table:**
   - cell padding 12
   - first column 60, the rest equal
@@ -209,13 +211,12 @@ Padding-top / padding-bottom:
 | ---------- | ------- | ------- | ------- |
 | H1 pt / pb | 24 / 12 | 32 / 16 | 40 / 24 |
 
-- Variants are now named `Device=Desktop/Tablet/Mobile` (fixed).
-- The H1 has ordinary padding. The paragraph's "H1 on top" value supplies the rest of the gap.
-- Where this applies is open (E-Q7).
+- **Content starts the same way under every hero**, with or without an image (designer, 2026-10-16). The gap between the hero (or a bare H1) and the first block is **0**. The perceived space comes only from the first block's own top: its intro's top spacer, or the "first" padding-top of the Paragraph's first element ([A3](#a3-paragraph-block-headings), [A4](#a4-paragraph-block-body)). For example, a page whose first block is a Paragraph starting with an H2 uses H2 "first" (60 / 80 / 120).
+- When the "H1 on top" paragraph value ([A4](#a4-paragraph-block-body)) applies is still open ([E-Q19](#still-open)).
 
 ### B. Per-block spec
 
-Each block below is: Universal intro (A1), then its content, then pb 24 / 32 / 40 (A2), unless noted. Figma anomalies are listed under [Open design items](#open-design-items-2026-10-15), not repeated here.
+Each block below is: Universal intro (A1), then its content, then pb 24 / 32 / 40 (A2), unless noted. Figma anomalies are listed under [Open design items](#open-design-items-2026-10-16), not repeated here.
 
 #### B1. Paragraph ([`5420:28552`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5420-28552))
 
@@ -246,15 +247,15 @@ Each block below is: Universal intro (A1), then its content, then pb 24 / 32 / 4
 
 **Layout and spacing:**
 
-|                                                  | Mobile                 | Tablet                                 | Desktop                             |
-| ------------------------------------------------ | ---------------------- | -------------------------------------- | ----------------------------------- |
-| Gap between days                                 | 60                     | 60                                     | 60                                  |
-| Day heading → items                              | 24                     | 24                                     | 24                                  |
-| Day heading type / padding-block                 | 20/30, py 8            | **22/32** (Tablet H4, see E-Q4), py 16 | 28/40, py 16                        |
-| Spacer between cards (carries the timeline line) | 24                     | 24                                     | 24                                  |
-| Card padding left / right                        | 12 / 16                | 16 / 24                                | 24 / 24                             |
-| Activity title                                   | 18/28                  | 18/28                                  | 20/30                               |
-| Description                                      | 14/22, under the title | 16/26, right column after a divider    | 16/26, right column after a divider |
+|                                                  | Mobile                 | Tablet                              | Desktop                             |
+| ------------------------------------------------ | ---------------------- | ----------------------------------- | ----------------------------------- |
+| Gap between days                                 | 60                     | 60                                  | 60                                  |
+| Day heading → items                              | 24                     | 24                                  | 24                                  |
+| Day heading type / padding-block                 | 20/30, py 8            | 22/32 (Tablet H4), py 16            | 28/40, py 16                        |
+| Spacer between cards (carries the timeline line) | 24                     | 24                                  | 24                                  |
+| Card padding left / right                        | 12 / 16                | 16 / 24                             | 24 / 24                             |
+| Activity title                                   | 18/28                  | 18/28                               | 20/30                               |
+| Description                                      | 14/22, under the title | 16/26, right column after a divider | 16/26, right column after a divider |
 
 **Day heading:**
 
@@ -275,26 +276,30 @@ Each block below is: Universal intro (A1), then its content, then pb 24 / 32 / 4
 
 #### B5. Split layout ([`5441:63402`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5441-63402)), Split layout intro
 
-**Desktop:**
+**Desktop:** 2 columns, gap 60.
 
-- 2-column grid, **4 : 3** (`1fr 0.75fr`), gap 60.
-- Content column is top-aligned; media column is vertically centred.
-- Media is on the right in every frame.
+| Second column holds | First column (intro + buttons) | Second column |
+| ------------------- | ------------------------------ | ------------- |
+| Media               | full width, max **60%**        | max **40%**   |
+| FAQ accordions      | max **40%**                    | max **60%**   |
 
-**Tablet and mobile:** stacked.
+- The intro column is top-aligned; the media column is vertically centred.
+- Media is on the right.
+- Media aspect ratio is **4:3**, the only ratio for now.
 
-| Order    | Tablet                      | Mobile                              |
-| -------- | --------------------------- | ----------------------------------- |
-| No CTA   | intro → media               | intro → media                       |
-| With CTA | intro → **buttons** → media | intro → **media** → buttons (E-Q11) |
+**Tablet and mobile:** stacked, in the order **intro → buttons → media** (designer, 2026-10-16).
 
 **Details:**
 
-- Media: radius 24. With a CTA, the media sits in a wrapper with the A5 padding (desktop pt 60 / pb 40). Without a CTA there is no wrapper (E-Q11).
+- Media: radius 24. **Only with a CTA**, the media sits in a wrapper with the paragraph-media padding (desktop pt 60 / pb 40, tablet py 32, mobile py 24). Without a CTA there is no wrapper.
 - Buttons: same as B2 (primary + secondary, pt 24 / 24 / 32, stacked on mobile).
+- The Split layout intro variant drops the top and description spacers on desktop and uses a 40 H2→H3 spacer. On tablet and mobile it matches Universal. Both are intentional ([A1](#a1-intro-every-block)).
 - Canvas note: _"Any component that can fit into a split layout"_, and _"the sub-component will use top and bottom padding just like in the paragraph block"_.
+- Figma still differs on columns, image ratio and mobile pb ([E-Q20](#still-open)).
 
 #### B6. Quote ([`5466:66281`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5466-66281)) and Blockquote ([`5467:66429`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5467-66429))
+
+Whether Quote is restyled to this drawing or stays as built is open ([E-Q21](#still-open)).
 
 **Shared "blog quote" component:**
 
@@ -310,77 +315,29 @@ Each block below is: Universal intro (A1), then its content, then pb 24 / 32 / 4
 - name 14/22 in `neutral-100`
 - 24px link icon
 
-**Blockquote:** no attribution is drawn. See E-Q9 about `source`.
+**Blockquote:** an existing component. It keeps its current rendering, `source` included (D8), and follows the same padding rules as Quote. Figma draws it without attribution.
+
+Block pb is 24 / 32 / 40 for both (fixed by design).
 
 #### B7. Profile Grid ([`5464:65604`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5464-65604))
 
-**Grid:**
-
-|         | Mobile | Tablet | Desktop |
-| ------- | ------ | ------ | ------- |
-| Columns | **1**  | 4      | 4       |
-| Gap     | 32     | 32     | 32      |
-
-Rows are content-height. The fixed row heights in Figma are artefacts.
-
-**Card:**
-
-- **Avatar:** round, max 220, aspect 1:1. Background colours cycle in this order: lavender, soft-indigo, flamingo, coral-red, emerald, tangerine.
-- **Avatar → name:** 24.
-- **Name:**
-  - `orchid-100`, underlined
-  - 20/30 Medium on mobile, 22/32 Medium on tablet
-  - desktop: see E-Q10
-- **Name → quote:** 8.
-- **Quote:** 16/26, `neutral-100`.
-- **Layout:**
-  - centred
-  - text max width 400
-  - the whole card is a link
-  - no background or border
+**The grid and card layout stay as built today** (D9). Only the Universal intro and the block spacing change. The canvas drew a deprecated intro above the grid; it is now Universal. The mobile frame still uses the tablet intro ([E-Q18](#still-open)).
 
 #### B8. PDF embed ([`5468:66900`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5468-66900))
 
-- **Container:** full width, radius 24, `overflow-clip`, background #333639 (the viewer's chrome colour).
-- **Viewer:** the toolbar and pages are a mock of the browser's native PDF viewer. We only control the container.
-- **Height:** responsive, not Figma's fixed 1431 / 1407 (E-Q12).
-- **Fallback download link:** reuse `LinkButton` / `buttonVariants` (radius 8, h 48), not today's `rounded-full`.
+- There is no design for the PDF embed. The Figma frame is a placeholder that shows the block (designer, 2026-10-16).
+- Build it without design, using what is standard: **both the frame and its content are responsive**.
+- Universal intro and block spacing as usual.
 
 #### B9. FAQ ([`5474:71806`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5474-71806))
 
-- **Group:** gap 24.
-- **Item:**
-  - border-bottom 1px `neutral-25` #e4e4e4
-  - pb **16 / 24 / 24**
-- **Question row:**
-  - question and chevron spread apart, with 16 between the text and the chevron
-  - question uses H4 type, Medium, `neutral-100`
-  - chevron: 32px `keyboard-arrow-down-rounded`
-- **Question → answer:** 12.
-- Only closed items are drawn (E-Q13).
+- **The FAQ component stays as built** (D9): open and closed states, items and content are unchanged. The Figma frame uses the existing component as a placeholder.
+- Only the Universal intro and the block spacing change.
 
 #### B10. Number tiles ([`5471:67951`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5471-67951))
 
-**Layout and type:**
-
-|                   | Mobile       | Tablet    | Desktop           |
-| ----------------- | ------------ | --------- | ----------------- |
-| Layout            | **1 column** | 2 columns | 4 equal columns   |
-| Gap               | 48           | 48        | 0 (space-between) |
-| Number (SemiBold) | 40/48        | 40/48     | 56/64             |
-| Suffix (Medium)   | 28/36        | 28/36     | 40/48             |
-| Label (Regular)   | 18/28        | 18/28     | 20/30             |
-
-**Details:**
-
-- Tile: flex column, gap 8.
-- Number and suffix:
-  - gap 8
-  - suffix **top-aligned**
-  - both black
-- Label: `neutral-75`.
-- Left-aligned.
-- No padding, background or border.
+- **The tiles stay as built** (D9), on every device. The frame only shows how the block wraps them.
+- Only the Universal intro and the block spacing change. Block pb 24 / 32 / 40.
 
 #### B11. Card Grid ([`5474:68122`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5474-68122))
 
@@ -401,41 +358,18 @@ Rows are content-height. The fixed row heights in Figma are artefacts.
 
 The Title, Resource and Navigation card variants are not drawn, so keep their current styling.
 
+The block uses the Universal intro. Whether the drawn Grant card styling is a restyle or the existing card, and the remaining canvas issues, are open ([E-Q18](#still-open)).
+
 #### B12. Logo carousel ([`5474:71790`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5474-71790))
 
-**Core (around the ticker):**
-
-|            | Mobile | Tablet | Desktop          |
-| ---------- | ------ | ------ | ---------------- |
-| Padding    | py 24  | py 32  | pt 32 / pb 40    |
-| Border-top | none   | none   | 1px `neutral-50` |
-
-Desktop only: the border-top, and max width 1440.
-
-**Ticker:**
-
-- row, gap 60, height 40
-- logos at their natural width, height 40
-- continuous horizontal scroll
-
-**Edge fade:** white gradient overlays, 400px each side on desktop. Tablet and mobile are asymmetric (E-Q15).
+- **The carousel stays as built** (D9). The desktop border-top drawn in Figma is not meant to be there; the existing component doesn't have it.
+- The heading moves into the Universal intro.
+- Block pb is **40 on every device**, on purpose (designer, 2026-10-16). With the core's own pb that leaves 80 below the ticker.
 
 #### B13. Event card ([`5474:73345`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5474-73345))
 
-**Card:**
-
-- white, border 1px `neutral-50`, radius 24, padding 24
-- 3 **equal** columns, with 32 on each side of a 1px vertical divider
-- mobile: stacked, with a horizontal divider and 32 above and below it
-
-**Column:** gap 24.
-
-- Column title ("When?", "Where?", "Apply"): H3 type, `neutral-75`.
-- Meta rows:
-  - 32px icon at every breakpoint, then a 12 gap
-  - H4 type, `neutral-900`
-  - 24 between rows
-- Apply button: primary with the arrow icon; full width on mobile.
+- **The event card stays as built** (D9); the Figma frame is the existing component.
+- Only the Universal intro and the block spacing change.
 
 #### B14. CTA strip ([`5474:73965`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5474-73965))
 
@@ -473,11 +407,11 @@ Desktop only: the border-top, and max width 1440.
 - Every block needs a schema change, serializer, sync handler, component change and a content migration. Legacy `title`/`heading` fields live alongside `intro` until each migration has run on staging and production.
 - During the rollout, mixed pages depend on transitional CSS, and `SELF_SPACED_BLOCKS` must be kept in step with the components by hand. A few edge cases differ from the target. A fake-intro Paragraph before an intro block gives 128 on desktop, and an intro block with an empty intro sits 40 below a legacy one.
 - The paragraph spec changes visible spacing on every rich-text page. For example, p → p becomes 48 on desktop, up from 32.
-- The A3/A4 "first" values (120 on desktop) need a clear definition of "first in the flow", so they don't stack on the page's own top gap.
+- Under the hero the gap becomes 0, and the first block supplies its own top. The templates' current gap below the hero or bare H1 (for example `mb-2xl tablet:mb-3xl` on the hero-less H1) has to go, or it stacks on that top.
 
 ---
 
-## Open design items (2026-10-15)
+## Open design items (2026-10-16)
 
 ### Resolved with design
 
@@ -486,62 +420,40 @@ Desktop only: the border-top, and max width 1440.
 - ~~H1 variant names~~: fixed.
 - ~~List text #0d0d0d~~: intentional.
 - ~~Agenda "Day N"~~: automatic, with the date editable.
-- ~~Agenda tablet heading~~: Tablet H4.
+- ~~E-Q1 Paragraph examples 4–5, tablet pb~~: fixed to 32.
+- ~~E-Q2 Paragraph after media~~: "Image, table or list on top" stays (32 / 40 / 60), and media in a paragraph now has pb 0.
+- ~~E-Q3 Paragraph examples 5–6, mobile~~: fixed to the Mobile variant.
+- ~~E-Q4 Agenda tablet day heading~~: fixed, 22/32.
+- ~~E-Q5 Number tiles~~: the tiles stay as built (D9).
+- ~~E-Q7 Content under the hero~~: the gap is 0 and the first block supplies its own top ([A6](#a6-h1-hero-only-543261853)). Follow-up in E-Q19.
+- ~~E-Q8 Mobile pb~~: Quote and Blockquote fixed to 24. Logo carousel's 40 on every device is on purpose. Split layout is still 32 (E-Q20).
+- ~~E-Q9 Blockquote attribution~~: `source` stays; Blockquote is an existing component with Quote's padding rules (D8).
+- ~~E-Q10 Profile Grid~~: the intro is Universal now and the grid rules stay as built (D9). Mobile intro still off (E-Q18).
+- ~~E-Q11 Split layout~~: order is intro → buttons → media; media padding only with a CTA; 4:3 only; columns 60 / 40 with gap 60, flipped for FAQ accordions ([B5](#b5-split-layout-544163402-split-layout-intro)). Figma doesn't match yet (E-Q20).
+- ~~E-Q12 PDF embed~~: no design; responsive frame and content.
+- ~~E-Q13 FAQ~~, ~~E-Q14 Event card~~, ~~E-Q15 Logo carousel~~: existing components, unchanged (D9).
+- ~~E-Q16 Split layout description spacer~~: intentional.
 
 ### Still open
 
-1. **E-Q1. Paragraph block examples 4 and 5, tablet:** padding-bottom is still 40 (should be 32).
-2. **E-Q2. Paragraph after image/table/list.** The media container now has 60 on top on desktop. But every paragraph after media in the examples uses the **"H2 on top"** variant (40/32/24), not **"Image/table/list on top"** (60/40/32).
-   - Gap below media on desktop: 40 + 40 = 80 with "H2 on top", or 40 + 60 = 100 with "Image/table/list on top".
-   - Which one? If it's "H2 on top", the "Image/table/list on top" variant can be deleted.
-3. **E-Q3. Paragraph examples 5 and 6, mobile:** the second paragraph is the Desktop variant (20px text, pt 40 / pb 16).
-4. **E-Q4. Agenda tablet day heading.** The Tablet/H4 style is applied, but the instance in the Agenda block still renders 28/40 (66 high). Probably a local override. Code follows the style (22/32).
-5. **E-Q5. Number tiles:**
-   - Tablet and mobile use the **desktop** intro instance.
-   - Mobile tiles use the tablet type (number 40/48). Is that intentional?
-6. **E-Q6. Card Grid:**
-   - It uses its own intro variant (top spacer 32/40/60, the old values, plus a stray 1px spacer) instead of Universal.
-   - Frame widths are 597 and 310, not 1000 and 400.
-   - The mobile card title is 28/36 (tablet H3).
-   - Card heights are mixed: some cards stretch, others don't.
-7. **E-Q7. H1 on top (not answered).** On a page **without** a hero, the content starts right under the H1. Is that where "H1 on top" (H1 pb + paragraph pt = 84 desktop) applies? And what is the gap between a full hero (with image) and the first content?
-8. **E-Q8. Block padding-bottom other than 24 on mobile:**
-
-   | Block         | Mobile pb | Tablet pb |
-   | ------------- | --------- | --------- |
-   | Quote         | 32        | —         |
-   | Blockquote    | 32        | —         |
-   | Split layout  | 32        | —         |
-   | Logo carousel | 40        | 40        |
-
-   Logo carousel also has core pb 40 plus block pb 40, which is 80 below the ticker. Should all of these be 24 / 32 / 40?
-
-9. **E-Q9. Blockquote:**
-   - No attribution (`source`) is drawn. Has it been dropped?
-   - The desktop row has a fixed height of 90. We'll treat it as auto.
-10. **E-Q10. Profile Grid:**
-    - Mobile uses the **tablet** intro.
-    - The desktop name is 24/34 **Regular**, while tablet and mobile are Medium H4. Should desktop be 28/40 Medium?
-    - Tablet cards are a fixed 169px inside 226px columns.
-11. **E-Q11. Split layout:**
-    - With a CTA, the buttons come **before** the image on tablet but **after** it on mobile. Which order is right?
-    - The image has the paragraph-media padding only when there's a CTA. Should it have it without a CTA too?
-    - Should media ever sit on the left? The current Strapi `imagePosition` allows it.
-    - Is 4:3 the only ratio?
-12. **E-Q12. PDF embed:**
-    - Only desktop width (1440) is drawn.
-    - The viewer height is fixed (1431 / 1407).
-    - Can we use a responsive height? The browser draws the PDF toolbar and pages, so only the container is ours.
-13. **E-Q13. FAQ:**
-    - No open state is drawn: answer text, rotated chevron and colour are missing.
-    - The last question has two questions pasted into one.
-    - The three frames are named "PDF Embed block".
-14. **E-Q14. Event card:** column titles are `neutral-75` and meta text `neutral-900`. Today it's the other way round (`neutral-100`). Please confirm.
-15. **E-Q15. Logo carousel:**
-    - The top border appears on desktop only.
-    - The edge fades are asymmetric on tablet and mobile (103/87 and 400/278).
-16. **E-Q16. Intro master, Split layout:** the description spacer is 0 on desktop but 32 / 24 on tablet and mobile. Is that intentional? It follows from the stacking, but please confirm.
-17. **E-Q17. Canvas details (no action):**
-    - Spacer layers are named "Spacer between H1 & H2" but sit between H2 and H3.
-    - Some spacers have opacity equal to their height (60%, 48%).
-    - Several layers are named `his`.
+1. **E-Q6 / E-Q18. Card Grid and Profile Grid frames.** Checked in Figma on 2026-10-16:
+   - Both mobile frames still use the **Tablet** Universal intro (Card Grid instance `5477:74751`, Profile Grid `5465:65859`).
+   - Card Grid's tablet and mobile frames are still 597 and 310 wide, not 1000 and 400. Profile Grid's desktop frame is 1420.
+   - Card Grid: is the drawn Grant card (`ice-indigo-100`, padding 24) a restyle, or the existing card that stays as built (D9)?
+2. **E-Q19. "H1 on top" paragraph variant.** Content under a hero or bare H1 starts with the "first" values, so when does the "H1 on top" paragraph padding (32 / 40 / 60) apply? If never, can it be removed?
+3. **E-Q20. Split layout, Figma vs the agreed rules:**
+   - The desktop columns are `1fr 0.75fr` (about 57 / 43%), not 60 / 40, and have no max-width.
+   - No image is 4:3. They are fixed heights with `object-cover`, e.g. 591×398 on desktop.
+   - Mobile block pb is 32, while every other block uses 24.
+   - The FAQ-accordions variant (40 / 60) is not drawn.
+   - Every CTA image wrapper has a 1px black border, which looks like an annotation leftover.
+4. **E-Q21. Quote.** Is the drawn "blog quote" (2px raspberry rules, author row with a 40 avatar) a restyle of the existing Quote component, or does Quote stay as built like Blockquote (D9)?
+5. **E-Q22. Paragraph table on mobile.** The table is clipped in its 400 container. The site makes it scroll horizontally (`wrapScrollableTables`). Please confirm scroll is the intent.
+6. **E-Q17. Canvas details (no action):**
+   - Spacer layers are named "Spacer between H1 & H2" but sit between H2 and H3.
+   - Some spacers have opacity equal to their height (60%, 48%).
+   - Several layers are named `his`.
+   - Paragraph block: the mobile row label still reads "padding 32" (blocks measure 24).
+   - Paragraph block: list containers are named "Table container", and the list sub-components are 993 and 581 wide.
+   - Paragraph block: the mobile table text uses Desktop style names at mobile sizes, and its last row has a stray `#fcc` border.
+   - Paragraph block: the desktop image is 1431 wide, and tablet example 4 reads "H2 H eading".
