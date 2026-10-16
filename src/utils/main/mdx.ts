@@ -4,6 +4,7 @@ import {
   buildUmamiAttrs,
   escapeHtml,
   extractTitleLabel,
+  stripKnownOrigin,
   umamiAttrsToHtml,
   DEFAULT_INLINE_LINK_BASE_COMPONENT
 } from './umami'
@@ -49,12 +50,15 @@ export function createMarked(context: UmamiContext = {}): Marked {
     html({ text }: Tokens.HTML | Tokens.Tag) {
       return escapeHtml(text)
     },
-    link({ href, title, tokens }: Tokens.Link) {
+    link({ href: rawHref, title, tokens }: Tokens.Link) {
+      // First, so the scheme check, umami and new-tab logic all see the href
+      // the page emits: an own-site URL as a relative path.
+      const href = stripKnownOrigin(rawHref ?? '')
       const innerHtml = this.parser.parseInline(tokens)
       // Marked only HTML-escapes href, it doesn't restrict schemes — drop
       // the link (keep the text) rather than emitting a javascript:/data:
       // href from editor-supplied markdown.
-      if (!isSafeMarkdownHref(href ?? '')) return innerHtml
+      if (!isSafeMarkdownHref(href)) return innerHtml
       const { label: baseComponentOverride, title: cleanedTitle } =
         extractTitleLabel(title)
       const attrs = buildUmamiAttrs({
@@ -71,7 +75,7 @@ export function createMarked(context: UmamiContext = {}): Marked {
         ? ` title="${escapeHtml(cleanedTitle)}"`
         : ''
       const newTab = buildNewTabLinkHtml(href, lang)
-      return `<a href="${escapeHtml(href ?? '')}"${titleAttr}${newTab.attrs}${umamiAttrsToHtml(attrs)}>${innerHtml}${newTab.hint}</a>`
+      return `<a href="${escapeHtml(href)}"${titleAttr}${newTab.attrs}${umamiAttrsToHtml(attrs)}>${innerHtml}${newTab.hint}</a>`
     },
     image({ href, title, text, tokens }: Tokens.Image) {
       // Alt text as plain text, the way Marked's default renderer derives it.

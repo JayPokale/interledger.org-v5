@@ -60,8 +60,16 @@ const HOME_SUFFIX = '_home'
 const TITLE_LABEL_PREFIX = 'label:'
 export const DEFAULT_INLINE_LINK_BASE_COMPONENT = 'inline_link'
 
-// Absolute links to the site's own domain must classify as internal
-const SITE_HOSTNAMES = new Set(['interledger.org', 'www.interledger.org'])
+// Absolute links to the site's own domain must classify as internal. Staging
+// and playground count too: editors copy links from whichever environment
+// they work on. Keep in step with the CMS's `SITE_HOSTS` (tested).
+const SITE_HOSTNAMES = new Set([
+  'interledger.org',
+  'www.interledger.org',
+  'staging.interledger.org',
+  'staging--interledger-org-v5.netlify.app',
+  'playground--interledger-org-v5.netlify.app'
+])
 
 const MICROSITE_SEGMENTS = new Set(['summit', 'hackathon'])
 // Purely-numeric or date-shaped segments (2026, 2026-01, 2026-01-07)
@@ -143,15 +151,19 @@ export function isSiteHostname(hostname: string): boolean {
 /**
  * Rewrites an absolute link to the site's own domain into a relative path,
  * so it flows through the internal classification pipeline instead of the
- * external one. Non-matching or unparseable hrefs are returned unchanged.
+ * external one, and keeps the reader in the environment they are on.
+ * Non-matching or unparseable hrefs are returned unchanged.
  */
-function stripKnownOrigin(href: string): string {
+export function stripKnownOrigin(href: string): string {
   // `new URL` can't parse a protocol-relative `//host` without a scheme.
   const parsable = href.startsWith('//') ? `https:${href}` : href
   try {
     const url = new URL(parsable)
+    // A leading `//` would make the path a protocol-relative link to a host
+    // named after its first segment.
+    const path = url.pathname.replace(/^\/+/, '/')
     return isSiteHostname(url.hostname)
-      ? `${url.pathname}${url.search}${url.hash}`
+      ? `${path}${url.search}${url.hash}`
       : href
   } catch {
     return href
