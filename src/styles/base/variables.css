@@ -137,8 +137,8 @@
      Two blocks therefore sit pb + top + h2-pt = 72/96/120 apart, heading
      to content, and the desktop value equals --space-section.
 
-     --media-pt/--media-pb pad an image, table or list inside a Paragraph
-     block.
+     --media-pt pads the top of an image, table or list inside a Paragraph
+     block. Media has no bottom padding: what follows it supplies the gap.
 
      Declared on every intro block as well as on :root, so a block nested in
      another (say inside a Split layout) starts from the defaults again
@@ -153,7 +153,6 @@
     --intro-desc: var(--spacing-xl);
     --block-pb: var(--spacing-xl);
     --media-pt: var(--spacing-xl);
-    --media-pb: var(--spacing-xl);
 
     @variant tablet {
       --intro-top: var(--spacing-2xl);
@@ -164,7 +163,6 @@
       --intro-desc: var(--spacing-2xl);
       --block-pb: var(--spacing-2xl);
       --media-pt: var(--spacing-2xl);
-      --media-pb: var(--spacing-2xl);
     }
 
     @variant desktop {
@@ -176,7 +174,6 @@
       --intro-desc: var(--spacing-4xl);
       --block-pb: var(--spacing-3xl-tight);
       --media-pt: var(--spacing-4xl);
-      --media-pb: var(--spacing-3xl-tight);
     }
   }
 
