@@ -118,72 +118,148 @@ const INSIDE_HTML_TAG = /(?<!\\)<[a-zA-Z][^<>]*$/
 /** A Markdown link or image destination: `](url` or `](<url`. */
 const MARKDOWN_DESTINATION = /\]\(<?$/
 
-/** A reference definition: `[id]: url`. */
-const REFERENCE_DEFINITION = /^\s*\[[^\]\n]+\]:\s*<?$/m
+/**
+ * A reference definition: `[id]: url`. Not a footnote (`[^4]: …`), whose text
+ * is prose.
+ */
+const REFERENCE_DEFINITION = /^\s*\[(?!\^)[^\]\n]+\]:\s*<?$/m
 
 /** Unclosed link text on this line: `[Download url`. An escaped `\[` is prose. */
 const INSIDE_LINK_TEXT = /(?<!\\)\[[^\]\n]*$/
 
 /**
  * The URL continues a token before it, so it is part of another URL
- * (`?url=https://…`, `web/2020/https://…`) or not a URL at all (`xhttps://…`).
- * Not `_`: CKEditor writes italics with it, and `_https://…_` is prose.
+ * (`?url=https://…`, `web/2020/https://…`, `/#https://…`, `podcast.` before a
+ * scheme-less host), part of an email (`team@interledger.org`), or not a URL
+ * at all (`xhttps://…`). Not `_`: CKEditor writes italics with it, and
+ * `_https://…_` is prose.
  */
-const CONTINUES_PRECEDING_TOKEN = /[A-Za-z0-9/:?&=.%\\-]$/
+const CONTINUES_PRECEDING_TOKEN = /[A-Za-z0-9/:?&=.%#@\\-]$/
 
 /** Sentence punctuation a bare URL does not own, as GFM autolinking reads it. */
 const TRAILING_PUNCTUATION = /[.,;:!?*_~]+$/
 
-type UploadUrlContext = 'origin' | 'autolink' | 'bare' | 'leave'
+/** Where a URL found in text sits, which decides how it is rewritten. */
+type UrlInTextContext = 'target' | 'linkText' | 'autolink' | 'bare' | 'leave'
 
-function classifyUploadUrl(before: string, after: string): UploadUrlContext {
-  if (INSIDE_HTML_TAG.test(before)) return 'origin'
-  if (MARKDOWN_DESTINATION.test(before)) return 'origin'
-  if (REFERENCE_DEFINITION.test(before.slice(before.lastIndexOf('\n') + 1)))
-    return 'origin'
+/**
+ * A nested URL is checked first, so a URL inside another one is left alone
+ * even within an HTML attribute.
+ */
+function classifyUrlInText(before: string, after: string): UrlInTextContext {
   if (CONTINUES_PRECEDING_TOKEN.test(before)) return 'leave'
-  if (INSIDE_LINK_TEXT.test(before)) return 'origin'
+  if (INSIDE_HTML_TAG.test(before)) return 'target'
+  if (MARKDOWN_DESTINATION.test(before)) return 'target'
+  if (REFERENCE_DEFINITION.test(before.slice(before.lastIndexOf('\n') + 1)))
+    return 'target'
+  if (INSIDE_LINK_TEXT.test(before)) return 'linkText'
   if (before.endsWith('<') && after.startsWith('>')) return 'autolink'
   return 'bare'
 }
 
-function toMarkdownLink(path: string): string {
-  return `[${path}](${path})`
+function toMarkdownLink(text: string, href: string): string {
+  return `[${text}](${href})`
 }
 
-function stripUploadOriginsInProse(segment: string): string {
+/** Builds the replacement for a matched URL: its origin and the rest. */
+type UrlRewrite = (
+  origin: string,
+  rest: string,
+  context: Exclude<UrlInTextContext, 'leave'>
+) => string
+
+/**
+ * Rewrites each `pattern` match in prose (group 1 the origin, group 2 the
+ * rest). It handles what every rewrite shares: a nested URL is left alone, an
+ * autolink loses its `<…>`, and a bare URL's trailing sentence punctuation is
+ * kept out of the rewrite.
+ */
+function rewriteUrlsInProse(
+  segment: string,
+  pattern: RegExp,
+  rewrite: UrlRewrite
+): string {
   let result = ''
   let cursor = 0
-  for (const match of segment.matchAll(UPLOAD_URL_IN_TEXT)) {
-    const [url, , matchedPath] = match
+  for (const match of segment.matchAll(pattern)) {
+    const [url, origin, rest] = match
     const start = match.index
     const end = start + url.length
     const before = segment.slice(0, start)
     const after = segment.slice(end)
     result += segment.slice(cursor, start)
     cursor = end
-    switch (classifyUploadUrl(before, after)) {
+    const context = classifyUrlInText(before, after)
+    switch (context) {
       case 'leave':
         result += url
         break
-      case 'origin':
-        result += matchedPath
-        break
       case 'autolink':
-        // Replace the surrounding `<…>` too: `</uploads/…>` is not an autolink.
-        result = result.slice(0, -1) + toMarkdownLink(matchedPath)
+        // Replace the surrounding `<…>` too: `</path>` is not an autolink.
+        result = result.slice(0, -1) + rewrite(origin, rest, context)
         cursor += 1
         break
       case 'bare': {
-        // GFM autolinks a bare `https://` URL but not a bare path, so the
-        // download would stop being clickable. Make the link explicit.
-        const trailing = matchedPath.match(TRAILING_PUNCTUATION)?.[0] ?? ''
-        const path = matchedPath.slice(0, matchedPath.length - trailing.length)
-        result += toMarkdownLink(path) + trailing
+        const trailing = rest.match(TRAILING_PUNCTUATION)?.[0] ?? ''
+        const ownRest = rest.slice(0, rest.length - trailing.length)
+        result += rewrite(origin, ownRest, context) + trailing
+        break
       }
+      default:
+        result += rewrite(origin, rest, context)
     }
   }
   return result + segment.slice(cursor)
+}
+
+const rewriteUploadUrl: UrlRewrite = (_origin, path, context) => {
+  if (context === 'target' || context === 'linkText') return path
+  // GFM autolinks a bare `https://` URL but not a bare path, so the download
+  // would stop being clickable. Make the link explicit.
+  return toMarkdownLink(path, path)
+}
+
+/**
+ * An own-site URL in text, with or without a scheme: group 1 the origin,
+ * group 2 the rest. Unanchored, so it is classified by what surrounds it.
+ */
+const SITE_URL_IN_TEXT = new RegExp(
+  `((?:https?://)?${SITE_HOST})((?:[/?#][^\\s"'()<>[\\]]*)?)`,
+  'gi'
+)
+
+const rewriteSiteUrl: UrlRewrite = (origin, rest, context) => {
+  const url = origin + rest
+  // GFM autolinks a scheme-less host only after `www.`, so in prose any other
+  // one (`interledger.org/x`, an email's domain) is text, not a link.
+  const isProseLink = /^(?:https?:\/\/|www\.)/i.test(origin)
+  if (!isProseLink && context !== 'target') return url
+
+  const href = toSiteHref(rest)
+  switch (context) {
+    case 'target':
+      return href
+    case 'linkText':
+      return url
+    case 'autolink':
+      return toMarkdownLink(url, href)
+    case 'bare':
+      // Only the slash is added: a plain field must not gain Markdown. An
+      // origin alone, or a file, comes back unchanged.
+      return rest ? origin + href : url
+  }
+}
+
+/**
+ * Makes every own-site URL in a link target relative and slashed, so readers
+ * stay in the environment they are on (INTORG-1300). An autolink becomes an
+ * explicit link, a bare URL gains its trailing slash in place, link text is
+ * kept, and code is left alone.
+ */
+export function stripSiteOriginsInText(text: string): string {
+  return mapOutsideMarkdownCode(text, (prose) =>
+    rewriteUrlsInProse(prose, SITE_URL_IN_TEXT, rewriteSiteUrl)
+  )
 }
 
 /**
@@ -209,7 +285,9 @@ function stripUploadOriginsInProse(segment: string): string {
  * points uploads at a CDN, that origin is stripped too.
  */
 export function stripUploadOriginsInText(text: string): string {
-  return mapOutsideMarkdownCode(text, stripUploadOriginsInProse)
+  return mapOutsideMarkdownCode(text, (prose) =>
+    rewriteUrlsInProse(prose, UPLOAD_URL_IN_TEXT, rewriteUploadUrl)
+  )
 }
 
 /**
@@ -329,8 +407,10 @@ export function normalizeRelativeLinksInDocumentData(data: unknown): void {
       } else if (!CODE_FIELDS.has(key)) {
         // Every other string, so each CKEditor field is covered wherever it
         // sits (components, dynamic zones) without a field list to drift.
+        // The upload strip goes first, so an upload on a site host keeps its
+        // upload handling.
         ;(data as Record<string, unknown>)[key] = slashInternalMarkdownLinks(
-          stripUploadOriginsInText(value)
+          stripSiteOriginsInText(stripUploadOriginsInText(value))
         )
       }
     } else {
