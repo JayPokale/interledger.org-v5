@@ -12,8 +12,9 @@ import { LOCALE_CODES } from './localeCodes'
 import { getNewTabLinkAttrs, getOpensNewTabLabel } from './newTabLinks'
 
 /**
- * Adds umami event attributes to every `<a>` rendered from Markdown/MDX, and
- * opens off-site links in a new tab (see `getNewTabLinkAttrs`).
+ * Adds umami event attributes to every `<a>` rendered from Markdown/MDX,
+ * makes own-site links relative (see `stripKnownOrigin`), and opens off-site
+ * links in a new tab (see `getNewTabLinkAttrs`).
  *
  * `current_path` is derived from the source file's locale-aware path (or
  * `frontmatter.umamiContext` if set). Every link emits the flat `link` label

@@ -28,8 +28,9 @@ function stripTags(html: string): string {
 const markedCache = new Map<string, Marked>()
 
 /**
- * Returns a Marked instance whose link renderer injects umami attributes,
- * opens off-site links in a new tab (see `getNewTabLinkAttrs`), and drops
+ * Returns a Marked instance whose link renderer makes own-site links relative
+ * (see `stripKnownOrigin`), injects umami attributes, opens off-site links
+ * in a new tab (see `getNewTabLinkAttrs`), and drops
  * any link whose href isn't a safe scheme (see `isSafeMarkdownHref`) rather
  * than rendering it. Images go through the image optimizer
  * (`renderOptimizedImageHtml`).
