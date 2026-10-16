@@ -227,7 +227,7 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 
 - **Day heading:** "Day N", then the date. Semantically an `<h3>`.
 - **"Day N" is not editable.** It is numbered automatically from 1, in order. **The date is the editable field**, ideally a date picker (designer). See D5.
-- The agenda items stay as built. Whether the drawn day spacing and card details (alternating backgrounds, timeline) are a restyle is open ([E-Q23](#still-open)).
+- The agenda styles stay as built, apart from the day heading (designer, 2026-10-16).
 
 #### B5. Split layout ([`5441:63402`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5441-63402)), Split layout intro
 
@@ -336,7 +336,7 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 - ~~E-Q4 Agenda tablet day heading~~: fixed, 22/32.
 - ~~E-Q5 Number tiles~~: the tiles stay as built (D9).
 - ~~E-Q7 Content under the hero~~: the gap is 0 and the first block supplies its own top ([A6](#a6-h1-hero-only-543261853)).
-- ~~E-Q8 Mobile pb~~: Quote and Blockquote fixed to 24. Logo carousel's 40 on every device is on purpose. Split layout fixed to 24 (the no-CTA mobile frame still shows 32, E-Q20).
+- ~~E-Q8 Mobile pb~~: Quote, Blockquote and Split layout fixed to 24. Logo carousel's 40 on every device is on purpose.
 - ~~E-Q9 Blockquote attribution~~: `source` stays; Blockquote is an existing component with Quote's padding rules (D8).
 - ~~E-Q10 Profile Grid~~: the intro is Universal now and the grid rules stay as built (D9).
 - ~~E-Q11 Split layout~~: order is intro → buttons → media; media padding only with a CTA; 4:3 only; columns 60 / 40 with gap 60, flipped for FAQ accordions ([B5](#b5-split-layout-544163402-split-layout-intro)). Figma's widths and ratios are not the reference.
@@ -347,12 +347,12 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 - ~~E-Q19 "H1 on top"~~: removed. The hero body uses the H4 container with Start=No ([A6](#a6-h1-hero-only-543261853)).
 - ~~E-Q20 Split layout widths and ratio~~: follow the stated rules, not Figma. FAQ variant exists in production. Ignore the 1px border.
 - ~~E-Q21 Quote~~ and ~~E-Q22 paragraph table~~: existing components, unchanged (D9).
+- ~~E-Q20 Split layout mobile pb without CTA~~: fixed to 24.
+- ~~E-Q23 Agenda~~: styles stay as built; only the day heading changes.
 
 ### Still open
 
-1. **E-Q20. Split layout, mobile without CTA.** Frame `5474:74348` still has pb 32. The CTA frame is fixed to 24. We build 24 for both.
-2. **E-Q23. Agenda.** Is the drawn Agenda (day spacing, alternating card backgrounds, timeline) a restyle, or does it stay as built apart from the "Day N" + date heading?
-3. **E-Q17. Canvas details (no action):**
+1. **E-Q17. Canvas details (no action):**
    - Spacer layers are named "Spacer between H1 & H2" but sit between H2 and H3.
    - Some spacers have opacity equal to their height (60%, 48%).
    - Several layers are named `his`.
