@@ -52,6 +52,17 @@ describe('normalizeBlockIntro', () => {
     })
   })
 
+  it('turns a CKEditor <br/> in the description into a paragraph break', () => {
+    expect(
+      normalizeBlockIntro({ description: 'One<br />Two<br/>Three<BR>Four' })
+        ?.description
+    ).toBe('One\n\nTwo\n\nThree\n\nFour')
+  })
+
+  it('treats a description of only break tags as empty', () => {
+    expect(normalizeBlockIntro({ description: ' <br /> <br/> ' })).toBeNull()
+  })
+
   it('treats a non-string field as empty', () => {
     const malformed = {
       heading: 42,

@@ -5,6 +5,13 @@ export type NormalizedBlockIntro = {
   [Field in keyof BlockIntro]-?: string | null
 }
 
+// CKEditor stores a Shift+Enter break as a literal <br/>. The Strapi
+// preview hands the raw field to this helper, and parseMarkdown escapes the
+// tag, so promote it to a paragraph break the way the MDX serializer
+// (ckeditorFieldToParsedMarkdown) does. Preview and export then agree.
+const BREAK_TAG = /<br\s*\/?>/gi
+const PARAGRAPH_BREAK = '\n\n'
+
 function trimmedText(value: unknown): string | null {
   if (typeof value !== 'string') return null
   const trimmed = value.trim()
@@ -25,7 +32,11 @@ export function normalizeBlockIntro(
   const normalized: NormalizedBlockIntro = {
     heading: trimmedText(intro.heading),
     subheading: trimmedText(intro.subheading),
-    description: trimmedText(intro.description)
+    description: trimmedText(
+      typeof intro.description === 'string'
+        ? intro.description.replace(BREAK_TAG, PARAGRAPH_BREAK)
+        : intro.description
+    )
   }
   const hasContent = Object.values(normalized).some((value) => value !== null)
   return hasContent ? normalized : null
