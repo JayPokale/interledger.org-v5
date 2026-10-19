@@ -81,6 +81,12 @@ export interface BlocksBlockquote extends Struct.ComponentSchema {
     icon: 'quote'
   }
   attributes: {
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     quote: Schema.Attribute.Text & Schema.Attribute.Required
     source: Schema.Attribute.RichText &
       Schema.Attribute.CustomField<
@@ -172,6 +178,12 @@ export interface BlocksCarousel extends Struct.ComponentSchema {
         }
       }>
     heading: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -286,6 +298,12 @@ export interface BlocksCtaButtons extends Struct.ComponentSchema {
         },
         number
       >
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
   }
 }
 
@@ -490,6 +508,12 @@ export interface BlocksEventCard extends Struct.ComponentSchema {
   }
   attributes: {
     apply: Schema.Attribute.Component<'blocks.event-card-apply', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -826,6 +850,12 @@ export interface BlocksImageBlock extends Struct.ComponentSchema {
     icon: 'picture'
   }
   attributes: {
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     media: Schema.Attribute.Component<'shared.localized-media', false> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -1124,6 +1154,12 @@ export interface BlocksPdfEmbed extends Struct.ComponentSchema {
   attributes: {
     externalUrl: Schema.Attribute.String
     file: Schema.Attribute.Media<'files'>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     label: Schema.Attribute.String & Schema.Attribute.DefaultTo<'Download file'>
     source: Schema.Attribute.Enumeration<['media_library', 'external_url']> &
       Schema.Attribute.Required &
@@ -1197,6 +1233,12 @@ export interface BlocksProfileGrid extends Struct.ComponentSchema {
   attributes: {
     category: Schema.Attribute.String
     heading: Schema.Attribute.String
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     profiles: Schema.Attribute.Relation<
       'oneToMany',
       'api::profile-page.profile-page'
@@ -1225,6 +1267,12 @@ export interface BlocksQuote extends Struct.ComponentSchema {
         }
       }>
     authorName: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {
           localized: true
@@ -1452,6 +1500,12 @@ export interface BlocksVideoEmbed extends Struct.ComponentSchema {
   attributes: {
     externalUrl: Schema.Attribute.String
     file: Schema.Attribute.Media<'videos'>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     poster: Schema.Attribute.Media<'images'>
     source: Schema.Attribute.Enumeration<['media_library', 'external_url']> &
       Schema.Attribute.Required &

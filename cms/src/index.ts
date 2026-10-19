@@ -1184,11 +1184,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       profile: 'Profile'
     },
     'blocks.profile-grid': {
-      heading: 'Heading',
+      intro: 'Intro',
+      heading: 'Heading (deprecated)',
       category: 'Category',
       profiles: 'Profiles'
     },
     'blocks.blockquote': {
+      intro: 'Intro',
       quote: 'Quote',
       source: 'Source'
     },
@@ -1199,6 +1201,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       series: 'Series'
     },
     'blocks.quote': {
+      intro: 'Intro',
       quote: 'Quote',
       authorName: 'Author Name',
       authorImage: 'Author Image',
@@ -1206,6 +1209,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.callout-text': {
       content: 'Content'
+    },
+    'blocks.pdf-embed': {
+      intro: 'Intro'
     },
     'shared.block-intro': {
       heading: 'Heading',
@@ -1233,6 +1239,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       document: 'Document Download'
     },
     'blocks.cta-buttons': {
+      intro: 'Intro',
       buttons: 'Buttons'
     },
     'shared.secondary-cta-link': {
@@ -1263,7 +1270,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       lastUpdated: 'Last Updated'
     },
     'blocks.report-section': {
-      heading: 'Section Heading',
+      heading: 'Section heading (deprecated)',
       reportText: 'Content Blocks'
     },
     'blocks.report-text': {
@@ -1316,6 +1323,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       imageAlt: 'Image alternative text'
     },
     'blocks.carousel': {
+      intro: 'Intro',
       heading: 'Section Heading',
       logos: 'Logos',
       accessibilityLabel: 'Accessibility label'
@@ -1345,7 +1353,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       additionalInfo: 'Additional information (optional)'
     },
     'blocks.event-card': {
-      title: 'Title',
+      intro: 'Intro',
+      title: 'Title (deprecated)',
       when: 'When',
       where: 'Where',
       apply: 'Apply'
@@ -1393,6 +1402,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       url: 'Profile URL'
     },
     'blocks.image-block': {
+      intro: 'Intro',
       media: 'Image',
       tabletImage: 'Tablet image variant (optional)',
       mobileImage: 'Mobile image variant (optional)',
@@ -1409,6 +1419,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       title: 'Title (optional)'
     },
     'blocks.video-embed': {
+      intro: 'Intro',
       source: 'Source',
       externalUrl: 'Video URL',
       file: 'Video file',
@@ -1461,6 +1472,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     }
   }
 
+  // Shared helper text for the block intro (ADR-009) and the legacy heading
+  // fields it replaces until they are removed (INTORG-1154, Phase 4).
+  const BLOCK_INTRO_DESCRIPTION =
+    'Optional heading (H2), subheading (H3) and description shown above the block. Leave empty for no intro.'
+  const LEGACY_HEADING_DESCRIPTION =
+    'Deprecated: use Intro → Heading instead. Only used when the intro is empty.'
+
   const componentDescriptions: Record<string, Record<string, string>> = {
     'shared.category': {
       categoryValue:
@@ -1480,6 +1498,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       slug: 'Add exactly 3. Enter the path of the related post after /blog, starting and ending with a slash, not the full URL (e.g. /my-related-post/). Missing slashes are added when you save.'
     },
     'blocks.profile-grid': {
+      intro: BLOCK_INTRO_DESCRIPTION,
+      heading: LEGACY_HEADING_DESCRIPTION,
       category: 'Option A: show profiles by category (leave profiles empty)',
       profiles: 'Option B: pick profiles manually (leave category empty)'
     },
@@ -1492,6 +1512,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       url: 'A Castopod or YouTube embed link, e.g. https://podcast.interledger.org/@futuremoneypodcast/episodes/example-embed'
     },
     'blocks.image-block': {
+      intro: BLOCK_INTRO_DESCRIPTION,
       tabletImage:
         'Use if your image needs different proportions or cropping on medium-sized screens.',
       mobileImage:
@@ -1510,6 +1531,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Describe the image if it conveys information. Leave blank if the image is purely decorative. Set per locale, and change the image itself here too if the graphic has text baked in that needs translating.'
     },
     'blocks.video-embed': {
+      intro: BLOCK_INTRO_DESCRIPTION,
       source:
         'Choose "external_url" for a YouTube, Vimeo, or direct video link, or "media_library" to upload a video file. Videos over 5 MB are rejected; use YouTube for larger videos.',
       externalUrl:
@@ -1537,10 +1559,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Required. Also becomes the label in the FAQ page’s left-hand navigation, so keep it short. At least 1 question is required below.'
     },
     'blocks.faq': {
-      intro:
-        'Optional heading (H2), subheading (H3) and description shown above the block. Leave empty for no intro.',
-      heading:
-        'Deprecated: use Intro → Heading instead. Only used when the intro is empty.'
+      intro: BLOCK_INTRO_DESCRIPTION,
+      heading: LEGACY_HEADING_DESCRIPTION
     },
     'blocks.faq-item': {
       question: 'Required.',
@@ -1584,8 +1604,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       external: 'Opens in a new tab. Cannot be combined with Document Download.'
     },
     'blocks.cta-buttons': {
+      intro: BLOCK_INTRO_DESCRIPTION,
       buttons:
         'One button, or two side by side. On mobile they stack and both go full width.'
+    },
+    'blocks.pdf-embed': {
+      intro: BLOCK_INTRO_DESCRIPTION
+    },
+    'blocks.blockquote': {
+      intro: BLOCK_INTRO_DESCRIPTION
     },
     'shared.block-intro': {
       heading: 'Optional. The block title, shown as an H2.',
@@ -1620,16 +1647,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
     },
     'blocks.number-tiles': {
-      intro:
-        'Optional heading (H2), subheading (H3) and description shown above the block. Leave empty for no intro.',
-      title:
-        'Deprecated: use Intro → Heading instead. Only used when the intro is empty.'
+      intro: BLOCK_INTRO_DESCRIPTION,
+      title: LEGACY_HEADING_DESCRIPTION
     },
     'blocks.card-grid': {
-      intro:
-        'Optional heading (H2), subheading (H3) and description shown above the block. Leave empty for no intro.',
-      title:
-        'Deprecated: use Intro → Heading instead. Only used when the intro is empty.',
+      intro: BLOCK_INTRO_DESCRIPTION,
+      title: LEGACY_HEADING_DESCRIPTION,
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page.',
       // Clear any previously stored helper text for the variant custom field.
@@ -1647,6 +1670,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       secondaryCta: 'Required link (internal, external, or document).'
     },
     'blocks.carousel': {
+      intro: BLOCK_INTRO_DESCRIPTION,
+      heading: LEGACY_HEADING_DESCRIPTION,
       accessibilityLabel:
         'Used by screen readers to describe this logo carousel. This text is not visible on the page. Example: "Partner logos" or "Our sponsors".',
       logos: 'Add one entry per logo. Recommended image size: 240×80.'
@@ -1667,7 +1692,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       heading: 'Optional. E.g. "Day 1 – Nov 8, 2026".'
     },
     'blocks.event-card': {
-      title: 'Optional heading shown above the When / Where / Apply columns.',
+      intro: BLOCK_INTRO_DESCRIPTION,
+      title: LEGACY_HEADING_DESCRIPTION,
       when: 'This box is intended to explain when an event is taking place.',
       where: 'This box is intended to explain where an event is taking place.',
       apply:
@@ -1707,6 +1733,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
     },
     'blocks.quote': {
+      intro: BLOCK_INTRO_DESCRIPTION,
       authorLink:
         'Optional. For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). For another site, use a full URL (https://...).'
     },
@@ -2005,6 +2032,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'shared.related-article': [[{ name: 'slug', size: 8 }]],
     'blocks.profile-grid': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'heading', size: 12 }],
       [{ name: 'category', size: 12 }],
       [{ name: 'profiles', size: 12 }]
@@ -2018,6 +2046,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'description', size: 12 }]
     ],
     'blocks.carousel': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'heading', size: 12 }],
       [{ name: 'accessibilityLabel', size: 12 }],
       [{ name: 'logos', size: 12 }]
@@ -2051,6 +2080,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'additionalInfo', size: 12 }]
     ],
     'blocks.event-card': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'title', size: 12 }],
       [{ name: 'when', size: 12 }],
       [{ name: 'where', size: 12 }],
@@ -2075,6 +2105,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'primaryCta', size: 12 }]
     ],
     'blocks.image-block': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'media', size: 12 }],
       [
         { name: 'tabletImage', size: 6 },
@@ -2086,10 +2117,12 @@ async function configureLayouts(strapi: StrapiInstance) {
       ]
     ],
     'blocks.blockquote': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'quote', size: 12 }],
       [{ name: 'source', size: 12 }]
     ],
     'blocks.quote': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'quote', size: 12 }],
       [
         { name: 'authorName', size: 4 },
@@ -2160,7 +2193,10 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'document', size: 4 }
       ]
     ],
-    'blocks.cta-buttons': [[{ name: 'buttons', size: 12 }]],
+    'blocks.cta-buttons': [
+      [{ name: 'intro', size: 12 }],
+      [{ name: 'buttons', size: 12 }]
+    ],
     'blocks.table-block': [[{ name: 'content', size: 12 }]],
     'blocks.code-block': [
       [

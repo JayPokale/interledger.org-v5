@@ -18,13 +18,14 @@ const GRANT_BLOCKS = {
   'blocks.split-layout': {
     populate: { media: { populate: { image: true } }, cta: true }
   },
-  'blocks.blockquote': {},
+  'blocks.blockquote': { populate: { intro: true } },
   'blocks.callout-text': {},
   'blocks.video-embed': {
-    populate: { file: true, poster: true }
+    populate: { intro: true, file: true, poster: true }
   },
   'blocks.image-block': {
     populate: {
+      intro: true,
       media: { populate: { image: true } },
       tabletImage: true,
       mobileImage: true
@@ -32,7 +33,7 @@ const GRANT_BLOCKS = {
   },
   'blocks.cta-strip': {},
   'blocks.carousel': {
-    populate: { logos: { populate: { image: true } } }
+    populate: { intro: true, logos: { populate: { image: true } } }
   },
   'blocks.number-tiles': {
     populate: { intro: true, tiles: true }
@@ -66,22 +67,23 @@ const FOUNDATION_PAGE_BLOCKS = {
     }
   },
   'blocks.profile-grid': {
-    populate: { profiles: true }
+    populate: { intro: true, profiles: true }
   },
-  'blocks.blockquote': {},
+  'blocks.blockquote': { populate: { intro: true } },
   'blocks.quote': {
-    populate: { authorImage: true }
+    populate: { intro: true, authorImage: true }
   },
   'blocks.callout-text': {},
   'blocks.cta-strip': {},
   'blocks.pdf-embed': {
-    populate: { file: true }
+    populate: { intro: true, file: true }
   },
   'blocks.video-embed': {
-    populate: { file: true, poster: true }
+    populate: { intro: true, file: true, poster: true }
   },
   'blocks.image-block': {
     populate: {
+      intro: true,
       media: { populate: { image: true } },
       tabletImage: true,
       mobileImage: true
@@ -102,16 +104,17 @@ const FOUNDATION_PAGE_BLOCKS = {
     }
   },
   'blocks.carousel': {
-    populate: { logos: { populate: { image: true } } }
+    populate: { intro: true, logos: { populate: { image: true } } }
   },
   'blocks.faq': {
     populate: { intro: true, items: true }
   },
   'blocks.cta-buttons': {
-    populate: { buttons: true }
+    populate: { intro: true, buttons: true }
   },
   'blocks.event-card': {
     populate: {
+      intro: true,
       when: true,
       where: true,
       apply: { populate: { primaryCta: true } }
@@ -126,10 +129,11 @@ const FOUNDATION_PAGE_BLOCKS = {
 const FOUNDATION_BLOG_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.video-embed': {
-    populate: { file: true, poster: true }
+    populate: { intro: true, file: true, poster: true }
   },
   'blocks.image-block': {
     populate: {
+      intro: true,
       media: { populate: { image: true } },
       tabletImage: true,
       mobileImage: true
@@ -137,7 +141,7 @@ const FOUNDATION_BLOG_BLOCKS = {
   },
   'blocks.code-block': {},
   'blocks.quote': {
-    populate: { authorImage: true }
+    populate: { intro: true, authorImage: true }
   },
   'blocks.internal-advert': {
     populate: {
@@ -189,31 +193,33 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
       populate: { media: { populate: { image: true } }, cta: true }
     },
     'blocks.profile-grid': {
-      populate: { profiles: true }
+      populate: { intro: true, profiles: true }
     },
     'blocks.cta-strip': {},
     'blocks.carousel': {
-      populate: { logos: { populate: { image: true } } }
+      populate: { intro: true, logos: { populate: { image: true } } }
     },
     'blocks.faq': {
       populate: { intro: true, items: true }
     },
     'blocks.cta-buttons': {
-      populate: { buttons: true }
+      populate: { intro: true, buttons: true }
     },
     'blocks.event-card': {
       populate: {
+        intro: true,
         when: true,
         where: true,
         apply: { populate: { primaryCta: true } }
       }
     },
     'blocks.quote': {
-      populate: { authorImage: true }
+      populate: { intro: true, authorImage: true }
     },
     'blocks.hackathon-animation': {},
     'blocks.image-block': {
       populate: {
+        intro: true,
         media: { populate: { image: true } },
         tabletImage: true,
         mobileImage: true
@@ -247,7 +253,7 @@ export const GRANT_PAGE_CONTENT_POPULATE = {
     on: {
       ...GRANT_BLOCKS,
       'blocks.profile-grid': {
-        populate: { profiles: true }
+        populate: { intro: true, profiles: true }
       }
     }
   },
