@@ -31,33 +31,28 @@ function previewComponentFiles(): Map<string, string> {
   return files
 }
 
-const SRC_DIR = path.resolve(BLOCKS_DIR, '../..')
-
-/** `.astro` files a component imports through the `@/` alias. */
-function importedAstroFiles(source: string): string[] {
-  return [...source.matchAll(/^import \w+ from '@\/(.+\.astro)'$/gm)].map(
-    ([, from]) => path.join(SRC_DIR, from)
-  )
+/**
+ * Preview components that hand their whole render to another component,
+ * which sets the root. Listed by hand: following every import would also
+ * count a component that only renders an intro block as one of its children.
+ */
+const RENDERED_BY: Readonly<Record<string, string>> = {
+  'ProfileGridBlock.astro': '../shared/ProfileGrid.astro'
 }
 
-function rendersIntroRoot(source: string): boolean {
+function rendersIntroRoot(file: string): boolean {
+  const source = readFileSync(file, 'utf8')
   return (
     source.includes('data-intro-variant=') ||
     source.includes('<IntroBlockFrame')
   )
 }
 
-/**
- * Sets the attribute itself, renders its root through IntroBlockFrame, or
- * hands its whole render to a component that does (ProfileGridBlock).
- */
+/** Sets the attribute itself, through IntroBlockFrame, or via RENDERED_BY. */
 function setsIntroVariant(file: string): boolean {
-  const source = readFileSync(file, 'utf8')
-  if (rendersIntroRoot(source)) return true
-  return importedAstroFiles(source).some(
-    (imported) =>
-      !imported.endsWith('/BlockIntro.astro') &&
-      rendersIntroRoot(readFileSync(imported, 'utf8'))
+  const delegate = RENDERED_BY[path.basename(file)]
+  return rendersIntroRoot(
+    delegate ? path.resolve(path.dirname(file), delegate) : file
   )
 }
 
