@@ -95,14 +95,16 @@ if (propProfiles) {
 }
 ---
 
-{profiles.length > 0 ? (
-  <section
-    aria-labelledby={headingId}
-    aria-label={headingId ? undefined : t('profile.profiles')}
-    data-component="ProfileGrid"
-    data-intro-variant="universal"
-  >
-    <BlockIntro intro={intro} headingId={headingId} />
+<section
+  aria-labelledby={headingId}
+  aria-label={headingId ? undefined : t('profile.profiles')}
+  data-component="ProfileGrid"
+  data-intro-variant="universal"
+>
+  <BlockIntro intro={intro} headingId={headingId} />
+  {/* An empty grid keeps its intro: the heading and text may be all the
+    section holds (e.g. a folded "Past Fellows" introduction). */}
+  {profiles.length > 0 ? (
     <div class="profiles-wrapper grid grid-cols-2 md:grid-cols-4 gap-2xl">
       {profiles.map((profile, index) => (
         <ProfileCard
@@ -116,7 +118,7 @@ if (propProfiles) {
         />
       ))}
     </div>
-  </section>
-) : (
-  <p class="mb-2xl text-neutral-75">{t('profile.no_profiles')}</p>
-)}
+  ) : (
+    <p class="m-0 text-neutral-75">{t('profile.no_profiles')}</p>
+  )}
+</section>
