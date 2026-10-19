@@ -14,7 +14,7 @@ locale: 'en'
 ---
 
 <NumberTiles
-  title="Overview"
+  intro={{ heading: 'Overview' }}
   tiles={[
     { number: '150', suffix: '+', description: 'Builders' },
     { number: '2', suffix: '-Day', description: 'Code Rush' },
@@ -62,7 +62,7 @@ breakthrough in payments could start with you.
 
 <HackathonAnimation />
 
-<CardGrid title="Why Participate?" ariaLabel="Reasons to participate" variant="Info" columns="Three">
+<CardGrid intro={{"heading":"Why Participate?"}} ariaLabel="Reasons to participate" variant="Info" columns="Three">
 <InfoCard heading="Build Something Real">
 
 Turn a real financial challenge into a working prototype in 2 days — not an
