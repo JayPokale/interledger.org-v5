@@ -66,6 +66,28 @@ describe('migrateBlockIntro: legacy headings', () => {
   })
 })
 
+describe('migrateBlockIntro: phase 2a blocks', () => {
+  it('moves EventCard, LogoCarousel and ProfileGrid headings', () => {
+    const source = [
+      '<EventCard title="Upcoming">',
+      '<EventWhen title="When?" date="Nov 8" />',
+      '<EventWhere title="Where?" location="Online" />',
+      '</EventCard>',
+      '',
+      '<LogoCarousel heading="Partners" accessibilityLabel="Logos" logos={[]} />',
+      '',
+      '<ProfileGrid heading="Judges" category="Judges" />',
+      ''
+    ].join('\n')
+    const result = migrate(source).source
+    expect(result).toContain('<EventCard intro={{"heading":"Upcoming"}}>')
+    // Column titles are not block headings.
+    expect(result).toContain('<EventWhen title="When?"')
+    expect(result).toContain('<LogoCarousel intro={{"heading":"Partners"}}')
+    expect(result).toContain('<ProfileGrid intro={{"heading":"Judges"}}')
+  })
+})
+
 describe('migrateBlockIntro: fake intros', () => {
   const fakeIntro = (
     body: string,

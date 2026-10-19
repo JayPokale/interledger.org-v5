@@ -23,8 +23,11 @@ import type { SerializedBlockIntro } from '../src/utils/contentTypes'
 /** Blocks that take an intro, and the legacy attribute each one replaces. */
 export const INTRO_BLOCK_LEGACY_ATTRS: Readonly<Record<string, string>> = {
   CardGrid: 'title',
+  EventCard: 'title',
   Faq: 'heading',
-  NumberTiles: 'title'
+  LogoCarousel: 'heading',
+  NumberTiles: 'title',
+  ProfileGrid: 'heading'
 }
 
 const FAKE_INTRO_WRAPPER = 'Paragraph'
