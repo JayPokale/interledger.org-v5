@@ -70,6 +70,21 @@ No restyle in this phase ([D9](../decisions/009-block-intro-and-block-owned-spac
 - **Content follow-up:** `events.mdx` (EN and ES) has a Paragraph ending on "Upcoming Events" right before a CardGrid whose own heading is "October". It now reads as two separate headings, a full section apart.
 - **Admin:** component layouts in `cms/src/index.ts` replace Strapi's generated layout. Every block that gains `intro` must be added there too.
 
+**Phase 2a status (2026-10-19).** The intro is on Image, Video, PDF, Quote, Blockquote, Event card, Logo carousel, Profile grid and CTA buttons.
+
+- **`IntroBlockFrame`** (`shared/IntroBlockFrame.astro`) wraps blocks whose content is a reusable component, so that component stays usable without block spacing. The MDX maps point `Blockquote`, `VideoEmbed` and `PdfEmbed` at the block components.
+- **Blog posts keep the plain prose rhythm** (D3). They map to the shared components or the `bare` wrappers in `components/blog/`. The Strapi preview of a blog post still renders the framed blocks.
+- **Logo carousel:**
+  - `standalone` keeps the homepage version as built.
+  - As a content block its intro sits inside the section's side padding, so on desktop it starts 80px in from other intros. Ask design.
+  - A legacy element after a mid-page carousel reads the default `--block-pb`, not the carousel's 40, so it sits a little too low. No page has one yet.
+- **CTA buttons:**
+  - Self-spaced only when they have an intro. Without one they keep the tight pairing with the paragraph above (`OWNS_ITS_SPACING`), and the preview is approximate for one with an intro.
+  - A heading-only intro puts 60 (H2 spacer) plus 32 between the heading and the buttons on desktop. Check against B2.
+- **Pre-existing gaps, not from this work:**
+  - `FundraisingPage` maps none of these blocks, though its schema allows them.
+  - The root `page-preview.astro` doesn't populate image, video or PDF media.
+
 ### Phase 2: Remaining blocks
 
 Same recipe as Phase 1. Blocks that are already built only gain the intro and the block spacing ([D9](../decisions/009-block-intro-and-block-owned-spacing.md#decision)). The listed structural changes follow the ADR's [per-block spec](../decisions/009-block-intro-and-block-owned-spacing.md#b-per-block-spec).
