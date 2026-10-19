@@ -81,6 +81,11 @@ const headingId = blockIntroLabel(intro)
   ? `cta-buttons-heading-${crypto.randomUUID()}`
   : undefined
 const Root = intro ? 'section' : 'div'
+// The buttons sit 24 / 24 / 32 below the intro, except under a heading on
+// its own, whose spacer is already the gap (designer, 2026-10-19).
+const isHeadingOnly = Boolean(
+  intro?.heading && !intro.subheading && !intro.description
+)
 
 // A hackathon primary carries no arrow (INTORG-1072). Read from `Astro.locals`,
 // the same value `BaseLayout` writes to `data-site` for the button tokens, so the
@@ -132,7 +137,7 @@ const resolved = buttons
   <BlockIntro intro={intro} headingId={headingId} />
   <div
     class:list={[
-      intro && 'pt-xl desktop:pt-2xl',
+      intro && !isHeadingOnly && 'pt-xl desktop:pt-2xl',
       'flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start'
     ]}
   >
