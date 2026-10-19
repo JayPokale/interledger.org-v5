@@ -2104,6 +2104,23 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'text', size: 12 }],
       [{ name: 'primaryCta', size: 12 }]
     ],
+    // Listed only to put the intro first; every other field keeps
+    // Strapi's order. Add new fields here too (see the note above).
+    'blocks.video-embed': [
+      [{ name: 'intro', size: 12 }],
+      [{ name: 'source', size: 12 }],
+      [{ name: 'externalUrl', size: 12 }],
+      [{ name: 'file', size: 12 }],
+      [{ name: 'title', size: 12 }],
+      [{ name: 'poster', size: 12 }]
+    ],
+    'blocks.pdf-embed': [
+      [{ name: 'intro', size: 12 }],
+      [{ name: 'source', size: 12 }],
+      [{ name: 'externalUrl', size: 12 }],
+      [{ name: 'file', size: 12 }],
+      [{ name: 'label', size: 12 }]
+    ],
     'blocks.image-block': [
       [{ name: 'intro', size: 12 }],
       [{ name: 'media', size: 12 }],
