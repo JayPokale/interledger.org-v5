@@ -281,7 +281,8 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 #### B12. Logo carousel ([`5474:71790`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5474-71790))
 
 - The carousel stays as built. The desktop border-top drawn in Figma is not meant to be there.
-- The heading moves into the Universal intro.
+- The heading moves into the Universal intro, left-aligned like every other block (it was centred).
+- **No side padding of its own:** the carousel runs the full width of the content column, like the other blocks (designer, 2026-10-19). The homepage carousel, outside the block system, keeps its gutters.
 - Block pb is **40 on every device**, on purpose. With the core's own pb that leaves 80 below the ticker.
 
 #### B13. Event card ([`5474:73345`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5474-73345))

@@ -76,7 +76,7 @@ No restyle in this phase ([D9](../decisions/009-block-intro-and-block-owned-spac
 - **Blog posts keep the plain prose rhythm** (D3). They map to the shared components or the `bare` wrappers in `components/blog/`. The Strapi preview of a blog post still renders the framed blocks.
 - **Logo carousel:**
   - `standalone` keeps the homepage version as built.
-  - As a content block its intro sits inside the section's side padding, so on desktop it starts 80px in from other intros. Ask design.
+  - As a content block it has no side padding of its own, so its intro and logos line up with the other blocks (designer, 2026-10-19).
   - A legacy element after a mid-page carousel reads the default `--block-pb`, not the carousel's 40, so it sits a little too low. No page has one yet.
 - **CTA buttons:**
   - Self-spaced only when they have an intro. Without one they keep the tight pairing with the paragraph above (`OWNS_ITS_SPACING`), and the preview is approximate for one with an intro.
