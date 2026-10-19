@@ -1207,6 +1207,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     'blocks.callout-text': {
       content: 'Content'
     },
+    'shared.block-intro': {
+      heading: 'Heading',
+      subheading: 'Subheading',
+      description: 'Description'
+    },
     'shared.cta-link': {
       link: 'Link',
       text: 'Button Text',
@@ -1237,7 +1242,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       document: 'Document Download'
     },
     'blocks.card-grid': {
-      title: 'Title',
+      intro: 'Intro',
+      title: 'Title (deprecated)',
       ariaLabel: 'Accessibility label',
       variant: 'Card variant',
       columns: 'Columns',
@@ -1289,7 +1295,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       items: 'Questions'
     },
     'blocks.faq': {
-      heading: 'Heading',
+      intro: 'Intro',
+      heading: 'Heading (deprecated)',
       items: 'Questions'
     },
     'blocks.faq-item': {
@@ -1318,7 +1325,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       alternativeText: 'Alternative Text'
     },
     'blocks.number-tiles': {
-      title: 'Title (optional)',
+      intro: 'Intro',
+      title: 'Title (deprecated)',
       tiles: 'Tiles'
     },
     'blocks.number-tile': {
@@ -1529,8 +1537,10 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Required. Also becomes the label in the FAQ page’s left-hand navigation, so keep it short. At least 1 question is required below.'
     },
     'blocks.faq': {
+      intro:
+        'Optional heading (H2), subheading (H3) and description shown above the block. Leave empty for no intro.',
       heading:
-        'Optional. Shown above the questions. Leave blank to run the questions straight on from the content above. At least 1 question is required below.'
+        'Deprecated: use Intro → Heading instead. Only used when the intro is empty.'
     },
     'blocks.faq-item': {
       question: 'Required.',
@@ -1577,6 +1587,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       buttons:
         'One button, or two side by side. On mobile they stack and both go full width.'
     },
+    'shared.block-intro': {
+      heading: 'Optional. The block title, shown as an H2.',
+      subheading: 'Optional. Shown as an H3 under the heading, or on its own.',
+      description:
+        'Optional. Short text under the heading; links and bold allowed.'
+    },
     'shared.cta-link': {
       link: 'For a page on this site, use its path, starting and ending with a slash (e.g. /grant/our-grantmaking/). Only use a full URL (https://...) when External Link is checked.',
       document:
@@ -1603,8 +1619,17 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       ctaDocument:
         'Mark as a downloadable document (shows a download icon). Cannot be combined with External Link. For a PDF: upload it in the Media Library, open it, press Copy Link, and paste the link here. The origin is removed for you on save, leaving /uploads/img/original/your-file.pdf.'
     },
+    'blocks.number-tiles': {
+      intro:
+        'Optional heading (H2), subheading (H3) and description shown above the block. Leave empty for no intro.',
+      title:
+        'Deprecated: use Intro → Heading instead. Only used when the intro is empty.'
+    },
     'blocks.card-grid': {
-      title: 'Optional. Shown above the cards as a heading.',
+      intro:
+        'Optional heading (H2), subheading (H3) and description shown above the block. Leave empty for no intro.',
+      title:
+        'Deprecated: use Intro → Heading instead. Only used when the intro is empty.',
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page.',
       // Clear any previously stored helper text for the variant custom field.
@@ -2002,6 +2027,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'alternativeText', size: 6 }]
     ],
     'blocks.number-tiles': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'title', size: 12 }],
       [{ name: 'tiles', size: 12 }]
     ],
@@ -2177,6 +2203,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     ],
     'blocks.card-grid': [
       [{ name: 'variant', size: 12 }],
+      [{ name: 'intro', size: 12 }],
       [{ name: 'title', size: 12 }],
       [
         { name: 'columns', size: 6 },
