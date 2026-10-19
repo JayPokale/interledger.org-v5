@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { parseMdxToBlocks, type ParserContext } from './mdxBlockParser'
 import { serialize as serializeBlockquote } from '../../src/serializers/blocks/blockquote.serializer'
+import { serialize as serializeCarousel } from '../../src/serializers/blocks/carousel.serializer'
 import { serialize as serializeCtaButtons } from '../../src/serializers/blocks/cta-buttons.serializer'
 import { serialize as serializeImageBlock } from '../../src/serializers/blocks/image-block.serializer'
 import { serialize as serializePdfEmbed } from '../../src/serializers/blocks/pdf-embed.serializer'
@@ -9,6 +10,7 @@ import { serialize as serializeVideoEmbed } from '../../src/serializers/blocks/v
 
 // Side-effect imports: register the handlers
 import './blockquoteHandler'
+import './carouselHandler'
 import './ctaButtonsHandler'
 import './imageBlockHandler'
 import './pdfEmbedHandler'
@@ -84,5 +86,35 @@ describe('block intro round-trip on intro-only blocks', () => {
   it.each(cases)('%s has no intro without one', async (_tag, mdx) => {
     const blocks = await parseMdxToBlocks(mdx(false), ctx)
     expect(blocks[0]).not.toHaveProperty('intro')
+  })
+
+  describe('LogoCarousel', () => {
+    const logos = [
+      { image: { url: '/img/plata.png' }, alternativeText: 'Plata' }
+    ]
+
+    it('keeps its intro', async () => {
+      const blocks = await parseMdxToBlocks(
+        serializeCarousel({ intro, accessibilityLabel: 'Partners', logos }),
+        ctx
+      )
+      expect(blocks[0]).toMatchObject({ intro, accessibilityLabel: 'Partners' })
+      expect(blocks[0]).not.toHaveProperty('heading')
+    })
+
+    it('exports a legacy heading as the intro heading', async () => {
+      const blocks = await parseMdxToBlocks(
+        serializeCarousel({
+          heading: 'In partnership with',
+          accessibilityLabel: 'Partners',
+          logos
+        }),
+        ctx
+      )
+      expect(blocks[0]).toMatchObject({
+        intro: { heading: 'In partnership with' }
+      })
+      expect(blocks[0]).not.toHaveProperty('heading')
+    })
   })
 })
