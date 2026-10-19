@@ -7,7 +7,11 @@
  */
 
 import type { ParsedBlock, CarouselBlock } from './types.blocks'
-import { getStringAttr, getStaticLiteralAttr } from './jsxExtract'
+import {
+  getIntroWithLegacyHeading,
+  getStringAttr,
+  getStaticLiteralAttr
+} from './jsxExtract'
 import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
 import type { JsxBlockNode } from './mdxBlockParser'
 import {
@@ -36,7 +40,7 @@ async function handleCarousel(
   ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(async () => {
-    const heading = getStringAttr(node, 'heading')
+    const intro = getIntroWithLegacyHeading(node, 'heading')
     const accessibilityLabel = getStringAttr(node, 'accessibilityLabel', {
       required: true
     })
@@ -76,7 +80,7 @@ async function handleCarousel(
 
     const block: CarouselBlock = {
       __component: 'blocks.carousel',
-      ...(heading ? { heading } : {}),
+      ...(intro ? { intro } : {}),
       accessibilityLabel,
       logos
     }

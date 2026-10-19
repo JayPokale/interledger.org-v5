@@ -90,7 +90,7 @@ export interface ProfileBlock extends StrapiBlockBase {
  */
 export interface ProfileGridBlock extends StrapiBlockBase {
   __component: 'blocks.profile-grid'
-  heading?: string
+  intro?: SerializedBlockIntro
   profiles?: { connect: Array<{ documentId: string }> }
   category?: string
 }
@@ -98,6 +98,7 @@ export interface ProfileGridBlock extends StrapiBlockBase {
 /** blocks.blockquote – styled quote with optional attribution. */
 export interface BlockquoteBlock extends StrapiBlockBase {
   __component: 'blocks.blockquote'
+  intro?: SerializedBlockIntro
   quote: string
   source?: string
 }
@@ -111,6 +112,7 @@ export interface BlockquoteBlock extends StrapiBlockBase {
  */
 export interface QuoteBlock extends StrapiBlockBase {
   __component: 'blocks.quote'
+  intro?: SerializedBlockIntro
   quote: string
   authorName?: string
   /** Strapi upload file integer ID — set when authorImage is provided. */
@@ -151,6 +153,7 @@ export interface CtaStripBlock extends StrapiBlockBase {
 /** blocks.pdf-embed — inline PDF viewer with download fallback. */
 export interface PdfEmbedBlock extends StrapiBlockBase {
   __component: 'blocks.pdf-embed'
+  intro?: SerializedBlockIntro
   source: 'media_library' | 'external_url'
   /**
    * Strapi upload file integer ID — set when source is 'media_library'.
@@ -171,6 +174,7 @@ export interface PdfEmbedBlock extends StrapiBlockBase {
  */
 export interface VideoEmbedBlock extends StrapiBlockBase {
   __component: 'blocks.video-embed'
+  intro?: SerializedBlockIntro
   source: 'media_library' | 'external_url'
   /** Strapi upload file integer ID — set when source is 'media_library'. */
   file?: number
@@ -194,6 +198,7 @@ export interface VideoEmbedBlock extends StrapiBlockBase {
  */
 export interface ImageBlockBlock extends StrapiBlockBase {
   __component: 'blocks.image-block'
+  intro?: SerializedBlockIntro
   media: {
     image: number | null
     /** null when omitted in MDX; '' when explicitly empty (decorative). */
@@ -244,7 +249,7 @@ export interface SplitLayoutBlock extends StrapiBlockBase {
  */
 export interface CarouselBlock extends StrapiBlockBase {
   __component: 'blocks.carousel'
-  heading?: string
+  intro?: SerializedBlockIntro
   accessibilityLabel: string
   logos: Array<{ image: number; alternativeText: string | null }>
 }
@@ -299,6 +304,7 @@ export interface CtaButton {
 /** blocks.cta-buttons — one CTA button, or two side by side. */
 export interface CtaButtonsBlock extends StrapiBlockBase {
   __component: 'blocks.cta-buttons'
+  intro?: SerializedBlockIntro
   buttons: CtaButton[]
 }
 
@@ -309,12 +315,6 @@ export interface CtaButton {
   style: CtaButtonStyle
   external?: boolean
   document?: boolean
-}
-
-/** blocks.cta-buttons — one CTA button, or two side by side. */
-export interface CtaButtonsBlock extends StrapiBlockBase {
-  __component: 'blocks.cta-buttons'
-  buttons: CtaButton[]
 }
 
 /** blocks.card-grid — unified card grid with variant-specific card fields. */
@@ -395,7 +395,7 @@ export interface EventCardApply {
  */
 export interface EventCardBlock extends StrapiBlockBase {
   __component: 'blocks.event-card'
-  title?: string
+  intro?: SerializedBlockIntro
   when: EventCardWhen
   where: EventCardWhere
   apply?: EventCardApply

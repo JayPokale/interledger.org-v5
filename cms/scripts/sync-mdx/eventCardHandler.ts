@@ -22,7 +22,12 @@ import type {
   EventCardApply
 } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
-import { getStringAttr, getBooleanAttr, getChildElements } from './jsxExtract'
+import {
+  getStringAttr,
+  getBooleanAttr,
+  getChildElements,
+  getIntroWithLegacyHeading
+} from './jsxExtract'
 import { hasConflictingCtaFlags } from './types.blocks'
 import {
   registerComponentHandler,
@@ -147,13 +152,13 @@ async function handleEventCard(
       })
     }
 
-    const cardTitle = getStringAttr(node, 'title')
+    const intro = getIntroWithLegacyHeading(node, 'title')
     const block: EventCardBlock = {
       __component: 'blocks.event-card',
+      ...(intro ? { intro } : {}),
       when: parseWhen(whenNodes[0]),
       where: parseWhere(whereNodes[0])
     }
-    if (cardTitle !== undefined) block.title = cardTitle
 
     if (applyNodes.length === 1) {
       block.apply = parseApply(applyNodes[0])

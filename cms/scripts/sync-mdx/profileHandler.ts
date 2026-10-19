@@ -23,7 +23,11 @@ import {
   tryCatchParserError
 } from './parserErrors'
 import { bareSlug } from '@/utils'
-import { getStringAttr, getStringArrayAttr } from './jsxExtract'
+import {
+  getIntroWithLegacyHeading,
+  getStringAttr,
+  getStringArrayAttr
+} from './jsxExtract'
 import { registerComponentHandler, type ParserContext } from './mdxBlockParser'
 
 // ---------------------------------------------------------------------------
@@ -141,7 +145,7 @@ async function handleProfileGrid(
   ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(async () => {
-    const heading = getStringAttr(node, 'heading')
+    const intro = getIntroWithLegacyHeading(node, 'heading')
     const pathSlugs = getStringArrayAttr(node, 'pathSlugs')
     const category = getStringAttr(node, 'category')
 
@@ -153,12 +157,10 @@ async function handleProfileGrid(
     }
 
     const block: ProfileGridBlock = {
-      __component: 'blocks.profile-grid'
+      __component: 'blocks.profile-grid',
+      ...(intro ? { intro } : {})
     }
 
-    if (heading !== undefined) {
-      block.heading = heading
-    }
     if (category !== undefined) {
       block.category = category
     }
