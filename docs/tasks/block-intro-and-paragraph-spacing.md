@@ -58,6 +58,18 @@ Then:
 
 No restyle in this phase ([D9](../decisions/009-block-intro-and-block-owned-spacing.md#decision)). CardGrid, FAQ and NumberTiles stay as built; they only gain the intro and the block spacing.
 
+**Phase 1 status (2026-10-19).**
+
+- **Done:** the Phase 0 follow-ups for the first block on the page, `aria-labelledby`, the sync handlers and the preview list.
+  - The hero gap drops only when the first section's prose opens with an intro block that has content (`page-stack` in `utilities/spacing.css`, and `HackathonContentPage`).
+  - The hero-less H1 margin in `FoundationContentPage` is untouched. No page needs it yet, and a `:has()` can't reach it; handle it in Phase 3.
+  - The sync handlers leave `intro` out when it's empty, like other optional fields. The sync replaces the whole dynamic zone, so nothing stale survives.
+  - Blocks label their `<section>` by the heading, or the subheading when there is no heading (`blockIntroLabel`).
+- **Run `pnpm sync:mdx` right after this merges.** Until it runs, Strapi still holds the unfolded Paragraphs and the legacy titles. An editor save on one of those pages would export the old shape and undo the migration.
+- **22 fake intros are left for editors.** They have formatted headings, content before the heading, or lists. List them with `cd cms && pnpm exec tsx scripts/migrate-block-intro.ts --dry-run`.
+- **Content follow-up:** `events.mdx` (EN and ES) has a Paragraph ending on "Upcoming Events" right before a CardGrid whose own heading is "October". It now reads as two separate headings, a full section apart.
+- **Admin:** component layouts in `cms/src/index.ts` replace Strapi's generated layout. Every block that gains `intro` must be added there too.
+
 ### Phase 2: Remaining blocks
 
 Same recipe as Phase 1. Blocks that are already built only gain the intro and the block spacing ([D9](../decisions/009-block-intro-and-block-owned-spacing.md#decision)). The listed structural changes follow the ADR's [per-block spec](../decisions/009-block-intro-and-block-owned-spacing.md#b-per-block-spec).
