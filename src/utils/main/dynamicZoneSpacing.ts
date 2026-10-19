@@ -20,10 +20,13 @@ const OWNS_ITS_SPACING: ReadonlySet<string> = new Set(['blocks.cta-buttons'])
 export const SELF_SPACED_BLOCKS: ReadonlySet<string> = new Set([
   'blocks.blockquote',
   'blocks.card-grid',
+  'blocks.carousel',
+  'blocks.event-card',
   'blocks.faq',
   'blocks.image-block',
   'blocks.number-tiles',
   'blocks.pdf-embed',
+  'blocks.profile-grid',
   'blocks.quote',
   'blocks.video-embed'
 ])

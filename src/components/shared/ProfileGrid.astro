@@ -19,8 +19,16 @@
 
 import type { CollectionEntry } from 'astro:content'
 import ProfileCard from './ProfileCard.astro'
+import BlockIntro from './BlockIntro.astro'
+import type { BlockIntro as BlockIntroData } from '@/types/blockIntro'
 import type { ProfileData } from './profile.types'
-import { useTranslations, toProfileData, getGatedCollection } from '@/utils'
+import {
+  useTranslations,
+  toProfileData,
+  getGatedCollection,
+  blockIntroLabel,
+  resolveBlockIntro
+} from '@/utils'
 import { resolveKnownProfilePathSlug } from '@/utils/main/profileGridColors'
 
 function resolveProfileByPathSlug(
@@ -32,13 +40,25 @@ function resolveProfileByPathSlug(
 }
 
 interface Props {
+  intro?: BlockIntroData | null
   profiles?: ProfileData[]
   pathSlugs?: string[]
+  /** @deprecated Legacy heading, rendered as the intro heading. */
   heading?: string
   category?: string
 }
 
-const { profiles: propProfiles, pathSlugs, heading, category } = Astro.props
+const {
+  intro: introProp,
+  profiles: propProfiles,
+  pathSlugs,
+  heading,
+  category
+} = Astro.props
+const intro = resolveBlockIntro(introProp, heading)
+const headingId = blockIntroLabel(intro)
+  ? `profile-grid-heading-${crypto.randomUUID()}`
+  : undefined
 const { routeLocale, profileEntries: preloadedProfileEntries } = Astro.locals
 const t = useTranslations(routeLocale)
 
@@ -77,11 +97,12 @@ if (propProfiles) {
 
 {profiles.length > 0 ? (
   <section
-    aria-label={heading ?? t('profile.profiles')}
+    aria-labelledby={headingId}
+    aria-label={headingId ? undefined : t('profile.profiles')}
     data-component="ProfileGrid"
-    class:list={[heading && 'flex flex-col gap-block-heading']}
+    data-intro-variant="universal"
   >
-    {heading && <h2 class="m-0">{heading}</h2>}
+    <BlockIntro intro={intro} headingId={headingId} />
     <div class="profiles-wrapper grid grid-cols-2 md:grid-cols-4 gap-2xl">
       {profiles.map((profile, index) => (
         <ProfileCard

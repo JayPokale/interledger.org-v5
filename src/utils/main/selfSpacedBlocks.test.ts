@@ -31,12 +31,33 @@ function previewComponentFiles(): Map<string, string> {
   return files
 }
 
-/** Sets the attribute itself, or renders its root through IntroBlockFrame. */
-function setsIntroVariant(file: string): boolean {
-  const source = readFileSync(file, 'utf8')
+const SRC_DIR = path.resolve(BLOCKS_DIR, '../..')
+
+/** `.astro` files a component imports through the `@/` alias. */
+function importedAstroFiles(source: string): string[] {
+  return [...source.matchAll(/^import \w+ from '@\/(.+\.astro)'$/gm)].map(
+    ([, from]) => path.join(SRC_DIR, from)
+  )
+}
+
+function rendersIntroRoot(source: string): boolean {
   return (
     source.includes('data-intro-variant=') ||
     source.includes('<IntroBlockFrame')
+  )
+}
+
+/**
+ * Sets the attribute itself, renders its root through IntroBlockFrame, or
+ * hands its whole render to a component that does (ProfileGridBlock).
+ */
+function setsIntroVariant(file: string): boolean {
+  const source = readFileSync(file, 'utf8')
+  if (rendersIntroRoot(source)) return true
+  return importedAstroFiles(source).some(
+    (imported) =>
+      !imported.endsWith('/BlockIntro.astro') &&
+      rendersIntroRoot(readFileSync(imported, 'utf8'))
   )
 }
 

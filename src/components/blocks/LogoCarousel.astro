@@ -1,5 +1,8 @@
 ---
 import OptimizedImage from '@/components/shared/OptimizedImage.astro'
+import BlockIntro from '@/components/shared/BlockIntro.astro'
+import type { BlockIntro as BlockIntroData } from '@/types/blockIntro'
+import { blockIntroLabel, resolveBlockIntro } from '@/utils'
 
 /** MDX / site shape */
 interface LogoMdx {
@@ -14,17 +17,37 @@ interface LogoStrapi {
 }
 
 interface Props {
-  heading?: string
+  /** Block intro (ADR-009): sits above the carousel in a content block. */
+  intro?: BlockIntroData | null
+  /**
+   * The centred title on the homepage. In a content block it is the
+   * deprecated legacy heading, rendered as the intro heading.
+   */
+  heading?: string | null
+  /**
+   * Outside the block system (the homepage): keeps the centred heading and
+   * its own bottom padding instead of an intro and block spacing.
+   */
+  standalone?: boolean
   accessibilityLabel: string
   logos: Array<LogoMdx | LogoStrapi>
 }
 
-const { heading, accessibilityLabel, logos: rawLogos } = Astro.props
-const headingText = heading?.trim() || undefined
+const {
+  intro: introProp,
+  heading,
+  standalone = false,
+  accessibilityLabel,
+  logos: rawLogos
+} = Astro.props
+const isContentBlock = !standalone
+const intro = isContentBlock ? resolveBlockIntro(introProp, heading) : null
+const headingText = isContentBlock ? undefined : heading?.trim() || undefined
 // Stable for this render; unique across multiple carousels on one page.
-const headingId = headingText
-  ? `logo-carousel-heading-${crypto.randomUUID()}`
-  : undefined
+const headingId =
+  headingText || blockIntroLabel(intro)
+    ? `logo-carousel-heading-${crypto.randomUUID()}`
+    : undefined
 
 // Skip incomplete logos instead of throwing — DynamicZone preview can see
 // half-finished CMS rows; save-time validation (validateContentBlocks) is the
@@ -89,12 +112,16 @@ const carouselStyle = `
 `
 
 const sectionClasses = `
-  px-lg pb-3xl-tight
+  px-lg
   bg-neutral-0 text-neutral-900
   dark:bg-neutral-150 dark:text-neutral-0
   tablet:px-xl
-  desktop:px-5xl desktop:pb-3xl
+  desktop:px-5xl
 `
+// The homepage keeps its own bottom padding. A content block takes the block
+// padding instead, 40 on every device by design (ADR-009, B12).
+const homepagePaddingClasses = 'pb-3xl-tight desktop:pb-3xl'
+const CONTENT_BLOCK_STYLE = '--block-pb: var(--spacing-3xl-tight)'
 const containerClasses = `
   max-w-content py-3xl m-auto
   border-t border-neutral-50
@@ -129,9 +156,12 @@ const logoClasses = `
 
 <section
   data-component="LogoCarousel"
-  class={sectionClasses}
+  data-intro-variant={isContentBlock ? 'universal' : undefined}
+  class:list={[sectionClasses, !isContentBlock && homepagePaddingClasses]}
+  style={isContentBlock ? CONTENT_BLOCK_STYLE : undefined}
   aria-labelledby={headingId}
 >
+  <BlockIntro intro={intro} headingId={headingId} />
   <div class={containerClasses}>
     {headingText && headingId && <h2 id={headingId} class={headerClasses}>
       {headingText}
