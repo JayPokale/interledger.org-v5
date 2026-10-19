@@ -25,7 +25,15 @@
  */
 import LinkButton from '@/components/shared/LinkButton.astro'
 import Icon from '@/components/shared/Icon.astro'
-import { buildUmamiAttrs, resolveCtaLink, type UmamiLabel } from '@/utils'
+import BlockIntro from '@/components/shared/BlockIntro.astro'
+import type { BlockIntro as BlockIntroData } from '@/types/blockIntro'
+import {
+  blockIntroLabel,
+  buildUmamiAttrs,
+  normalizeBlockIntro,
+  resolveCtaLink,
+  type UmamiLabel
+} from '@/utils'
 
 interface CtaButtonProp {
   text: string
@@ -36,6 +44,12 @@ interface CtaButtonProp {
 }
 
 interface Props {
+  /**
+   * Block intro (ADR-009, Button CTA variant). With one, the block owns its
+   * spacing like other intro blocks; without one it keeps the tight pairing
+   * with the paragraph above described at the top of this file.
+   */
+  intro?: BlockIntroData | null
   buttons?: CtaButtonProp[]
   /** Template surfaces (event card, hackathon hero) can drop the trailing icon. */
   hideIcons?: boolean
@@ -54,6 +68,7 @@ interface Props {
 }
 
 const {
+  intro: introProp,
   buttons = [],
   hideIcons = false,
   umamiLabel,
@@ -61,6 +76,11 @@ const {
   spacing = 'prose'
 } = Astro.props
 const { routeLocale, site } = Astro.locals
+const intro = normalizeBlockIntro(introProp)
+const headingId = blockIntroLabel(intro)
+  ? `cta-buttons-heading-${crypto.randomUUID()}`
+  : undefined
+const Root = intro ? 'section' : 'div'
 
 // A hackathon primary carries no arrow (INTORG-1072). Read from `Astro.locals`,
 // the same value `BaseLayout` writes to `data-site` for the button tokens, so the
@@ -99,41 +119,53 @@ const resolved = buttons
   })
 ---
 
-{resolved.length > 0 && <div
+{resolved.length > 0 && <Root
   data-component="CtaButtons"
+  data-intro-variant={intro ? 'button-cta' : undefined}
+  aria-labelledby={headingId}
   class:list={[
     spacing === 'prose' &&
-      'mt-xl mb-section [&:last-child]:mb-0 [&:has(+[data-intro-variant])]:mb-(--block-pb) desktop:mt-2xl',
-    'flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start'
+      !intro &&
+      'mt-xl mb-section [&:last-child]:mb-0 [&:has(+[data-intro-variant])]:mb-(--block-pb) desktop:mt-2xl'
   ]}
 >
-  {/*
+  <BlockIntro intro={intro} headingId={headingId} />
+  <div
+    class:list={[
+      intro && 'pt-xl desktop:pt-2xl',
+      'flex w-full flex-col items-stretch gap-sm tablet:w-auto tablet:flex-row tablet:items-start'
+    ]}
+  >
+    {/*
         `iconSide` is explicit because LinkButton otherwise infers it from
         `Astro.slots.has('icon-right')`, which reports true even when the slot
         holds a falsy conditional and renders nothing. It also has to honour
         `hideIcons`: a button whose icon is suppressed needs the symmetric
         padding, or its label sits 8px off centre.
       */}
-  {resolved.map((button) => <LinkButton
-    href={button.href}
-    variant={button.variant}
-    mode="auto"
-    external={button.external}
-    document={button.document}
-    iconSide={!hideIcons && button.icon ? 'right' : 'none'}
-    class="w-full tablet:w-auto"
-    {...buildUmamiAttrs({
-      pathname: Astro.url.pathname,
-      lang: routeLocale,
-      label: umamiLabel ?? 'button_cta',
-      baseComponent:
-        umamiBaseComponent ??
-        (button.variant === 'secondary' ? 'secondary_cta' : 'primary_cta'),
-      href: button.href,
-      linkText: button.text
-    })}
-  >
-    {button.text}
-    {!hideIcons && button.icon && <Icon name={button.icon} slot="icon-right" />}
-  </LinkButton>)}
-</div>}
+    {resolved.map((button) => <LinkButton
+      href={button.href}
+      variant={button.variant}
+      mode="auto"
+      external={button.external}
+      document={button.document}
+      iconSide={!hideIcons && button.icon ? 'right' : 'none'}
+      class="w-full tablet:w-auto"
+      {...buildUmamiAttrs({
+        pathname: Astro.url.pathname,
+        lang: routeLocale,
+        label: umamiLabel ?? 'button_cta',
+        baseComponent:
+          umamiBaseComponent ??
+          (button.variant === 'secondary' ? 'secondary_cta' : 'primary_cta'),
+        href: button.href,
+        linkText: button.text
+      })}
+    >
+      {button.text}
+      {!hideIcons && button.icon && (
+        <Icon name={button.icon} slot="icon-right" />
+      )}
+    </LinkButton>)}
+  </div>
+</Root>}

@@ -8,8 +8,14 @@
  * Blocks that keep their own margin. Only a block that renders in both the
  * preview and an exported MDX page belongs here: in MDX there is no wrapper,
  * so the component's own margin is the only spacing it gets.
+ *
+ * CtaButtons switches to intro-block spacing only when it has an intro, so it
+ * stays here rather than in SELF_SPACED_BLOCKS: the preview keeps its usual
+ * tight pairing, and is only approximate for a CtaButtons with an intro.
  */
-const OWNS_ITS_SPACING: ReadonlySet<string> = new Set(['blocks.cta-buttons'])
+export const OWNS_ITS_SPACING: ReadonlySet<string> = new Set([
+  'blocks.cta-buttons'
+])
 
 /**
  * Blocks that render a `BlockIntro` and set `data-intro-variant` on their
