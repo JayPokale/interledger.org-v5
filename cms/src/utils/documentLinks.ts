@@ -5,7 +5,6 @@
  * and a migration script import that module directly.
  */
 import { traverseEntity } from '@strapi/utils'
-import type { AnyAttribute, Model } from '@strapi/utils/dist/types'
 import {
   slashInternalMarkdownLinks,
   stripSiteOriginsInText,
@@ -13,6 +12,17 @@ import {
   toSlashedSlug,
   toStoredHref
 } from './relativeLinks'
+
+// `@strapi/utils` doesn't export its schema types, so they are read off
+// `traverseEntity`'s own signature.
+type TraverseOptions = Parameters<typeof traverseEntity>[1]
+type Model = TraverseOptions['schema']
+type Attribute = Parameters<
+  Parameters<typeof traverseEntity>[0]
+>[0]['attribute']
+
+/** Strapi's model lookup: `undefined` for an unknown uid, such as a typo. */
+export type GetModel = (uid: string) => Model | undefined
 
 /** Fields holding one link, stored as a relative, slashed path. */
 const HREF_LIKE_FIELDS = new Set([
@@ -41,11 +51,11 @@ const CKEDITOR_FIELD = 'plugin::ckeditor5.CKEditor'
  * names don't either: `heading`, `source` and `description` are CKEditor in
  * some components and plain in others.
  */
-function isCkeditorField(attribute: AnyAttribute | undefined): boolean {
+function isCkeditorField(attribute: Attribute): boolean {
   return attribute?.customField === CKEDITOR_FIELD
 }
 
-function normalizeText(text: string, attribute: AnyAttribute | undefined) {
+function normalizeText(text: string, attribute: Attribute) {
   // The upload strip goes first, so an upload on a site host keeps its upload
   // handling.
   const kind = isCkeditorField(attribute) ? 'richText' : 'plainText'
@@ -59,12 +69,14 @@ function normalizeText(text: string, attribute: AnyAttribute | undefined) {
  * link fields relative and slashed, slugs slashed, and own-site and upload
  * URLs in text fields relative. Components, dynamic zones and relations are
  * walked with their own schemas, so a CKEditor field is found at any depth.
+ * Data without a schema is returned as is.
  */
 export async function normalizeRelativeLinksInDocumentData<T>(
   data: T,
   schema: Model | undefined,
-  getModel: (uid: string) => Model | undefined
+  getModel: GetModel
 ): Promise<T> {
+  if (!schema) return data
   const normalized = await traverseEntity(
     ({ data: node, key, value, attribute }) => {
       if (typeof value !== 'string' || CODE_FIELDS.has(key)) return
@@ -72,9 +84,9 @@ export async function normalizeRelativeLinksInDocumentData<T>(
       else if (PATH_SEGMENT_FIELDS.has(key)) node[key] = toSlashedSlug(value)
       else node[key] = normalizeText(value, attribute)
     },
-    // Typed as always found, but `traverseEntity` returns a value whose
-    // schema is missing (a plugin model, an unknown uid) untouched.
-    { schema: schema as Model, getModel: getModel as (uid: string) => Model },
+    // Typed as always found, but `traverseEntity` returns a nested value
+    // whose schema is missing (a plugin model, an unknown uid) untouched.
+    { schema, getModel: getModel as TraverseOptions['getModel'] },
     data as Parameters<typeof traverseEntity>[2]
   )
   // A copy of `data`, same shape: only string values are replaced.

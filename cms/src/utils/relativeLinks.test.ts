@@ -239,6 +239,22 @@ describe('stripUploadOriginsInText', () => {
     ).toBe('[Guide](/uploads/img/original/guide_b2.pdf "Guide PDF")')
   })
 
+  it('reduces a Markdown link target after a space', () => {
+    expect(
+      stripUploadOriginsInText(
+        '[Guide]( http://localhost:1337/uploads/img/original/guide_b2.pdf)'
+      )
+    ).toBe('[Guide]( /uploads/img/original/guide_b2.pdf)')
+  })
+
+  it('ends a URL at a table cell pipe', () => {
+    expect(
+      stripUploadOriginsInText(
+        '|http://localhost:1337/uploads/img/original/a.pdf|'
+      )
+    ).toBe('|[/uploads/img/original/a.pdf](/uploads/img/original/a.pdf)|')
+  })
+
   it('reduces an HTML src and every srcset entry', () => {
     expect(
       stripUploadOriginsInText(
@@ -467,6 +483,21 @@ describe('stripSiteOriginsInText in plain text', () => {
     ).toBe('[a](</grant/our-grantmaking/>)')
   })
 
+  it('handles a destination after spaces, which Markdown allows', () => {
+    expect(stripPlainText('[a]( https://interledger.org/grant )')).toBe(
+      '[a]( /grant/ )'
+    )
+    expect(stripPlainText('[a](  <https://interledger.org/grant>)')).toBe(
+      '[a](  </grant/>)'
+    )
+  })
+
+  it('ends a URL at a table cell pipe', () => {
+    expect(stripPlainText('|https://interledger.org/x|')).toBe(
+      '|https://interledger.org/x/|'
+    )
+  })
+
   it('collapses a doubled slash after the host', () => {
     expect(stripPlainText('[a](https://interledger.org//blog/x)')).toBe(
       '[a](/blog/x/)'
@@ -562,6 +593,12 @@ describe('stripSiteOriginsInText in rich text', () => {
     expect(
       stripRichText('Read more on our https://interledger.org website')
     ).toBe('Read more on our [https://interledger.org](/) website')
+  })
+
+  it('links a URL in a table cell, without its pipe', () => {
+    expect(stripRichText('|https://interledger.org/x|')).toBe(
+      '|[https://interledger.org/x](/x/)|'
+    )
   })
 
   it('links a bare URL, before sentence punctuation', () => {

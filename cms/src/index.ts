@@ -44,14 +44,14 @@ import {
   DEV_BUILD_ID,
   createServerStatusHandler,
   readAdminBuildId,
-  resolveAdminIndexHtmlPath
+  resolveAdminIndexHtmlPath,
+  type GetModel
 } from './utils'
 import {
   validateContentBlocks,
   sanitizeCardGridsInDocumentData
 } from './serializers/blocks'
 import { errors } from '@strapi/utils'
-import type { Model } from '@strapi/utils/dist/types'
 import {
   formatFileSize,
   imageOverSizeLimitError,
@@ -386,7 +386,7 @@ interface StrapiInstance {
     use: (middleware: DocumentValidationMiddleware) => void
   }
   log: StrapiLogger
-  getModel: (uid: string) => Model | undefined
+  getModel: GetModel
   dirs: { static: { public: string } }
   db?: {
     lifecycles?: {

@@ -391,4 +391,7 @@ export {
   stripUploadOriginsInText,
   toStoredHref
 } from './relativeLinks'
-export { normalizeRelativeLinksInDocumentData } from './documentLinks'
+export {
+  normalizeRelativeLinksInDocumentData,
+  type GetModel
+} from './documentLinks'

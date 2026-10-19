@@ -81,13 +81,19 @@ const MARKDOWN_CODE =
   /(`{3,}|~{3,})[\s\S]*?\1|(?<!`)(`+)(?!`)[^\n]*?(?<!`)\2(?!`)/g
 
 /**
+ * A character a URL found in text can hold: not whitespace, a quote, a
+ * bracket, or a table cell's `|`.
+ */
+const URL_IN_TEXT_CHAR = String.raw`[^\s"'()<>[\]|]`
+
+/**
  * An absolute URL to our upload path: group 1 the origin, group 2 the path.
  * The host stops at `/`, `?` and `#`, so an external URL whose query or
  * fragment merely mentions the upload path does not match. The scheme is
  * case-insensitive and the path is not, as in `stripUploadOrigin`.
  */
 const UPLOAD_URL_IN_TEXT = new RegExp(
-  `([hH][tT][tT][pP][sS]?://[^\\s"'()<>,/\\\\?#]+)(${UPLOAD_PATH_PREFIX}[^\\s"'()<>[\\]]*)`,
+  `([hH][tT][tT][pP][sS]?://[^\\s"'()<>,/\\\\?#]+)(${UPLOAD_PATH_PREFIX}${URL_IN_TEXT_CHAR}*)`,
   'g'
 )
 
@@ -108,8 +114,11 @@ const HTML_ATTRIBUTE_VALUE_START = new RegExp(
   String.raw`${HTML_TAG_OPEN}(?:\s[\w:-]+\s*=\s*["']?|,\s*)$`
 )
 
-/** A Markdown link or image destination: `](url` or `](<url`. */
-const MARKDOWN_DESTINATION = /\]\(<?$/
+/**
+ * A Markdown link or image destination: `](url` or `](<url`, after any
+ * spaces Markdown allows (`]( url`).
+ */
+const MARKDOWN_DESTINATION = /\]\(\s*<?$/
 
 /**
  * A reference definition: `[id]: url`. Not a footnote (`[^4]: …`), whose text
@@ -157,18 +166,22 @@ function toMarkdownLink(text: string, href: string): string {
   return `[${text}](${href})`
 }
 
-/** Builds the replacement for a matched URL: its origin and the rest. */
+/**
+ * Builds the replacement for a matched URL from its origin and the rest, or
+ * returns `null` to leave the URL as it is.
+ */
 type UrlRewrite = (
   origin: string,
   rest: string,
   context: Exclude<UrlInTextContext, 'leave'>
-) => string
+) => string | null
 
 /**
  * Rewrites each `pattern` match in prose (group 1 the origin, group 2 the
- * rest). It handles what every rewrite shares: a nested URL is left alone, a
- * rewritten autolink loses its `<…>` (one left as is keeps them), and a bare
- * URL's trailing sentence punctuation is kept out of the rewrite.
+ * rest). It handles what every rewrite shares: a nested URL, or one its
+ * rewrite returns `null` for, is left alone, a rewritten autolink loses its
+ * `<…>`, and a bare URL's trailing sentence punctuation is kept out of the
+ * rewrite.
  */
 function rewriteUrlsInProse(
   segment: string,
@@ -186,29 +199,19 @@ function rewriteUrlsInProse(
     result += segment.slice(cursor, start)
     cursor = end
     const context = classifyUrlInText(before, after)
-    switch (context) {
-      case 'leave':
-        result += url
-        break
-      case 'autolink': {
-        const replacement = rewrite(origin, rest, context)
-        if (replacement === url) {
-          result += url
-          break
-        }
-        // Replace the surrounding `<…>` too: `</path>` is not an autolink.
-        result = result.slice(0, -1) + replacement
-        cursor += 1
-        break
-      }
-      case 'bare': {
-        const trailing = rest.match(TRAILING_PUNCTUATION)?.[0] ?? ''
-        const ownRest = rest.slice(0, rest.length - trailing.length)
-        result += rewrite(origin, ownRest, context) + trailing
-        break
-      }
-      default:
-        result += rewrite(origin, rest, context)
+    const trailing =
+      context === 'bare' ? (rest.match(TRAILING_PUNCTUATION)?.[0] ?? '') : ''
+    const ownRest = rest.slice(0, rest.length - trailing.length)
+    const replacement =
+      context === 'leave' ? null : rewrite(origin, ownRest, context)
+    if (replacement === null) {
+      result += url
+    } else if (context === 'autolink') {
+      // Replace the surrounding `<…>` too: `</path>` is not an autolink.
+      result = result.slice(0, -1) + replacement
+      cursor += 1
+    } else {
+      result += replacement + trailing
     }
   }
   return result + segment.slice(cursor)
@@ -233,7 +236,7 @@ const SITE_HOST_END = String.raw`(?![A-Za-z0-9-]|\.[A-Za-z0-9]|:\d)`
  * group 2 the rest. Unanchored, so it is classified by what surrounds it.
  */
 const SITE_URL_IN_TEXT = new RegExp(
-  `((?:https?://)?${SITE_HOST})${SITE_HOST_END}((?:[/?#][^\\s"'()<>[\\]]*)?)`,
+  `((?:https?://)?${SITE_HOST})${SITE_HOST_END}((?:[/?#]${URL_IN_TEXT_CHAR}*)?)`,
   'gi'
 )
 
@@ -251,21 +254,21 @@ function siteUrlRewrite(kind: TextKind): UrlRewrite {
     // GFM autolinks a scheme-less host only after `www.`, so in prose any
     // other one (`interledger.org/x`, an email's domain) is text, not a link.
     const isProseLink = /^(?:https?:\/\/|www\.)/i.test(origin)
-    if (!isProseLink && context !== 'target') return url
+    if (!isProseLink && context !== 'target') return null
 
     const href = toSiteHref(rest)
     switch (context) {
       case 'target':
         return href
       case 'linkText':
-        return url
+        return null
       case 'autolink':
         return toMarkdownLink(url, href)
       case 'bare':
         if (kind === 'richText') return toMarkdownLink(url, href)
         // Only the slash is added. An origin alone, or a file, comes back
         // unchanged.
-        return rest ? origin + href : url
+        return rest ? origin + href : null
     }
   }
 }

@@ -54,7 +54,7 @@ export function createMarked(context: UmamiContext = {}): Marked {
     link({ href: rawHref, title, tokens }: Tokens.Link) {
       // First, so the scheme check, umami and new-tab logic all see the href
       // the page emits: an own-site URL as a relative path.
-      const href = stripKnownOrigin(rawHref ?? '')
+      const href = stripKnownOrigin(rawHref)
       const innerHtml = this.parser.parseInline(tokens)
       // Marked only HTML-escapes href, it doesn't restrict schemes — drop
       // the link (keep the text) rather than emitting a javascript:/data:

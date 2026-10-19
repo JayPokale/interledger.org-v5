@@ -395,4 +395,11 @@ describe('normalizeRelativeLinksInDocumentData rich text', () => {
       })
     ).toEqual({ content: [null] })
   })
+
+  it('returns data without a schema as is', async () => {
+    const data = { link: 'https://interledger.org/blog' }
+    expect(
+      await normalizeRelativeLinksInDocumentData(data, undefined, getModel)
+    ).toBe(data)
+  })
 })
