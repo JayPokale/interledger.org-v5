@@ -23,6 +23,12 @@ interface Props {
   variant?: BlockIntroVariant
   class?: string
   umamiContext?: string
+  /**
+   * Render the content alone, with no frame, intro or block spacing. For
+   * templates that keep the plain prose rhythm (blog posts, ADR-009 D3); the
+   * content component then carries `data-component` itself.
+   */
+  bare?: boolean
 }
 
 const {
@@ -30,7 +36,8 @@ const {
   intro,
   variant = 'universal',
   class: className,
-  umamiContext
+  umamiContext,
+  bare = false
 } = Astro.props
 const normalized = normalizeBlockIntro(intro)
 const labelId = blockIntroLabel(normalized)
@@ -38,16 +45,20 @@ const labelId = blockIntroLabel(normalized)
   : undefined
 ---
 
-<section
-  data-component={component}
-  data-intro-variant={variant}
-  aria-labelledby={labelId}
-  class={className}
->
-  <BlockIntro
-    intro={normalized}
-    headingId={labelId}
-    umamiContext={umamiContext}
-  />
+{bare ? (
   <slot />
-</section>
+) : (
+  <section
+    data-component={component}
+    data-intro-variant={variant}
+    aria-labelledby={labelId}
+    class={className}
+  >
+    <BlockIntro
+      intro={normalized}
+      headingId={labelId}
+      umamiContext={umamiContext}
+    />
+    <slot />
+  </section>
+)}
