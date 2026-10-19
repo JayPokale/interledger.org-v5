@@ -351,6 +351,7 @@ export async function buildPagePayload(
     const data: Record<string, unknown> = {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       description: parsed.description,
       publishedAt: new Date().toISOString()
     }
@@ -593,6 +594,7 @@ export async function buildProfilePayload(
     return {
       name: nullOrValue(mdx.frontmatter.name),
       pathSlug: mdx.pathSlug,
+      draft: mdx.frontmatter.draft === true,
       ...(mdx.frontmatter.section ? { section: mdx.frontmatter.section } : {}),
       ...(content !== undefined ? { content } : {}),
       ...(media ? { media } : {}),
@@ -717,6 +719,7 @@ export async function buildGrantPagePayload(
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       description: parsed.description,
       hero,
       programOverview: parsed.programOverview || null,
@@ -805,6 +808,7 @@ export async function buildGrantOverviewPagePayload(
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       description: parsed.description,
       hero,
       ctaStrip,
@@ -834,6 +838,7 @@ export async function buildFaqPayload(
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       section: parsed.section,
       heading: parsed.heading,
       description: parsed.description,
@@ -1030,6 +1035,7 @@ export async function buildReportPayload(
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       section: parsed.section,
       heading: parsed.heading,
       description: parsed.description,
@@ -1092,6 +1098,7 @@ export async function buildHackathonPagePayload(
     return {
       title: parsed.title,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       description: parsed.description,
       hero: await buildHeroWithImage(
         parsed as Record<string, unknown>,
@@ -1217,6 +1224,7 @@ export async function buildBlogPayload(
       title: parsed.title,
       description: parsed.description,
       pathSlug: parsed.pathSlug,
+      draft: parsed.draft === true,
       date: date.toISOString().split('T')[0],
       ...(parsed.lastUpdated
         ? {

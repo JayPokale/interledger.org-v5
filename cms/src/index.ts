@@ -896,6 +896,7 @@ function collectMediaPaths(dir: string): string[] {
 async function configureFieldLabels(strapi: StrapiInstance) {
   const contentTypeLabels: Record<string, Record<string, string>> = {
     'api::profile-page.profile-page': {
+      draft: 'Draft',
       name: 'Name',
       pathSlug: 'Path Slug',
       section: 'Section',
@@ -907,6 +908,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content: 'Biography'
     },
     'api::foundation-blog-post.foundation-blog-post': {
+      draft: 'Draft',
       title: 'Title',
       description: 'Short Description',
       pathSlug: 'Path Slug',
@@ -923,6 +925,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       language: 'Language'
     },
     'api::foundation-page.foundation-page': {
+      draft: 'Draft',
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
@@ -937,6 +940,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content: 'Page Content'
     },
     'api::summit-page.summit-page': {
+      draft: 'Draft',
       title: 'Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
@@ -944,6 +948,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content: 'Content'
     },
     'api::hackathon-page.hackathon-page': {
+      draft: 'Draft',
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
@@ -963,6 +968,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       ctaButton: 'CTA Button'
     },
     'api::grant-page.grant-page': {
+      draft: 'Draft',
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
@@ -975,6 +981,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       faqSection: 'FAQ Section'
     },
     'api::grant-overview-page.grant-overview-page': {
+      draft: 'Draft',
       title: 'Page Title',
       pathSlug: 'Path Slug',
       description: 'Short Description',
@@ -984,6 +991,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       followUpContent: 'Follow-up Content'
     },
     'api::faq.faq': {
+      draft: 'Draft',
       title: 'Page Title',
       pathSlug: 'Path Slug',
       section: 'Section',
@@ -993,6 +1001,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       faqSections: 'FAQ Sections'
     },
     'api::report.report': {
+      draft: 'Draft',
       title: 'Page Title',
       pathSlug: 'Path Slug',
       section: 'Section',
@@ -1819,6 +1828,7 @@ async function configureLayouts(strapi: StrapiInstance) {
   const plugin = strapi.plugin('content-manager')
   if (!plugin) return
 
+  // `draft` is deliberately absent: DraftCheckbox renders it in the Entry panel.
   const contentTypeLayouts: Record<string, EditLayoutField[][]> = {
     'api::foundation-blog-post.foundation-blog-post': [
       [{ name: 'title', size: 12 }],

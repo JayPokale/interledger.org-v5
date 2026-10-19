@@ -17,6 +17,7 @@ interface Window {
     track: (event: string, data?: Record<string, string | number>) => void
   }
 }
+declare const __HIDE_DRAFTS__: boolean | undefined
 
 declare namespace App {
   interface Locals {

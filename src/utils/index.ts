@@ -140,10 +140,11 @@ export {
   resolveRelatedPosts,
   sortByPublishDateDesc
 } from './main/blog'
-// The single gated reader every blog collection access goes through — see
-// blogPosts.ts. Like blogSearch below, it imports astro:content at module
-// scope, so it must not be pulled into a client bundle.
-export { getBlogPosts, getGatedCollection } from './main/blogPosts'
+// The single gated reader every page collection access goes through — see
+// gatedCollection.ts. Like blogSearch below, both import astro:content at
+// module scope, so they must not be pulled into a client bundle.
+export { getGatedCollection } from './main/gatedCollection'
+export { getBlogPosts } from './main/blogPosts'
 export {
   PODCAST_PAGE_SIZE,
   type PodcastPageData,
@@ -152,13 +153,16 @@ export {
 } from './main/podcastPagination'
 export { getBlogSearchIndex, type BlogSearchEntry } from './main/blogSearch'
 
-// Main site: Publish gate (future-dated content is hidden on production only)
+// Main site: Publish gate (future-dated and draft content is hidden on production only)
 export {
+  hideDrafts,
   hideFuturePosts,
   isProductionDeploy,
+  isDraft,
   isPublishedAt,
   productionDeploy,
   resolveGateNow,
+  shouldHideDrafts,
   shouldHideFuturePosts
 } from './main/publishGate'
 
@@ -266,6 +270,7 @@ export {
   getSpeakerPages,
   getSessionPages
 } from './main/summit-talks-speakers'
+export { resolveSummitHome, type SummitHomeResolution } from './main/summitHome'
 
 // Main site: Images
 export {
