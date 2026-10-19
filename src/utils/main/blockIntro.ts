@@ -68,3 +68,24 @@ export function blockIntroLabel(
 ): string | null {
   return intro?.heading ?? intro?.subheading ?? null
 }
+
+/** A markdown `## Heading` line, with optional closing hashes. */
+const TRAILING_H2 = /(?:^|\n)##[ \t]+(.+?)[ \t]*#*[ \t]*\s*$/
+
+/**
+ * Splits a trailing `## Heading` off markdown that titles the block after
+ * it, so the heading can become that block's intro instead of running text.
+ * Returns the markdown unchanged and `heading: null` when it doesn't end on
+ * an h2.
+ */
+export function splitTrailingHeading(markdown: string): {
+  body: string
+  heading: string | null
+} {
+  const match = TRAILING_H2.exec(markdown)
+  if (!match) return { body: markdown, heading: null }
+  return {
+    body: markdown.slice(0, match.index).trimEnd(),
+    heading: match[1].trim()
+  }
+}

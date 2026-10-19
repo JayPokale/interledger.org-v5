@@ -251,6 +251,7 @@ export {
   blockIntroLabel,
   normalizeBlockIntro,
   resolveBlockIntro,
+  splitTrailingHeading,
   type NormalizedBlockIntro
 } from './main/blockIntro'
 export {
