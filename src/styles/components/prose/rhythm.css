@@ -185,8 +185,13 @@
     }
 
     /* Same for the padding an intro block owns: at the end of the prose it
-       would stack on the page's own bottom padding. */
-    > [data-intro-variant]:not(:has(~ :not(script))) {
+       would stack on the page's own bottom padding. LogoCarousel is the
+       exception: as the last block its script removes the page's bottom
+       padding instead (`fixTrailingMainPadding`), so its own padding is the
+       gap to the footer. */
+    > [data-intro-variant]:not([data-component='LogoCarousel']):not(
+        :has(~ :not(script))
+      ) {
       padding-block-end: 0;
     }
 
