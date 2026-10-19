@@ -10,11 +10,7 @@
  */
 
 import type { ParsedBlock, NumberTilesBlock } from './types.blocks'
-import {
-  getIntroWithLegacyHeading,
-  getStaticLiteralAttr,
-  getStringAttr
-} from './jsxExtract'
+import { getIntroWithLegacyHeading, getStaticLiteralAttr } from './jsxExtract'
 import { registerComponentHandler } from './mdxBlockParser'
 import type { JsxBlockNode, ParserContext } from './mdxBlockParser'
 import {
@@ -59,23 +55,7 @@ async function handleNumberTiles(
   _ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(async () => {
-    const title = getStringAttr(node, 'title')
     const rawTiles = getStaticLiteralAttr(node, 'tiles', { required: true })
-
-    if (
-      title !== undefined &&
-      title !== null &&
-      !(typeof title === 'string' && title.trim().length > 0)
-    ) {
-      throw new MdxParserError({
-        code: ParserErrorCode.INVALID_PROP_VALUE,
-        message: 'Prop "title" must be a non-empty string when provided.',
-        component: 'NumberTiles',
-        prop: 'title',
-        line: node.position?.start.line,
-        column: node.position?.start.column
-      })
-    }
 
     if (!Array.isArray(rawTiles) || !rawTiles.every(isTileEntry)) {
       throw new MdxParserError({
