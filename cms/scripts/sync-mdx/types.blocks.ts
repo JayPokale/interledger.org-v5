@@ -308,15 +308,6 @@ export interface CtaButtonsBlock extends StrapiBlockBase {
   buttons: CtaButton[]
 }
 
-/** shared.cta-button — one entry in blocks.cta-buttons' repeatable `buttons` field. No `__component`; it's a nested component, not a dynamic-zone block. */
-export interface CtaButton {
-  text: string
-  link: string
-  style: CtaButtonStyle
-  external?: boolean
-  document?: boolean
-}
-
 /** blocks.card-grid — unified card grid with variant-specific card fields. */
 export type CardGridBlock = StrapiBlockBase & {
   __component: 'blocks.card-grid'
