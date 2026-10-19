@@ -6,13 +6,13 @@ const SELF_SPACED = new Set(['blocks.faq', 'blocks.card-grid'])
 describe('getPreviewBlockGapClass', () => {
   it('gives the first block no gap', () => {
     expect(getPreviewBlockGapClass('blocks.faq', null, SELF_SPACED)).toBeNull()
-    expect(getPreviewBlockGapClass('blocks.quote', null)).toBeNull()
+    expect(getPreviewBlockGapClass('blocks.code-block', null)).toBeNull()
   })
 
   it('separates two legacy blocks by the section gap', () => {
-    expect(getPreviewBlockGapClass('blocks.quote', 'blocks.image-block')).toBe(
-      'mt-section'
-    )
+    expect(
+      getPreviewBlockGapClass('blocks.code-block', 'blocks.callout-text')
+    ).toBe('mt-section')
   })
 
   it('lets CtaButtons keep its own spacing', () => {

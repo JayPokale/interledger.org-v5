@@ -18,9 +18,14 @@ const OWNS_ITS_SPACING: ReadonlySet<string> = new Set(['blocks.cta-buttons'])
  * `__component` here when it adopts the intro.
  */
 export const SELF_SPACED_BLOCKS: ReadonlySet<string> = new Set([
+  'blocks.blockquote',
   'blocks.card-grid',
   'blocks.faq',
-  'blocks.number-tiles'
+  'blocks.image-block',
+  'blocks.number-tiles',
+  'blocks.pdf-embed',
+  'blocks.quote',
+  'blocks.video-embed'
 ])
 
 const SECTION_GAP = 'mt-section'

@@ -14,15 +14,23 @@ const PREVIEW_ROUTES = [
 
 describe('preview routes', () => {
   it.each(PREVIEW_ROUTES)(
-    '%s populates the intro of every intro block',
+    '%s populates the intro of every intro block it lists',
     (route) => {
       // Strapi only returns a nested component that the query names, so a
-      // block missing here previews without its heading or top spacing.
+      // block missing its intro here previews without its heading or top
+      // spacing. `[populate]: '*'` names every first-level component.
       const source = readFileSync(path.join(PAGES_DIR, route), 'utf8')
-      const missing = [...SELF_SPACED_BLOCKS].filter(
-        (uid) =>
-          !source.includes(`'populate[content][on][${uid}][populate][intro]'`)
+      const listed = [...SELF_SPACED_BLOCKS].filter((uid) =>
+        source.includes(`[on][${uid}]`)
       )
+      const missing = listed.filter(
+        (uid) =>
+          !source.includes(
+            `'populate[content][on][${uid}][populate][intro]'`
+          ) &&
+          !source.includes(`'populate[content][on][${uid}][populate]': '*'`)
+      )
+      expect(listed.length).toBeGreaterThan(0)
       expect(missing).toEqual([])
     }
   )

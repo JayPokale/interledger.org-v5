@@ -31,8 +31,13 @@ function previewComponentFiles(): Map<string, string> {
   return files
 }
 
+/** Sets the attribute itself, or renders its root through IntroBlockFrame. */
 function setsIntroVariant(file: string): boolean {
-  return readFileSync(file, 'utf8').includes('data-intro-variant=')
+  const source = readFileSync(file, 'utf8')
+  return (
+    source.includes('data-intro-variant=') ||
+    source.includes('<IntroBlockFrame')
+  )
 }
 
 describe('SELF_SPACED_BLOCKS', () => {
