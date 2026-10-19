@@ -248,6 +248,7 @@ export {
 } from './main/cta'
 export { isFundraiseUpElementHref } from './main/fundraiseUp'
 export {
+  blockIntroLabel,
   normalizeBlockIntro,
   resolveBlockIntro,
   type NormalizedBlockIntro

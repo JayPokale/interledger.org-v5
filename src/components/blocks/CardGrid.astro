@@ -10,7 +10,12 @@ import InfoCard from '@/components/shared/InfoCard.astro'
 import NavigationCard from '@/components/shared/NavigationCard.astro'
 import BlockIntro from '@/components/shared/BlockIntro.astro'
 import type { BlockIntro as BlockIntroData } from '@/types/blockIntro'
-import { generateSlug, parseMarkdown, resolveBlockIntro } from '@/utils'
+import {
+  blockIntroLabel,
+  generateSlug,
+  parseMarkdown,
+  resolveBlockIntro
+} from '@/utils'
 
 const GRID_COLUMNS_CLASS = {
   One: 'desktop:grid-cols-1 desktop:max-w-[28rem]',
@@ -137,8 +142,9 @@ function warnMissingSecondaryCta(
 }
 
 const intro = resolveBlockIntro(introProp, title)
-const headingId = intro?.heading
-  ? `card-grid-heading-${generateSlug(`${cardGridPath} ${intro.heading}`) || 'untitled'}`
+const introLabel = blockIntroLabel(intro)
+const headingId = introLabel
+  ? `card-grid-heading-${generateSlug(`${cardGridPath} ${introLabel}`) || 'untitled'}`
   : undefined
 ---
 

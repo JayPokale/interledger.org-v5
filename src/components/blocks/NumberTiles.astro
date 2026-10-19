@@ -15,6 +15,7 @@ import type { BlockIntro as BlockIntroData } from '@/types/blockIntro'
 import {
   buildNumberTileAriaLabel,
   formatStatNumber,
+  blockIntroLabel,
   parseStatNumber,
   resolveBlockIntro
 } from '@/utils'
@@ -36,7 +37,7 @@ interface Props {
 
 const { tiles } = Astro.props
 const intro = resolveBlockIntro(Astro.props.intro, Astro.props.title)
-const headingId = intro?.heading
+const headingId = blockIntroLabel(intro)
   ? `number-tiles-heading-${crypto.randomUUID()}`
   : undefined
 

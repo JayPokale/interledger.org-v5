@@ -5,7 +5,12 @@
  * Full width within the page's content column; the block adds no width
  * constraint of its own (INTORG-909).
  */
-import { parseMarkdown, resolveBlockIntro, useTranslations } from '@/utils'
+import {
+  blockIntroLabel,
+  parseMarkdown,
+  resolveBlockIntro,
+  useTranslations
+} from '@/utils'
 import BlockIntro from '@/components/shared/BlockIntro.astro'
 import type { BlockIntro as BlockIntroData } from '@/types/blockIntro'
 import FaqItem from '@/components/shared/FaqItem.astro'
@@ -26,7 +31,7 @@ interface Props {
 
 const { items } = Astro.props
 const intro = resolveBlockIntro(Astro.props.intro, Astro.props.heading)
-const headingId = intro?.heading
+const headingId = blockIntroLabel(intro)
   ? `faq-heading-${crypto.randomUUID()}`
   : undefined
 const { routeLocale } = Astro.locals

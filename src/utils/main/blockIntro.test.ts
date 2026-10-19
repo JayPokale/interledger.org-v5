@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { BlockIntro } from '../../types/blockIntro'
-import { normalizeBlockIntro, resolveBlockIntro } from './blockIntro'
+import {
+  blockIntroLabel,
+  normalizeBlockIntro,
+  resolveBlockIntro
+} from './blockIntro'
 
 describe('normalizeBlockIntro', () => {
   it('returns null for a missing intro', () => {
@@ -97,5 +101,21 @@ describe('resolveBlockIntro', () => {
   it('returns null when neither has content', () => {
     expect(resolveBlockIntro(null, '')).toBeNull()
     expect(resolveBlockIntro(undefined, undefined)).toBeNull()
+  })
+})
+
+describe('blockIntroLabel', () => {
+  it('uses the heading, then the subheading', () => {
+    expect(
+      blockIntroLabel(normalizeBlockIntro({ heading: 'H', subheading: 'S' }))
+    ).toBe('H')
+    expect(blockIntroLabel(normalizeBlockIntro({ subheading: 'S' }))).toBe('S')
+  })
+
+  it('returns null without a heading or subheading', () => {
+    expect(
+      blockIntroLabel(normalizeBlockIntro({ description: 'D' }))
+    ).toBeNull()
+    expect(blockIntroLabel(null)).toBeNull()
   })
 })

@@ -57,3 +57,14 @@ export function resolveBlockIntro(
     normalizeBlockIntro({ heading: legacyHeading })
   )
 }
+
+/**
+ * The text that names a block for screen readers: its intro heading, or the
+ * subheading when there is none. `null` when the intro has neither, so the
+ * block falls back to its own `aria-label`.
+ */
+export function blockIntroLabel(
+  intro: NormalizedBlockIntro | null
+): string | null {
+  return intro?.heading ?? intro?.subheading ?? null
+}
