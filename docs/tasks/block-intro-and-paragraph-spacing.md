@@ -80,7 +80,7 @@ No restyle in this phase ([D9](../decisions/009-block-intro-and-block-owned-spac
   - A legacy element after a mid-page carousel reads the default `--block-pb`, not the carousel's 40, so it sits a little too low. No page has one yet.
 - **CTA buttons:**
   - Self-spaced only when they have an intro. Without one they keep the tight pairing with the paragraph above (`OWNS_ITS_SPACING`), and the preview is approximate for one with an intro.
-  - A heading-only intro puts 60 (H2 spacer) plus 32 between the heading and the buttons on desktop. Check against B2.
+  - A heading-only intro drops the buttons' top padding, so the H2 spacer alone is the gap (designer, 2026-10-19).
 - **Pre-existing gaps, not from this work:**
   - `FundraisingPage` maps none of these blocks, though its schema allows them.
   - The root `page-preview.astro` doesn't populate image, video or PDF media.

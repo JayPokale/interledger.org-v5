@@ -217,7 +217,7 @@ Each block below is: Universal intro ([A1](#a1-intro-every-block)), then its con
 #### B2. CTA buttons ([`5432:61858`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5432-61858)), Button CTA intro
 
 - The buttons stay as built.
-- The button group sits pt 24 / 24 / 32 below the intro, with gap 24, side by side on tablet and desktop and stacked full width on mobile.
+- The button group sits pt 24 / 24 / 32 below the intro, with gap 24, side by side on tablet and desktop and stacked full width on mobile. When the intro is only a heading, the button group has no top padding: the H2 spacer is the gap (designer, 2026-10-19).
 - The Button CTA intro has no description spacer ([A1](#a1-intro-every-block)).
 
 #### B3. Image / Video embed ([`5431:42614`](https://www.figma.com/design/Tjtpc6NlHguR9DUcemSVb5/ILF-New-Design?node-id=5431-42614))
