@@ -112,15 +112,15 @@ const carouselStyle = `
 `
 
 const sectionClasses = `
-  px-lg
   bg-neutral-0 text-neutral-900
   dark:bg-neutral-150 dark:text-neutral-0
-  tablet:px-xl
-  desktop:px-5xl
 `
-// The homepage keeps its own bottom padding. A content block takes the block
-// padding instead, 40 on every device by design (ADR-009, B12).
-const homepagePaddingClasses = 'pb-3xl-tight desktop:pb-3xl'
+// The homepage keeps its own side gutters and bottom padding. A content block
+// runs the full width of the content column with no side padding, so its
+// intro lines up with every other block, and takes the block padding at the
+// bottom: 40 on every device by design (ADR-009, B12).
+const homepagePaddingClasses =
+  'px-lg pb-3xl-tight tablet:px-xl desktop:px-5xl desktop:pb-3xl'
 const CONTENT_BLOCK_STYLE = '--block-pb: var(--spacing-3xl-tight)'
 const containerClasses = `
   max-w-content py-3xl m-auto
