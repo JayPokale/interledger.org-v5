@@ -1270,7 +1270,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       lastUpdated: 'Last Updated'
     },
     'blocks.report-section': {
-      heading: 'Section heading (deprecated)',
+      heading: 'Section Heading',
       reportText: 'Content Blocks'
     },
     'blocks.report-text': {
@@ -1324,7 +1324,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
     'blocks.carousel': {
       intro: 'Intro',
-      heading: 'Section Heading',
+      heading: 'Section heading (deprecated)',
       logos: 'Logos',
       accessibilityLabel: 'Accessibility label'
     },
