@@ -129,6 +129,12 @@ export interface BlocksCardGrid extends Struct.ComponentSchema {
       }> &
       Schema.Attribute.DefaultTo<'Three'>
     infoCards: Schema.Attribute.Component<'blocks.info-card', true>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     navigationCards: Schema.Attribute.Component<'blocks.navigation-card', true>
     resourceCards: Schema.Attribute.Component<'blocks.resource-card', true>
     title: Schema.Attribute.String &
@@ -621,6 +627,12 @@ export interface BlocksFaq extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     items: Schema.Attribute.Component<'blocks.faq-item', true> &
       Schema.Attribute.Required &
       Schema.Attribute.SetPluginOptions<{
@@ -1050,6 +1062,12 @@ export interface BlocksNumberTiles extends Struct.ComponentSchema {
     icon: 'chart-pie'
   }
   attributes: {
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     tiles: Schema.Attribute.Component<'blocks.number-tile', true> &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

@@ -35,10 +35,11 @@ const GRANT_BLOCKS = {
     populate: { logos: { populate: { image: true } } }
   },
   'blocks.number-tiles': {
-    populate: { tiles: true }
+    populate: { intro: true, tiles: true }
   },
   'blocks.card-grid': {
     populate: {
+      intro: true,
       titleCards: {
         populate: { secondaryCta: true, secondSecondaryCta: true }
       },
@@ -87,10 +88,11 @@ const FOUNDATION_PAGE_BLOCKS = {
     }
   },
   'blocks.number-tiles': {
-    populate: { tiles: true }
+    populate: { intro: true, tiles: true }
   },
   'blocks.card-grid': {
     populate: {
+      intro: true,
       titleCards: {
         populate: { secondaryCta: true, secondSecondaryCta: true }
       },
@@ -103,7 +105,7 @@ const FOUNDATION_PAGE_BLOCKS = {
     populate: { logos: { populate: { image: true } } }
   },
   'blocks.faq': {
-    populate: { items: true }
+    populate: { intro: true, items: true }
   },
   'blocks.cta-buttons': {
     populate: { buttons: true }
@@ -168,6 +170,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     'blocks.paragraph': {},
     'blocks.card-grid': {
       populate: {
+        intro: true,
         titleCards: {
           populate: { secondaryCta: true, secondSecondaryCta: true }
         },
@@ -177,7 +180,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
       }
     },
     'blocks.number-tiles': {
-      populate: { tiles: true }
+      populate: { intro: true, tiles: true }
     },
     'blocks.agenda': {
       populate: { items: true }
@@ -193,7 +196,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
       populate: { logos: { populate: { image: true } } }
     },
     'blocks.faq': {
-      populate: { items: true }
+      populate: { intro: true, items: true }
     },
     'blocks.cta-buttons': {
       populate: { buttons: true }
