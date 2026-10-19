@@ -78,7 +78,7 @@ describe('NumberTiles handler', () => {
     ])
   })
 
-  it('parses an optional title', async () => {
+  it('reads a legacy title as the intro heading', async () => {
     const blocks = await parseMdxToBlocks(
       `<NumberTiles title="Overview" tiles={[{ number: '150', suffix: '+', description: 'Builders' }, { number: '24', suffix: 'H', description: 'Code Rush' }]} />`,
       { locale: 'en' }
@@ -87,7 +87,7 @@ describe('NumberTiles handler', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.number-tiles',
-        title: 'Overview',
+        intro: { heading: 'Overview' },
         tiles: [
           { number: '150', suffix: '+', description: 'Builders' },
           { number: '24', suffix: 'H', description: 'Code Rush' }
@@ -96,12 +96,13 @@ describe('NumberTiles handler', () => {
     ])
   })
 
-  it('omits title when absent', async () => {
+  it('omits the intro when there is none', async () => {
     const blocks = await parseMdxToBlocks(
       `<NumberTiles tiles={[{ number: '21', description: 'In Grants' }, { number: '300', description: 'Projects' }]} />`,
       { locale: 'en' }
     )
     if (blocks instanceof MdxParserError) throw blocks
+    expect(blocks[0]).not.toHaveProperty('intro')
     expect(blocks[0]).not.toHaveProperty('title')
   })
 

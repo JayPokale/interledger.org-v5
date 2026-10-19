@@ -28,6 +28,7 @@ export {
 } from '../../src/utils/cardGrid'
 
 import type { CtaButtonStyle } from '../../src/utils/ctaButtons'
+import type { SerializedBlockIntro } from '../../src/utils/contentTypes'
 
 export {
   CTA_BUTTON_STYLES,
@@ -256,7 +257,7 @@ export interface CarouselBlock extends StrapiBlockBase {
  */
 export interface NumberTilesBlock extends StrapiBlockBase {
   __component: 'blocks.number-tiles'
-  title?: string
+  intro?: SerializedBlockIntro
   tiles: {
     number: string
     prefix?: string
@@ -320,7 +321,7 @@ export interface CtaButtonsBlock extends StrapiBlockBase {
 export type CardGridBlock = StrapiBlockBase & {
   __component: 'blocks.card-grid'
   ariaLabel: string
-  title?: string
+  intro?: SerializedBlockIntro
   variant: CardGridVariant
   columns: (typeof CARD_GRID_COLUMNS)[number]
 } & Partial<Record<CardGridCardsField, CardGridCard[]>>
@@ -335,7 +336,7 @@ export interface FaqItem {
 /** blocks.faq — accordion of question/answer pairs under an optional heading. */
 export interface FaqBlock extends StrapiBlockBase {
   __component: 'blocks.faq'
-  heading?: string
+  intro?: SerializedBlockIntro
   items: FaqItem[]
 }
 
