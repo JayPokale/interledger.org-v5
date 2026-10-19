@@ -54,6 +54,16 @@
   & > [data-stack='cta'] {
     margin-block-start: var(--spacing-2xl);
   }
+
+  /*
+   * Content starts right under the hero (ADR-009, A6): when the section after
+   * it opens its prose with a block that owns its spacing, that block's intro
+   * is the whole gap. A later section keeps the stack gap. Legacy first
+   * blocks keep it too until the Paragraph spacing lands (Phase 3).
+   */
+  & > :first-child + :has([data-prose] > [data-intro-variant]:first-child) {
+    margin-block-start: 0;
+  }
 }
 
 /*
@@ -119,7 +129,8 @@
  * `[data-prose-blog]` is included because page preview renders the zone
  * under that attribute, the same as a post.
  */
-main > section:not(:last-of-type)
+main
+  > section:not(:last-of-type)
   :is([data-prose], [data-prose-blog], [data-prose-summit])
   > [data-component='LogoCarousel']:not(:has(~ :not(script, style))) {
   padding-block-end: 0;
