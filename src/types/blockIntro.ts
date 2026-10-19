@@ -4,9 +4,10 @@
  * into an `intro={{…}}` MDX prop. The description is markdown.
  */
 export interface BlockIntro {
-  heading?: string
-  subheading?: string
-  description?: string
+  // Nullable: the Strapi preview passes unset component fields as null.
+  heading?: string | null
+  subheading?: string | null
+  description?: string | null
 }
 
 /**

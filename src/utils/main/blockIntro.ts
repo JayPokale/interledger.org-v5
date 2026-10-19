@@ -41,3 +41,19 @@ export function normalizeBlockIntro(
   const hasContent = Object.values(normalized).some((value) => value !== null)
   return hasContent ? normalized : null
 }
+
+/**
+ * The intro a block renders while its legacy `title`/`heading` prop still
+ * exists (until Phase 4 of INTORG-1154): the intro when it has content,
+ * otherwise the legacy value as the heading. Content not yet migrated keeps
+ * its heading.
+ */
+export function resolveBlockIntro(
+  intro: BlockIntro | null | undefined,
+  legacyHeading: string | null | undefined
+): NormalizedBlockIntro | null {
+  return (
+    normalizeBlockIntro(intro) ??
+    normalizeBlockIntro({ heading: legacyHeading })
+  )
+}

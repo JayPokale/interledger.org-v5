@@ -249,6 +249,7 @@ export {
 export { isFundraiseUpElementHref } from './main/fundraiseUp'
 export {
   normalizeBlockIntro,
+  resolveBlockIntro,
   type NormalizedBlockIntro
 } from './main/blockIntro'
 export {

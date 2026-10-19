@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { BlockIntro } from '../../types/blockIntro'
-import { normalizeBlockIntro } from './blockIntro'
+import { normalizeBlockIntro, resolveBlockIntro } from './blockIntro'
 
 describe('normalizeBlockIntro', () => {
   it('returns null for a missing intro', () => {
@@ -73,5 +73,29 @@ describe('normalizeBlockIntro', () => {
 
   it('treats a non-object intro as empty', () => {
     expect(normalizeBlockIntro('Heading' as unknown as BlockIntro)).toBeNull()
+  })
+})
+
+describe('resolveBlockIntro', () => {
+  it('prefers an intro with content over the legacy heading', () => {
+    expect(resolveBlockIntro({ subheading: 'Sub' }, 'Old')).toEqual({
+      heading: null,
+      subheading: 'Sub',
+      description: null
+    })
+  })
+
+  it('falls back to the legacy heading', () => {
+    expect(resolveBlockIntro({ heading: ' ' }, ' Old ')).toEqual({
+      heading: 'Old',
+      subheading: null,
+      description: null
+    })
+    expect(resolveBlockIntro(undefined, 'Old')?.heading).toBe('Old')
+  })
+
+  it('returns null when neither has content', () => {
+    expect(resolveBlockIntro(null, '')).toBeNull()
+    expect(resolveBlockIntro(undefined, undefined)).toBeNull()
   })
 })

@@ -17,7 +17,11 @@ const OWNS_ITS_SPACING: ReadonlySet<string> = new Set(['blocks.cta-buttons'])
  * (`--block-pb`) edges, so they sit out the section gap. Add a block's
  * `__component` here when it adopts the intro.
  */
-export const SELF_SPACED_BLOCKS: ReadonlySet<string> = new Set<string>()
+export const SELF_SPACED_BLOCKS: ReadonlySet<string> = new Set([
+  'blocks.card-grid',
+  'blocks.faq',
+  'blocks.number-tiles'
+])
 
 const SECTION_GAP = 'mt-section'
 // A legacy block before a self-spaced one stands in for the padding-bottom
