@@ -124,6 +124,12 @@ export function serialize(block: {
     attrs.push(`quoteSource="${esc(block.quoteSource)}"`)
   }
 
+  if (!block.buttons?.length && block.cta?.external && block.cta?.document) {
+    throw new Error(
+      'Split layout CTA cannot be both external and document. Pick one: ' +
+        'external opens a new tab, document downloads a file.'
+    )
+  }
   // The button group; a legacy single CTA exports as a one-button group.
   const buttons = block.buttons?.length
     ? block.buttons
