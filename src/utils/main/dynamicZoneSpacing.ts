@@ -27,6 +27,7 @@ export const SELF_SPACED_BLOCKS: ReadonlySet<string> = new Set([
   'blocks.blockquote',
   'blocks.card-grid',
   'blocks.carousel',
+  'blocks.cta-strip',
   'blocks.event-card',
   'blocks.faq',
   'blocks.image-block',
