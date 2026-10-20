@@ -88,6 +88,46 @@ describe('migrateBlockIntro: phase 2a blocks', () => {
   })
 })
 
+describe('migrateBlockIntro: phase 2b blocks', () => {
+  it('moves a CtaStrip heading into the intro', () => {
+    const result = migrate(
+      '<CtaStrip heading="Join us" primaryButtonText="Apply" primaryButtonLink="/apply/" />\n'
+    ).source
+    expect(result).toContain(
+      '<CtaStrip intro={{"heading":"Join us"}} primaryButtonText="Apply"'
+    )
+  })
+
+  it('turns a SplitLayout single CTA into a button group', () => {
+    const source = [
+      '<SplitLayout',
+      '  imageSrc="/img/a.png"',
+      '  ctaText="Read more"',
+      '  ctaLink="/more/"',
+      '  ctaStyle="secondary"',
+      '  ctaExternal={true}',
+      '>',
+      '',
+      'Body.',
+      '',
+      '</SplitLayout>',
+      ''
+    ].join('\n')
+    const result = migrate(source).source
+    expect(result).toContain(
+      'buttons={[{"text":"Read more","link":"/more/","style":"secondary","external":true}]}'
+    )
+    expect(result).not.toMatch(/cta(Text|Link|Style|External)=/)
+    expect(result).toContain('imageSrc="/img/a.png"')
+  })
+
+  it('leaves a SplitLayout that already has buttons alone', () => {
+    const source =
+      '<SplitLayout imageSrc="/a.png" buttons={[]} ctaText="Old" ctaLink="/old/">\n\nBody.\n\n</SplitLayout>\n'
+    expect(migrate(source).source).toBeNull()
+  })
+})
+
 describe('migrateBlockIntro: fake intros', () => {
   const fakeIntro = (
     body: string,

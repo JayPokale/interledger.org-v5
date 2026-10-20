@@ -4,6 +4,8 @@
  *
  * - A legacy `title="…"` / `heading="…"` on a block becomes
  *   `intro={{"heading":"…"}}`.
+ * - A SplitLayout's legacy single CTA (`ctaText`, `ctaLink`, `ctaStyle`,
+ *   `ctaExternal`, `ctaDocument`) becomes a one-button `buttons={[…]}` group.
  * - With `fold`, a "fake intro" — a `<Paragraph>` holding only a `##` or
  *   `###` heading and plain description paragraphs, directly before a block
  *   with no heading of its own — moves into that block's intro. Anything
@@ -23,6 +25,7 @@ import type { SerializedBlockIntro } from '../src/utils/contentTypes'
 /** Blocks that take an intro, and the legacy attribute each one replaces. */
 export const INTRO_BLOCK_LEGACY_ATTRS: Readonly<Record<string, string>> = {
   CardGrid: 'title',
+  CtaStrip: 'heading',
   EventCard: 'title',
   Faq: 'heading',
   LogoCarousel: 'heading',
@@ -263,6 +266,65 @@ function foldPass(root: Root, source: string, fold: boolean): FoldPass {
   return pass
 }
 
+const SPLIT_LAYOUT = 'SplitLayout'
+const SPLIT_LAYOUT_CTA_ATTRS = [
+  'ctaText',
+  'ctaLink',
+  'ctaStyle',
+  'ctaExternal',
+  'ctaDocument'
+] as const
+
+/** A valueless or `{true}` JSX attribute. */
+function isTrueAttr(attr: MdxJsxAttribute | undefined): boolean {
+  if (!attr) return false
+  if (attr.value === null || attr.value === undefined) return true
+  return typeof attr.value === 'object' && attr.value.value.trim() === 'true'
+}
+
+function stringAttr(node: MdxJsxFlowElement, name: string): string | undefined {
+  const value = findAttr(node, name)?.value
+  return typeof value === 'string' ? value.trim() : undefined
+}
+
+/**
+ * Rewrites a SplitLayout's legacy CTA attributes into a one-button group:
+ * the first CTA attribute becomes `buttons={[…]}` and the rest are dropped.
+ */
+function splitLayoutCtaEdits(node: MdxJsxFlowElement): Edit[] {
+  if (node.name !== SPLIT_LAYOUT || findAttr(node, 'buttons')) return []
+  const text = stringAttr(node, 'ctaText')
+  const link = stringAttr(node, 'ctaLink')
+  if (!text || !link) return []
+
+  const button = {
+    text,
+    link,
+    style:
+      stringAttr(node, 'ctaStyle') === 'secondary' ? 'secondary' : 'primary',
+    ...(isTrueAttr(findAttr(node, 'ctaExternal')) ? { external: true } : {}),
+    ...(isTrueAttr(findAttr(node, 'ctaDocument')) ? { document: true } : {})
+  }
+  const ranges = SPLIT_LAYOUT_CTA_ATTRS.map((name) => findAttr(node, name))
+    .map((attr) => (attr ? offsetsOf(attr) : null))
+    .filter((offsets): offsets is Offsets => offsets !== null)
+    .sort((a, b) => a.start - b.start)
+
+  return ranges.map((range, index) => ({
+    ...range,
+    text: index === 0 ? `buttons={${JSON.stringify([button])}}` : ''
+  }))
+}
+
+/** Every flow element in the tree, nested ones included. */
+function flowElements(node: Root | RootContent): MdxJsxFlowElement[] {
+  const own = isFlowElement(node as RootContent)
+    ? [node as MdxJsxFlowElement]
+    : []
+  const children = 'children' in node ? (node.children as RootContent[]) : []
+  return [...own, ...children.flatMap(flowElements)]
+}
+
 /** Every intro block in the tree, nested ones included. */
 function introBlocks(node: Root | RootContent): MdxJsxFlowElement[] {
   const own = isIntroBlock(node as RootContent)
@@ -306,7 +368,9 @@ export function migrateBlockIntro(
     .map(legacyHeadingEdit)
     .filter((edit): edit is Edit => edit !== null)
 
-  const edits = [...pass.edits, ...legacyEdits]
+  const splitLayoutEdits = flowElements(root).flatMap(splitLayoutCtaEdits)
+
+  const edits = [...pass.edits, ...legacyEdits, ...splitLayoutEdits]
   return {
     source: edits.length > 0 ? applyEdits(source, edits) : null,
     folded: pass.folded,
