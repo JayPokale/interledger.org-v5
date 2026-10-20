@@ -95,6 +95,13 @@ No restyle in this phase ([D9](../decisions/009-block-intro-and-block-owned-spac
 - **Split layout admin form:** the type picker doesn't hide `intro` or `buttons` per layout. It clears `buttons` when switching to a quote layout.
 - **Grant FAQ section:** `pb-0` until Phase 2c teaches the grant template's page stack about self-spaced sections.
 - **Migration:** 6 Split layout CTAs became button groups and 9 CTA strip headings became intros.
+- **Split layout spacing:** owns its spacing only with an intro or the 3:2 ratio (`CONDITIONALLY_SELF_SPACED`). Existing 2:1, 1:1 and 1:2 blocks without an intro keep the section rhythm.
+- **Behaviour that follows the design (check at review):**
+  - Migrated Split layout CTAs render through the button group: an internal primary gets the arrow, and buttons are full width on mobile (B2).
+  - Below desktop, the Split layout intro keeps its description spacer (24 / 32) before the buttons' 24, as the designer confirmed (E-Q16).
+  - The grant FAQ section's subtitle and description now use the intro styles (H3 size, body text).
+  - A Split layout with an intro as the first block under the hero sits 40 below it on desktop (split variant: no top spacer).
+- **Admin:** the CTA strip is both a page block and a fixed field on grant, grant overview and podcast pages. Their exporters read only `heading`, so the intro is block-only and the admin text says so.
 
 ### Phase 2: Remaining blocks
 
