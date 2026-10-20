@@ -85,6 +85,17 @@ No restyle in this phase ([D9](../decisions/009-block-intro-and-block-owned-spac
   - `FundraisingPage` maps none of these blocks, though its schema allows them.
   - The root `page-preview.astro` doesn't populate image, video or PDF media.
 
+**Phase 2b status (2026-10-20).** D6 and D7 agreed. CTA strip, Split layout and the grant FAQ section are done.
+
+- **CTA strip:** the heading is the intro above the strip. Template strips (grant, grant overview, podcast, blog listing) pass `standalone` and keep it inside.
+- **Split layout:**
+  - `intro` and `buttons` (shared with CtaButtons: `ctaButtonsProp.ts`, `serializeCtaButtonEntries`).
+  - The `3:2` ratio carries the design. Existing content has no `displayRatio`, so it stays 2:1 and keeps its look. Stacked, the text always comes first.
+  - The draft preview now maps `media`, `content` and `cta`.
+- **Split layout admin form:** the type picker doesn't hide `intro` or `buttons` per layout. It clears `buttons` when switching to a quote layout.
+- **Grant FAQ section:** `pb-0` until Phase 2c teaches the grant template's page stack about self-spaced sections.
+- **Migration:** 6 Split layout CTAs became button groups and 9 CTA strip headings became intros.
+
 ### Phase 2: Remaining blocks
 
 Same recipe as Phase 1. Blocks that are already built only gain the intro and the block spacing ([D9](../decisions/009-block-intro-and-block-owned-spacing.md#decision)). The listed structural changes follow the ADR's [per-block spec](../decisions/009-block-intro-and-block-owned-spacing.md#b-per-block-spec).
