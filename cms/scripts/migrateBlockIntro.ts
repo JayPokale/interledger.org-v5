@@ -291,7 +291,7 @@ function stringAttr(node: MdxJsxFlowElement, name: string): string | undefined {
  * Rewrites a SplitLayout's legacy CTA attributes into a one-button group:
  * the first CTA attribute becomes `buttons={[…]}` and the rest are dropped.
  */
-function splitLayoutCtaEdits(node: MdxJsxFlowElement): Edit[] {
+function splitLayoutCtaEdits(node: MdxJsxFlowElement, source: string): Edit[] {
   if (node.name !== SPLIT_LAYOUT || findAttr(node, 'buttons')) return []
   const text = stringAttr(node, 'ctaText')
   const link = stringAttr(node, 'ctaLink')
@@ -310,10 +310,24 @@ function splitLayoutCtaEdits(node: MdxJsxFlowElement): Edit[] {
     .filter((offsets): offsets is Offsets => offsets !== null)
     .sort((a, b) => a.start - b.start)
 
-  return ranges.map((range, index) => ({
-    ...range,
-    text: index === 0 ? `buttons={${JSON.stringify([button])}}` : ''
-  }))
+  return ranges.map((range, index) =>
+    index === 0
+      ? { ...range, text: `buttons={${JSON.stringify([button])}}` }
+      : // Take the whitespace before a dropped attribute with it, so no
+        // stray space or blank line is left inside the tag.
+        {
+          start: startOfLeadingSpace(source, range.start),
+          end: range.end,
+          text: ''
+        }
+  )
+}
+
+/** Where the run of whitespace that ends at `offset` begins. */
+function startOfLeadingSpace(source: string, offset: number): number {
+  let start = offset
+  while (start > 0 && /\s/.test(source[start - 1])) start--
+  return start
 }
 
 /** Every flow element in the tree, nested ones included. */
@@ -368,7 +382,9 @@ export function migrateBlockIntro(
     .map(legacyHeadingEdit)
     .filter((edit): edit is Edit => edit !== null)
 
-  const splitLayoutEdits = flowElements(root).flatMap(splitLayoutCtaEdits)
+  const splitLayoutEdits = flowElements(root).flatMap((node) =>
+    splitLayoutCtaEdits(node, source)
+  )
 
   const edits = [...pass.edits, ...legacyEdits, ...splitLayoutEdits]
   return {

@@ -118,7 +118,17 @@ describe('migrateBlockIntro: phase 2b blocks', () => {
       'buttons={[{"text":"Read more","link":"/more/","style":"secondary","external":true}]}'
     )
     expect(result).not.toMatch(/cta(Text|Link|Style|External)=/)
+    // Dropped attributes take their line with them.
+    expect(result).toContain('  imageSrc="/img/a.png"\n  buttons={')
+    expect(result).toMatch(/buttons=\{[^\n]*\}\n>/)
     expect(result).toContain('imageSrc="/img/a.png"')
+  })
+
+  it('leaves no space before the closing bracket of a one-line tag', () => {
+    const result = migrate(
+      '<SplitLayout imageSrc="/a.png" ctaText="Go" ctaLink="/go/">\n\nBody.\n\n</SplitLayout>\n'
+    ).source
+    expect(result).toContain('"style":"primary"}]}>')
   })
 
   it('leaves a SplitLayout that already has buttons alone', () => {
