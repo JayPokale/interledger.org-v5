@@ -99,14 +99,16 @@ const accordionName = faqAccordionGroupName()
 
 {/*
   The FAQ split (ADR-009, B5): intro and button max 40%, the accordion max
-  60%, 120 apart on desktop; stacked in that order below. `pb-0` until the
-  grant template lets its sections own their spacing (Phase 2c): the page
-  stack still supplies the gap below this section.
+  60%, 120 apart on desktop; stacked in that order below. Until the grant
+  template lets its sections own their spacing (Phase 2c) the page stack
+  supplies the gaps around this section, so it drops its own: `pb-0` below,
+  and no intro top spacer or heading padding above.
 */}
 <section
   data-component="GrantFaqSection"
   data-intro-variant="split-layout"
   aria-labelledby={headingId}
+  style="--intro-top: 0px; --intro-h2-pt: 0px"
   class="flex flex-col gap-3xl pb-0 desktop:grid desktop:grid-cols-[2fr_3fr] desktop:items-start desktop:gap-6xl"
 >
   <div class="flex flex-col desktop:sticky desktop:top-6xl">
@@ -134,7 +136,7 @@ const accordionName = faqAccordionGroupName()
 
   <!-- Right column: accordion -->
   <div
-    class="flex min-w-0 flex-col gap-lg tablet:gap-xl desktop:pt-(--intro-h2-pt)"
+    class="flex min-w-0 flex-col gap-lg tablet:gap-xl desktop:pt-lg"
     data-faq-accordion
   >
     {renderedItems.map((item) => <details
