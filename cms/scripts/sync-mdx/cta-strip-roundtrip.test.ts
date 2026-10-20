@@ -11,7 +11,7 @@ const esCtx: ParserContext = { locale: 'es' }
 describe('CtaStrip round-trip (serialize → parse)', () => {
   it('round-trips a full strip with both CTAs (en)', async () => {
     const original = {
-      heading: 'Apply now',
+      intro: { heading: 'Apply now' },
       description: 'This is a reminder text.',
       primaryButtonText: 'Stay in touch',
       primaryButtonLink: '/contact',
@@ -26,7 +26,7 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
 
   it('round-trips a strip whose secondary CTA is absent', async () => {
     const original = {
-      heading: 'Apply now',
+      intro: { heading: 'Apply now' },
       description: 'This is a reminder text.',
       primaryButtonText: 'Stay in touch',
       primaryButtonLink: '/contact'
@@ -39,7 +39,7 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
 
   it('round-trips a full strip (es)', async () => {
     const original = {
-      heading: 'Aplica ya',
+      intro: { heading: 'Aplica ya' },
       description: 'Mantente al día con nuestras novedades.',
       primaryButtonText: 'Suscríbete',
       primaryButtonLink: '/es/boletin'
@@ -52,7 +52,7 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
 
   it('round-trips a minimal strip without adding colour', async () => {
     const original = {
-      heading: 'Stay up to date',
+      intro: { heading: 'Stay up to date' },
       description: 'Sign up for our newsletter.',
       primaryButtonText: 'Subscribe',
       primaryButtonLink: '/newsletter'
@@ -66,7 +66,7 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
 
   it('preserves brace-escaped content through a round-trip', async () => {
     const original = {
-      heading: 'H',
+      intro: { heading: 'H' },
       description: 'Use {tokens} wisely.',
       primaryButtonText: 'P',
       primaryButtonLink: '/p'
@@ -79,7 +79,7 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
 
   it('round-trips attribute values with quotes, ampersands and angle brackets', async () => {
     const original = {
-      heading: 'The "best" offer & <friends>',
+      intro: { heading: 'The "best" offer & <friends>' },
       description: 'Body.',
       primaryButtonText: 'Read "more"',
       primaryButtonLink: '/a?x=1&y=2'
@@ -92,7 +92,7 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
 
   it('round-trips a description containing a link and a mailto link', async () => {
     const original = {
-      heading: 'Before applying',
+      intro: { heading: 'Before applying' },
       description:
         'Check the [Grantmaking FAQs](/grants/faq) to know our approach. For clarifications, reach out to [our team](mailto:programteam@interledger.org).',
       primaryButtonText: 'Apply now',
@@ -106,7 +106,7 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
 
   it('drops a half-filled secondary CTA across the round-trip', async () => {
     const original = {
-      heading: 'H',
+      intro: { heading: 'H' },
       description: 'Body.',
       primaryButtonText: 'P',
       primaryButtonLink: '/p',
@@ -120,7 +120,7 @@ describe('CtaStrip round-trip (serialize → parse)', () => {
 
   it('round-trips the external and document flags on both buttons', async () => {
     const original = {
-      heading: 'Apply now',
+      intro: { heading: 'Apply now' },
       primaryButtonText: 'Read the guide',
       primaryButtonLink: '/uploads/img/original/guide.pdf',
       primaryButtonDocument: true,

@@ -2970,7 +2970,7 @@ describe('buildHackathonPagePayload', () => {
       expect((payload as Record<string, unknown>).content).toEqual([
         {
           __component: 'blocks.cta-strip',
-          heading: 'Join us',
+          intro: { heading: 'Join us' },
           primaryButtonText: 'Apply',
           primaryButtonLink: '/apply'
         }

@@ -28,7 +28,7 @@ describe('CtaStrip handler', () => {
     expect(blocks).toEqual([
       {
         __component: 'blocks.cta-strip',
-        heading: 'Apply now',
+        intro: { heading: 'Apply now' },
         description: 'This is a reminder text.',
         primaryButtonText: 'Stay in touch',
         primaryButtonLink: '/contact',
@@ -176,7 +176,7 @@ describe('CtaStrip handler', () => {
     expect(result).toEqual([
       {
         __component: 'blocks.cta-strip',
-        heading: 'H',
+        intro: { heading: 'H' },
         primaryButtonText: 'P',
         primaryButtonLink: '/p'
       }

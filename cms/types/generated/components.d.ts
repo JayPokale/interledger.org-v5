@@ -340,6 +340,12 @@ export interface BlocksCtaStrip extends Struct.ComponentSchema {
           localized: true
         }
       }>
+    intro: Schema.Attribute.Component<'shared.block-intro', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true
+        }
+      }>
     primaryButtonDocument: Schema.Attribute.Boolean &
       Schema.Attribute.SetPluginOptions<{
         i18n: {

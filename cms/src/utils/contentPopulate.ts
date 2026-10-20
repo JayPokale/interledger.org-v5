@@ -31,7 +31,7 @@ const GRANT_BLOCKS = {
       mobileImage: true
     }
   },
-  'blocks.cta-strip': {},
+  'blocks.cta-strip': { populate: { intro: true } },
   'blocks.carousel': {
     populate: { intro: true, logos: { populate: { image: true } } }
   },
@@ -74,7 +74,7 @@ const FOUNDATION_PAGE_BLOCKS = {
     populate: { intro: true, authorImage: true }
   },
   'blocks.callout-text': {},
-  'blocks.cta-strip': {},
+  'blocks.cta-strip': { populate: { intro: true } },
   'blocks.pdf-embed': {
     populate: { intro: true, file: true }
   },
@@ -195,7 +195,7 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
     'blocks.profile-grid': {
       populate: { intro: true, profiles: true }
     },
-    'blocks.cta-strip': {},
+    'blocks.cta-strip': { populate: { intro: true } },
     'blocks.carousel': {
       populate: { intro: true, logos: { populate: { image: true } } }
     },

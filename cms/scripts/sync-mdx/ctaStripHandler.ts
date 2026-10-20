@@ -3,7 +3,8 @@
  *
  * Handles:
  * - <CtaStrip
- *     heading="…"              (optional)
+ *     intro={{…}}              (optional; a legacy heading="…" is read as
+ *                              the intro heading)
  *     primaryButtonText="…"
  *     primaryButtonLink="…"
  *     secondaryButtonText="…"  (optional)
@@ -24,7 +25,11 @@ import {
   type CtaStripBlock
 } from './types.blocks'
 import { childrenToMarkdown } from './mdastSerialize'
-import { getStringAttr, getBooleanAttr } from './jsxExtract'
+import {
+  getStringAttr,
+  getBooleanAttr,
+  getIntroWithLegacyHeading
+} from './jsxExtract'
 import {
   registerComponentHandler,
   type JsxBlockNode,
@@ -41,7 +46,7 @@ async function handleCtaStrip(
   _ctx: ParserContext
 ): Promise<ParsedBlock[] | MdxParserError> {
   return tryCatchParserError(() => {
-    const heading = getStringAttr(node, 'heading')
+    const intro = getIntroWithLegacyHeading(node, 'heading')
     const primaryButtonText = getStringAttr(node, 'primaryButtonText', {
       required: true
     })
@@ -92,11 +97,11 @@ async function handleCtaStrip(
 
     const block: CtaStripBlock = {
       __component: 'blocks.cta-strip',
+      ...(intro ? { intro } : {}),
       primaryButtonText,
       primaryButtonLink
     }
 
-    if (heading) block.heading = heading
     if (description) block.description = description
     if (color === 'green') block.color = 'green'
     if (primaryExternal) block.primaryButtonExternal = true

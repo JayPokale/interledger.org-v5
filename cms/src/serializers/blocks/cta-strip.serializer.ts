@@ -1,4 +1,10 @@
-import { ckeditorFieldToCompiledMarkdown, isCtaStripColor } from '../../utils'
+import {
+  ckeditorFieldToCompiledMarkdown,
+  introWithLegacyHeading,
+  isCtaStripColor,
+  serializeIntroProp,
+  type BlockIntroInput
+} from '../../utils'
 import { escDouble as esc, escMdxBraces } from '../shared'
 
 /**
@@ -7,9 +13,12 @@ import { escDouble as esc, escMdxBraces } from '../shared'
  * Purple is the default and is left off the tag. Green is the pistachio
  * variant. The secondary CTA is optional and its two fields travel together:
  * a half-filled one would render as a dead or unlabelled button, so it is
- * only emitted when both are set.
+ * only emitted when both are set. The heading is the block intro (ADR-009,
+ * D6); a legacy `heading` exports as the intro heading.
  */
 export function serialize(block: {
+  intro?: BlockIntroInput | null
+  /** @deprecated Legacy heading; exported as `intro.heading` until removed. */
   heading?: string
   description?: string
   color?: string
@@ -51,9 +60,12 @@ export function serialize(block: {
     block.secondaryButtonText?.trim() && block.secondaryButtonLink?.trim()
   )
 
+  const introAttr = serializeIntroProp(
+    introWithLegacyHeading(block.intro, block.heading)
+  ).trim()
   const attrs = [
+    introAttr || null,
     block.color === 'green' ? 'color="green"' : null,
-    block.heading ? `heading="${esc(block.heading)}"` : null,
     `primaryButtonText="${esc(block.primaryButtonText)}"`,
     `primaryButtonLink="${esc(block.primaryButtonLink)}"`,
     block.primaryButtonExternal ? 'primaryButtonExternal={true}' : null,
