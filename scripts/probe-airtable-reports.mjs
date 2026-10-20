@@ -41,8 +41,20 @@ async function get(path) {
   return { status: response.status, body }
 }
 
+// Names in PRO-370 do not all match Airtable, so also show near matches.
+const NEAR_MATCH = /report|project|status/i
+
 function isSyncField(field) {
-  return field.name.startsWith('Public') || NEEDED_FIELDS.has(field.name)
+  return (
+    field.name.startsWith('Public') ||
+    NEEDED_FIELDS.has(field.name) ||
+    NEAR_MATCH.test(field.name)
+  )
+}
+
+function describeChoices(field) {
+  const choices = field.options?.choices
+  return choices ? ` choices: ${choices.map((c) => c.name).join(' | ')}` : ''
 }
 
 function findTable(tables, name) {
@@ -54,7 +66,7 @@ function printFields(table) {
   console.log(`\n## ${table.name} (${table.id})`)
   console.log(`Fields used by the sync (${shown.length}):`)
   for (const field of shown) {
-    console.log(`  - ${field.name} [${field.type}] ${field.id}`)
+    console.log(`  - ${field.name} [${field.type}] ${field.id}${describeChoices(field)}`)
   }
   console.log(`Other fields, names hidden: ${table.fields.length - shown.length}`)
   console.log('Views:')
