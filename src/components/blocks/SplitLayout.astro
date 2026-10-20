@@ -186,6 +186,10 @@ const gridColsClass = hasMedia
 
 const isDesignRatio = displayRatio === '3:2'
 const hasButtons = !isQuoteLayout && buttons.length > 0
+// A block with an intro or the design ratio owns its spacing (ADR-009). The
+// existing ratios without an intro keep the prose section rhythm, so pages
+// built before the redesign keep their gaps (D7).
+const ownsSpacing = Boolean(intro) || isDesignRatio
 
 const columnClass = 'w-full min-w-0'
 const contentColumnClass = `${columnClass} flex flex-col`
@@ -210,10 +214,13 @@ const imageClass = isDesignRatio
 
 <section
   data-component="SplitLayout"
-  data-intro-variant="split-layout"
+  data-intro-variant={ownsSpacing ? 'split-layout' : undefined}
   aria-labelledby={headingId}
   class:list={[
-    'flex flex-col gap-3xl desktop:grid desktop:gap-6xl',
+    'flex flex-col desktop:grid desktop:gap-6xl',
+    // Stacked, the design ratio spaces its columns from inside them (the
+    // intro's spacers, the media padding); the older ratios keep a gap.
+    !isDesignRatio && 'gap-3xl',
     isDesignRatio ? 'desktop:items-start' : 'desktop:items-center',
     gridColsClass
   ]}
