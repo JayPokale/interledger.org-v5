@@ -69,6 +69,8 @@ const {
 const isGreen = color === 'green'
 const intro = standalone ? null : resolveBlockIntro(introProp, heading)
 const stripHeading = standalone ? heading?.trim() : undefined
+// In a block the frame is the section; the strip inside it is a plain box.
+const StripTag = standalone ? 'section' : 'div'
 
 const { routeLocale, site } = Astro.locals
 
@@ -169,7 +171,7 @@ const hasSecondary = Boolean(
   bare={standalone}
   umamiContext={umamiContext}
 >
-  <section
+  <StripTag
     data-component={standalone ? 'CtaStrip' : undefined}
     class:list={[
       'relative isolate overflow-clip rounded-3xl',
@@ -312,5 +314,5 @@ const hasSecondary = Boolean(
         </LinkButton>}
       </div>
     </div>
-  </section>
+  </StripTag>
 </IntroBlockFrame>}
