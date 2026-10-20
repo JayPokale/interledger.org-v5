@@ -1925,7 +1925,6 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'tagline', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'content', size: 12 }],
-      [{ name: 'buttons', size: 12 }],
       [{ name: 'cta', size: 12 }]
     ],
     'api::report.report': [
@@ -2249,6 +2248,7 @@ async function configureLayouts(strapi: StrapiInstance) {
         { name: 'quote', size: 8 },
         { name: 'quoteSource', size: 4 }
       ],
+      [{ name: 'buttons', size: 12 }],
       [{ name: 'cta', size: 12 }]
     ],
     'blocks.title-card': [
