@@ -1428,6 +1428,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       poster: 'Cover image'
     },
     'blocks.split-layout': {
+      intro: 'Intro',
+      buttons: 'Buttons',
       layoutType: 'Layout',
       imagePosition: 'Image position',
       displayRatio: 'Display ratio',
@@ -1440,7 +1442,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       content: 'Content',
       quote: 'Quote',
       quoteSource: 'Quote Attribution',
-      cta: 'Call-to-action Button'
+      cta: 'Call-to-action Button (deprecated)'
     },
     'blocks.title-card': {
       heading: 'Heading',
@@ -1573,11 +1575,15 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       code: 'Paste or type your code here.'
     },
     'blocks.split-layout': {
+      intro: BLOCK_INTRO_DESCRIPTION,
+      buttons:
+        'One button, or two side by side (primary and secondary). Shown under the text.',
+      cta: 'Deprecated: use Buttons instead. Only used when Buttons is empty.',
       layoutType:
         'Choose Image + Text, Image + Quote, Video + Text, or Video + Quote.',
       imagePosition: 'Controls which side the image appears on.',
       displayRatio:
-        'Content-to-media width. Default 2:1 (wider content). 1:1 equal columns; 1:2 wider media.',
+        'Content-to-media width. 3:2 (default) is the current design: 60/40 with a 4:3 image. 2:1 wider content; 1:1 equal columns; 1:2 wider media.',
       videoUrl:
         'YouTube or Vimeo URL. When set, takes precedence over the image.',
       quote:
@@ -1919,6 +1925,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'tagline', size: 12 }],
       [{ name: 'description', size: 12 }],
       [{ name: 'content', size: 12 }],
+      [{ name: 'buttons', size: 12 }],
       [{ name: 'cta', size: 12 }]
     ],
     'api::report.report': [
@@ -2227,6 +2234,7 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'code', size: 12 }]
     ],
     'blocks.split-layout': [
+      [{ name: 'intro', size: 12 }],
       [{ name: 'layoutType', size: 12 }],
       [{ name: 'image', size: 12 }],
       [

@@ -16,7 +16,12 @@
 const GRANT_BLOCKS = {
   'blocks.paragraph': {},
   'blocks.split-layout': {
-    populate: { media: { populate: { image: true } }, cta: true }
+    populate: {
+      intro: true,
+      media: { populate: { image: true } },
+      buttons: true,
+      cta: true
+    }
   },
   'blocks.blockquote': { populate: { intro: true } },
   'blocks.callout-text': {},
@@ -59,7 +64,12 @@ const FOUNDATION_PAGE_BLOCKS = {
     populate: { items: true }
   },
   'blocks.split-layout': {
-    populate: { media: { populate: { image: true } }, cta: true }
+    populate: {
+      intro: true,
+      media: { populate: { image: true } },
+      buttons: true,
+      cta: true
+    }
   },
   'blocks.profile': {
     populate: {
@@ -190,7 +200,12 @@ export const HACKATHON_PAGE_CONTENT_POPULATE = {
       populate: { items: true }
     },
     'blocks.split-layout': {
-      populate: { media: { populate: { image: true } }, cta: true }
+      populate: {
+        intro: true,
+        media: { populate: { image: true } },
+        buttons: true,
+        cta: true
+      }
     },
     'blocks.profile-grid': {
       populate: { intro: true, profiles: true }
