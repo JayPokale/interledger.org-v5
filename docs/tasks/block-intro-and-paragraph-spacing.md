@@ -87,21 +87,21 @@ No restyle in this phase ([D9](../decisions/009-block-intro-and-block-owned-spac
 
 **Phase 2b status (2026-10-20).** D6 and D7 agreed. CTA strip, Split layout and the grant FAQ section are done.
 
-- **CTA strip:** the heading is the intro above the strip. Template strips (grant, grant overview, podcast, blog listing) pass `standalone` and keep it inside.
+- **CTA strip:** `heading` is the CTA strip title, always inside the strip, and an optional intro sits above it (corrected 2026-10-21; the first pass had moved the heading into the intro). Template strips (grant, grant overview, podcast, blog listing) pass `standalone` and have no intro.
 - **Split layout:**
   - `intro` and `buttons` (shared with CtaButtons: `ctaButtonsProp.ts`, `serializeCtaButtonEntries`).
   - The `3:2` ratio carries the design. Existing content has no `displayRatio`, so it stays 2:1 and keeps its look. Stacked, the text always comes first.
   - The draft preview now maps `media`, `content` and `cta`.
 - **Split layout admin form:** the type picker doesn't hide `intro` or `buttons` per layout. It clears `buttons` when switching to a quote layout.
 - **Grant FAQ section:** `pb-0` until Phase 2c teaches the grant template's page stack about self-spaced sections.
-- **Migration:** 6 Split layout CTAs became button groups and 9 CTA strip headings became intros.
+- **Migration:** 6 Split layout CTAs became button groups. CTA strip titles stay as they are.
 - **Split layout spacing:** owns its spacing only with an intro or the 3:2 ratio (`CONDITIONALLY_SELF_SPACED`). Existing 2:1, 1:1 and 1:2 blocks without an intro keep the section rhythm.
 - **Behaviour that follows the design (check at review):**
   - Migrated Split layout CTAs render through the button group: an internal primary gets the arrow, and buttons are full width on mobile (B2).
   - Below desktop, the Split layout intro keeps its description spacer (24 / 32) before the buttons' 24, as the designer confirmed (E-Q16).
   - The grant FAQ section's subtitle and description now use the intro styles (H3 size, body text).
   - A Split layout with an intro as the first block under the hero sits 40 below it on desktop (split variant: no top spacer).
-- **Admin:** the CTA strip is both a page block and a fixed field on grant, grant overview and podcast pages. Their exporters read only `heading`, so the intro is block-only and the admin text says so.
+- **Admin:** the CTA strip `heading` is labelled "CTA strip title". The intro is a component field, so Strapi shows no hint for it; it is unused on grant, grant overview and podcast pages.
 
 ### Phase 2: Remaining blocks
 
