@@ -25,7 +25,6 @@ import type { SerializedBlockIntro } from '../src/utils/contentTypes'
 /** Blocks that take an intro, and the legacy attribute each one replaces. */
 export const INTRO_BLOCK_LEGACY_ATTRS: Readonly<Record<string, string>> = {
   CardGrid: 'title',
-  CtaStrip: 'heading',
   EventCard: 'title',
   Faq: 'heading',
   LogoCarousel: 'heading',

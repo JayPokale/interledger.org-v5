@@ -1,26 +1,18 @@
 ---
-import {
-  buildUmamiAttrs,
-  parseMarkdown,
-  resolveBlockIntro,
-  resolveCtaLink
-} from '@/utils'
+import { buildUmamiAttrs, parseMarkdown, resolveCtaLink } from '@/utils'
 import IntroBlockFrame from '@/components/shared/IntroBlockFrame.astro'
 import type { BlockIntro } from '@/types/blockIntro'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
 interface Props {
-  /** Block intro (ADR-009, D6): the block title, above the strip. */
+  /** Block intro (ADR-009, D6): optional, above the strip, in page blocks. */
   intro?: BlockIntro | null
-  /**
-   * In a template (`standalone`): the title inside the strip. In a content
-   * block: the deprecated legacy heading, rendered as the intro heading.
-   */
+  /** The CTA strip title, shown inside the strip. */
   heading?: string | null
   /**
-   * Page templates (grant, podcast, blog listing) keep the title inside the
-   * strip and no block frame; content blocks move it into the intro.
+   * Page templates (grant, podcast, blog listing) render the strip with no
+   * block frame and no intro.
    */
   standalone?: boolean
   description?: string
@@ -67,8 +59,8 @@ const {
 } = Astro.props
 
 const isGreen = color === 'green'
-const intro = standalone ? null : resolveBlockIntro(introProp, heading)
-const stripHeading = standalone ? heading?.trim() : undefined
+const intro = standalone ? null : introProp
+const stripHeading = heading?.trim()
 // In a block the frame is the section; the strip inside it is a plain box.
 const StripTag = standalone ? 'section' : 'div'
 

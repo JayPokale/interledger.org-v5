@@ -11,7 +11,7 @@ describe('cta-strip serializer', () => {
     })
 
     expect(result).toBe(
-      '<CtaStrip intro={{"heading":"Stay up to date"}} primaryButtonText="Subscribe" primaryButtonLink="/newsletter">\n\nSign up for our newsletter.\n\n</CtaStrip>'
+      '<CtaStrip heading="Stay up to date" primaryButtonText="Subscribe" primaryButtonLink="/newsletter">\n\nSign up for our newsletter.\n\n</CtaStrip>'
     )
   })
 
@@ -62,7 +62,7 @@ describe('cta-strip serializer', () => {
     expect(result).toBe(
       '<CtaStrip primaryButtonText="P" primaryButtonLink="/p" />'
     )
-    expect(result).not.toMatch(/heading=|intro=/)
+    expect(result).not.toContain('heading=')
     expect(result).not.toContain('secondaryButtonText')
     expect(result).not.toContain('secondaryButtonLink')
   })
@@ -119,27 +119,17 @@ describe('cta-strip serializer', () => {
 
   it('HTML-entity encodes the quote that would break a JSX attribute, and nothing else', () => {
     const result = serialize({
+      heading: 'The "best" offer & more <here>',
       description: 'Body.',
-      primaryButtonText: 'The "best" offer & more <here>',
-      primaryButtonLink: '/p'
-    })
-
-    // Not backslash-escaped (\" breaks a quoted MDX attribute); entity-encoded
-    // instead. `&` and the angle brackets are ordinary text between the quotes.
-    expect(result).toContain(
-      'primaryButtonText="The &quot;best&quot; offer & more <here>"'
-    )
-    expect(result).not.toContain('\\"')
-  })
-
-  it('writes a legacy heading as JSON in the intro expression', () => {
-    const result = serialize({
-      heading: 'The "best" offer',
       primaryButtonText: 'P',
       primaryButtonLink: '/p'
     })
 
-    // Inside a JS expression a backslash-escaped quote is valid.
-    expect(result).toContain('intro={{"heading":"The \\"best\\" offer"}}')
+    // Not backslash-escaped (\" breaks MDX parsing); entity-encoded instead.
+    // `&` and the angle brackets are ordinary text between the quotes.
+    expect(result).toContain(
+      'heading="The &quot;best&quot; offer & more <here>"'
+    )
+    expect(result).not.toContain('\\"')
   })
 })

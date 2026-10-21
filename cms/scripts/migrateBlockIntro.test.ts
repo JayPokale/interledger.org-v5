@@ -89,13 +89,10 @@ describe('migrateBlockIntro: phase 2a blocks', () => {
 })
 
 describe('migrateBlockIntro: phase 2b blocks', () => {
-  it('moves a CtaStrip heading into the intro', () => {
-    const result = migrate(
+  it('leaves the CtaStrip title alone', () => {
+    const source =
       '<CtaStrip heading="Join us" primaryButtonText="Apply" primaryButtonLink="/apply/" />\n'
-    ).source
-    expect(result).toContain(
-      '<CtaStrip intro={{"heading":"Join us"}} primaryButtonText="Apply"'
-    )
+    expect(migrate(source).source).toBeNull()
   })
 
   it('turns a SplitLayout single CTA into a button group', () => {

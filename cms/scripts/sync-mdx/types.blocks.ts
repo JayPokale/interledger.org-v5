@@ -138,6 +138,7 @@ export interface CalloutTextBlock extends StrapiBlockBase {
 export interface CtaStripBlock extends StrapiBlockBase {
   __component: 'blocks.cta-strip'
   intro?: SerializedBlockIntro
+  heading?: string
   description?: string
   color?: 'purple' | 'green'
   primaryButtonText: string

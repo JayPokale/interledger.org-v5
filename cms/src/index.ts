@@ -1377,9 +1377,9 @@ async function configureFieldLabels(strapi: StrapiInstance) {
     },
 
     'blocks.cta-strip': {
-      intro: 'Intro (page blocks)',
+      intro: 'Intro',
       color: 'Color',
-      heading: 'Heading (grant and podcast pages)',
+      heading: 'CTA strip title',
       description: 'Description',
       primaryButtonText: 'Primary Button Text',
       primaryButtonLink: 'Primary Button URL',
@@ -1723,14 +1723,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       primaryCta:
         'Required. Primary button label, URL, and internal/external flag.'
     },
-    // The CTA strip is both a page block and a fixed field on grant, grant
-    // overview and podcast pages. Only the block shows the intro (above the
-    // strip); the fixed field keeps its heading inside the strip.
+    // `intro` is a component field, so Strapi shows no hint for it: it sits
+    // above the strip in page blocks and is unused on grant, grant overview
+    // and podcast pages.
     'blocks.cta-strip': {
-      intro:
-        'Page blocks only: heading, subheading and description shown above the strip. Not used on grant, grant overview or podcast pages.',
-      heading:
-        'Grant, grant overview and podcast pages: shown inside the strip. In a page block use Intro → Heading instead; this is only used when the intro is empty.',
+      heading: 'Optional. Shown inside the strip, above the description.',
       color:
         'Purple is the default. Green uses the pistachio background and its own network motif.',
       primaryButtonLink:
