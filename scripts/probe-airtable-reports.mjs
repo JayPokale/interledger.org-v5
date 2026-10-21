@@ -70,8 +70,13 @@ function printFields(table) {
   }
   console.log(`Other fields, names hidden: ${table.fields.length - shown.length}`)
   console.log('Views:')
+  const nameById = new Map(table.fields.map((f) => [f.id, f.name]))
   for (const view of table.views) {
     console.log(`  - ${view.name} [${view.type}] ${view.id}`)
+    if (!view.name.startsWith('PUBLIC') || !view.visibleFieldIds) continue
+    for (const id of view.visibleFieldIds) {
+      console.log(`      visible: ${nameById.get(id) ?? '?'} ${id}`)
+    }
   }
 }
 
@@ -138,12 +143,23 @@ async function countLive(table) {
   console.log(`\nRecords with Publication Status = Live: ${total}`)
 }
 
+async function countView(table) {
+  const view = table.views.find((v) => v.name.startsWith('PUBLIC'))
+  if (!view) {
+    console.log('\nNo PUBLIC view found.')
+    return
+  }
+  const params = new URLSearchParams({ view: view.id, 'fields[]': table.primaryFieldId })
+  const { status, body } = await get(`/${BASE_ID}/${table.id}?${params}`)
+  console.log(`\nRecords in view "${view.name}": HTTP ${status}, ${body?.records.length ?? 0} (first page)`)
+}
+
 async function main() {
   const whoami = await get('/meta/whoami')
   console.log(`whoami: HTTP ${whoami.status}`)
   console.log(`scopes: ${whoami.body?.scopes?.join(', ') ?? 'not returned'}`)
 
-  const meta = await get(`/meta/bases/${BASE_ID}/tables`)
+  const meta = await get(`/meta/bases/${BASE_ID}/tables?include=visibleFieldIds`)
   console.log(`base schema: HTTP ${meta.status}`)
   if (!meta.body) process.exit(1)
 
@@ -162,6 +178,7 @@ async function main() {
   const published = findTable(tables, TABLES.published)
   if (!published) return
   await countLive(published)
+  await countView(published)
   await probeImages(published)
 }
 
