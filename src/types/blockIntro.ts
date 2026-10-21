@@ -18,7 +18,6 @@ export interface BlockIntro {
 export const BLOCK_INTRO_VARIANTS = [
   'universal',
   'button-cta',
-  'profile-grid',
   'split-layout'
 ] as const
 export type BlockIntroVariant = (typeof BLOCK_INTRO_VARIANTS)[number]

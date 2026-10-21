@@ -126,12 +126,11 @@ The real distance from the top of the block to the H2 text is the top spacer plu
 
 Variant overrides:
 
-| Variant          | Used by                                                                                                         | Differences from the table above                                  |
-| ---------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| **Universal**    | PDF, Number tiles, Quote, Blockquote, Event card, Card Grid, Logo carousel, FAQ, CTA strip, Image/Video, Agenda | none                                                              |
-| **Button CTA**   | CTA buttons block                                                                                               | description spacer **0**                                          |
-| **Profile Grid** | Profile Grid                                                                                                    | none; same values as Universal since the latest pass              |
-| **Split layout** | Split layout                                                                                                    | desktop: top spacer **0**, H2→H3 **40**, description spacer **0** |
+| Variant          | Used by                                                                                                                       | Differences from the table above                                  |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **Universal**    | PDF, Number tiles, Quote, Blockquote, Event card, Card Grid, Profile Grid, Logo carousel, FAQ, CTA strip, Image/Video, Agenda | none                                                              |
+| **Button CTA**   | CTA buttons block                                                                                                             | description spacer **0**                                          |
+| **Split layout** | Split layout                                                                                                                  | desktop: top spacer **0**, H2→H3 **40**, description spacer **0** |
 
 Rules:
 
