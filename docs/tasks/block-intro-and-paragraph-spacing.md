@@ -121,6 +121,7 @@ Same recipe as Phase 1. Blocks that are already built only gain the intro and th
 | SplitLayout                        | split-layout | none                                            | [B5](../decisions/009-block-intro-and-block-owned-spacing.md#b5-split-layout-544163402-split-layout-intro), [D7](../decisions/009-block-intro-and-block-owned-spacing.md#decision): columns 60 / 40 (flipped for FAQ accordions), gap 120; media 4:3, radius 24; intro → buttons → media; media padding only with a CTA; button group; new FAQ option in the second column; fix the preview prop gap |
 | Agenda                             | universal    | `heading` per day                               | [B4](../decisions/009-block-intro-and-block-owned-spacing.md#b4-agenda-543262257), [D5](../decisions/009-block-intro-and-block-owned-spacing.md#decision): days model and migration; "Day N" + date heading; agenda styles stay as built                                                                                                                                                             |
 | InfoCards (grant), GrantFaqSection | universal    | `heading`; `title` + `subtitle` + `description` | single fields                                                                                                                                                                                                                                                                                                                                                                                        |
+| Title Cards (podcast)              | universal    | trailing `## Heading` in `textSection`          | Give the podcast title card grid its own `intro` (schema, export, sync, migration out of `textSection`). Then `PodcastPage` reads it instead of `splitTrailingHeading`, which is transitional and goes in Phase 4.                                                                                                                                                                                   |
 
 Not in Figma, so left alone: DonationCards, InternalAdvert, CodeBlock, CalloutText, ReportSection, HackathonAnimation, CtaLink.
 
@@ -144,6 +145,8 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
 ### Phase 4: Cleanup
 
 - Remove the legacy fields, the transitional `rhythm.css` rules and unused `--space-block-heading` callers.
+- Remove `splitTrailingHeading` and its tests (`src/utils/main/blockIntro.ts`) once podcast Title Cards read their own intro.
+- Rename the intro spacers after what they are, padding-bottom: `--intro-h2-h3` → `--intro-h2-pb`, `--intro-h3-desc` → `--intro-h3-pb`, `--intro-desc` → `--intro-desc-pb`, to match `--intro-h2-pt` and `--intro-h3-pt`.
 - Add a short "every block owns its intro and spacing" section to `CLAUDE.md`.
 
 ---
