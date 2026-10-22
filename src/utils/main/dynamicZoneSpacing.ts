@@ -59,6 +59,10 @@ const SECTION_GAP_AFTER_SELF_SPACED =
 
 /**
  * Class for the wrapper margin above a preview block, or `null` for none.
+ *
+ * Approximate at the top: the preview pages keep their own top padding, so
+ * a first block that opens with an intro or a Paragraph sits lower there
+ * than under a live page's hero (ADR-009, A6).
  * `prevUid` is `null` for the first block.
  */
 export function getPreviewBlockGapClass(
