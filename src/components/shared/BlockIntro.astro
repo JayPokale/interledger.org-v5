@@ -36,7 +36,7 @@ const description = await parseMarkdown(normalized?.description, {
 })
 ---
 
-{normalized && <header class="pt-(--intro-top)">
+{normalized && <header data-block-intro class="pt-(--intro-top)">
   {normalized.heading && <h2
     id={headingId}
     class="m-0 pt-(--intro-h2-pt) pb-(--intro-h2-h3) text-neutral-900 dark:text-neutral-0"
