@@ -5,7 +5,7 @@ import Blockquote from '@/components/shared/Blockquote.astro'
 import BlockIntro from '@/components/shared/BlockIntro.astro'
 import CtaButtons from '@/components/blocks/CtaButtons.astro'
 import type { BlockIntroData } from '@/types/blockIntro'
-import { blockIntroLabel, normalizeBlockIntro, parseMarkdown } from '@/utils'
+import { blockIntroA11y, normalizeBlockIntro, parseMarkdown } from '@/utils'
 
 /**
  * Content-to-media column ratio (admin labels). Astro maps these to grid `fr`
@@ -138,9 +138,7 @@ const previewBodyHtml =
     : ''
 
 const intro = normalizeBlockIntro(introProp)
-const headingId = blockIntroLabel(intro)
-  ? `split-layout-heading-${crypto.randomUUID()}`
-  : undefined
+const { headingId } = blockIntroA11y(intro, 'split-layout')
 
 // The button group, or a legacy single CTA as a one-button group.
 const legacyCta: StrapiCta = cta ?? {

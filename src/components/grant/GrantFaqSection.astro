@@ -4,7 +4,7 @@ import FaqAnswerPanel from '@/components/shared/FaqAnswerPanel.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 import BlockIntro from '@/components/shared/BlockIntro.astro'
 import {
-  blockIntroLabel,
+  blockIntroA11y,
   buildUmamiAttrs,
   normalizeBlockIntro,
   parseMarkdown,
@@ -88,9 +88,7 @@ const intro = normalizeBlockIntro({
   subheading: subtitle,
   description
 })
-const headingId = blockIntroLabel(intro)
-  ? `grant-faq-heading-${crypto.randomUUID()}`
-  : undefined
+const { headingId } = blockIntroA11y(intro, 'grant-faq')
 
 // Unique so this grant FAQ doesn't exclusive-close another accordion on
 // the same page when JS is off. initFaqAccordion strips `name`.
