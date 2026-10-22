@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { BlockIntroData } from '../../types/blockIntro'
 import {
+  blockIntroA11y,
   blockIntroLabel,
   normalizeBlockIntro,
   resolveBlockIntro,
@@ -148,5 +149,35 @@ describe('splitTrailingHeading', () => {
         heading: null
       })
     }
+  })
+})
+
+describe('blockIntroA11y', () => {
+  it('labels the section by the intro heading with a random id', () => {
+    const intro = normalizeBlockIntro({ heading: 'Same heading' })
+    const first = blockIntroA11y(intro, 'card-grid', 'Cards')
+    const second = blockIntroA11y(intro, 'card-grid', 'Cards')
+
+    expect(first.headingId).toMatch(/^card-grid-heading-[0-9a-f-]{36}$/)
+    expect(second.headingId).not.toBe(first.headingId)
+    expect(first.ariaLabel).toBeUndefined()
+  })
+
+  it('labels by the subheading when there is no heading', () => {
+    const a11y = blockIntroA11y(
+      normalizeBlockIntro({ subheading: 'Sub' }),
+      'faq'
+    )
+    expect(a11y.headingId).toMatch(/^faq-heading-/)
+  })
+
+  it('falls back to the given label without a heading or subheading', () => {
+    expect(
+      blockIntroA11y(normalizeBlockIntro({ description: 'Text' }), 'faq', 'FAQ')
+    ).toEqual({ headingId: undefined, ariaLabel: 'FAQ' })
+    expect(blockIntroA11y(null, 'number-tiles')).toEqual({
+      headingId: undefined,
+      ariaLabel: undefined
+    })
   })
 })

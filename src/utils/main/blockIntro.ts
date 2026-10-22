@@ -69,6 +69,33 @@ export function blockIntroLabel(
   return intro?.heading ?? intro?.subheading ?? null
 }
 
+/** How a block names its `<section>` for screen readers. */
+export interface BlockIntroA11y {
+  /** Goes on BlockIntro (`headingId`) and on the section's `aria-labelledby`. */
+  headingId: string | undefined
+  /** The section's `aria-label`, used only when the intro can't name it. */
+  ariaLabel: string | undefined
+}
+
+/**
+ * Names a block's `<section>`: by its intro heading (or subheading) when the
+ * intro has one, otherwise by `fallbackLabel`. The id is random, so two
+ * blocks with the same heading on one page never share it.
+ */
+export function blockIntroA11y(
+  intro: NormalizedBlockIntro | null,
+  idPrefix: string,
+  fallbackLabel?: string
+): BlockIntroA11y {
+  if (blockIntroLabel(intro)) {
+    return {
+      headingId: `${idPrefix}-heading-${crypto.randomUUID()}`,
+      ariaLabel: undefined
+    }
+  }
+  return { headingId: undefined, ariaLabel: fallbackLabel?.trim() || undefined }
+}
+
 /** A markdown `## Heading` line, with optional closing hashes. */
 const TRAILING_H2 = /(?:^|\n)##[ \t]+(.+?)[ \t]*#*[ \t]*\s*$/
 
