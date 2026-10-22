@@ -165,6 +165,15 @@
     padding-block-end: 0;
   }
 
+  /* A blog post's content starts under its header (BlogPostHeader, the
+     first child of the article), so the first Paragraph after it takes the
+     "first" top (A3). Outscores the `:not(:first-child)` reset above. */
+  [data-prose-blog]
+    > :first-child
+    + [data-component='Paragraph'][data-intro-variant='paragraph'] {
+    --para-lead-pt: var(--para-first-pt);
+  }
+
   /* A Paragraph that ends on a heading titles the legacy block after it (a
      "fake intro"). The pair keeps the heading gap it has today rather than
      a block break. A block with an intro of its own is spaced normally.
