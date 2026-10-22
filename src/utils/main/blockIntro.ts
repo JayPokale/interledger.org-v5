@@ -1,8 +1,8 @@
-import type { BlockIntro } from '../../types/blockIntro'
+import type { BlockIntroData } from '../../types/blockIntro'
 
 /** A block intro with every field trimmed and every empty field dropped. */
 export type NormalizedBlockIntro = {
-  [Field in keyof BlockIntro]-?: string | null
+  [Field in keyof BlockIntroData]-?: string | null
 }
 
 // CKEditor stores a Shift+Enter break as a literal <br/>. The Strapi
@@ -25,7 +25,7 @@ function trimmedText(value: unknown): string | null {
  * empty rather than reaching the markup.
  */
 export function normalizeBlockIntro(
-  intro: BlockIntro | null | undefined
+  intro: BlockIntroData | null | undefined
 ): NormalizedBlockIntro | null {
   if (!intro || typeof intro !== 'object') return null
 
@@ -49,7 +49,7 @@ export function normalizeBlockIntro(
  * its heading.
  */
 export function resolveBlockIntro(
-  intro: BlockIntro | null | undefined,
+  intro: BlockIntroData | null | undefined,
   legacyHeading: string | null | undefined
 ): NormalizedBlockIntro | null {
   return (

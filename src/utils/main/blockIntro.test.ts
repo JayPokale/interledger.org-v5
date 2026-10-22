@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { BlockIntro } from '../../types/blockIntro'
+import type { BlockIntroData } from '../../types/blockIntro'
 import {
   blockIntroLabel,
   normalizeBlockIntro,
@@ -37,15 +37,15 @@ describe('normalizeBlockIntro', () => {
     })
   })
 
-  it.each<[string, BlockIntro]>([
+  it.each<[string, BlockIntroData]>([
     ['heading', { heading: 'Heading' }],
     ['subheading', { subheading: 'Subheading' }],
     ['description', { description: 'Description' }]
   ])('keeps an intro that has only a %s', (field, intro) => {
     const normalized = normalizeBlockIntro(intro)
     expect(normalized).not.toBeNull()
-    expect(normalized?.[field as keyof BlockIntro]).toBe(
-      intro[field as keyof BlockIntro]
+    expect(normalized?.[field as keyof BlockIntroData]).toBe(
+      intro[field as keyof BlockIntroData]
     )
   })
 
@@ -72,12 +72,14 @@ describe('normalizeBlockIntro', () => {
     const malformed = {
       heading: 42,
       description: ['x']
-    } as unknown as BlockIntro
+    } as unknown as BlockIntroData
     expect(normalizeBlockIntro(malformed)).toBeNull()
   })
 
   it('treats a non-object intro as empty', () => {
-    expect(normalizeBlockIntro('Heading' as unknown as BlockIntro)).toBeNull()
+    expect(
+      normalizeBlockIntro('Heading' as unknown as BlockIntroData)
+    ).toBeNull()
   })
 })
 

@@ -3,7 +3,7 @@
  * and Description. Serialized from the `shared.block-intro` Strapi component
  * into an `intro={{…}}` MDX prop. The description is markdown.
  */
-export interface BlockIntro {
+export interface BlockIntroData {
   // Nullable: the Strapi preview passes unset component fields as null.
   heading?: string | null
   subheading?: string | null
