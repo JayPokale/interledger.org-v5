@@ -1,8 +1,8 @@
-import type { BlockIntro } from '../../types/blockIntro'
+import type { BlockIntroData } from '../../types/blockIntro'
 
 /** A block intro with every field trimmed and every empty field dropped. */
 export type NormalizedBlockIntro = {
-  [Field in keyof BlockIntro]-?: string | null
+  [Field in keyof BlockIntroData]-?: string | null
 }
 
 // CKEditor stores a Shift+Enter break as a literal <br/>. The Strapi
@@ -25,7 +25,7 @@ function trimmedText(value: unknown): string | null {
  * empty rather than reaching the markup.
  */
 export function normalizeBlockIntro(
-  intro: BlockIntro | null | undefined
+  intro: BlockIntroData | null | undefined
 ): NormalizedBlockIntro | null {
   if (!intro || typeof intro !== 'object') return null
 
@@ -49,7 +49,7 @@ export function normalizeBlockIntro(
  * its heading.
  */
 export function resolveBlockIntro(
-  intro: BlockIntro | null | undefined,
+  intro: BlockIntroData | null | undefined,
   legacyHeading: string | null | undefined
 ): NormalizedBlockIntro | null {
   return (
@@ -67,6 +67,33 @@ export function blockIntroLabel(
   intro: NormalizedBlockIntro | null
 ): string | null {
   return intro?.heading ?? intro?.subheading ?? null
+}
+
+/** How a block names its `<section>` for screen readers. */
+export interface BlockIntroA11y {
+  /** Goes on BlockIntro (`headingId`) and on the section's `aria-labelledby`. */
+  headingId: string | undefined
+  /** The section's `aria-label`, used only when the intro can't name it. */
+  ariaLabel: string | undefined
+}
+
+/**
+ * Names a block's `<section>`: by its intro heading (or subheading) when the
+ * intro has one, otherwise by `fallbackLabel`. The id is random, so two
+ * blocks with the same heading on one page never share it.
+ */
+export function blockIntroA11y(
+  intro: NormalizedBlockIntro | null,
+  idPrefix: string,
+  fallbackLabel?: string
+): BlockIntroA11y {
+  if (blockIntroLabel(intro)) {
+    return {
+      headingId: `${idPrefix}-heading-${crypto.randomUUID()}`,
+      ariaLabel: undefined
+    }
+  }
+  return { headingId: undefined, ariaLabel: fallbackLabel?.trim() || undefined }
 }
 
 /** A markdown `## Heading` line, with optional closing hashes. */

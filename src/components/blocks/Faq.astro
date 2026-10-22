@@ -6,13 +6,13 @@
  * constraint of its own (INTORG-909).
  */
 import {
-  blockIntroLabel,
+  blockIntroA11y,
   parseMarkdown,
   resolveBlockIntro,
   useTranslations
 } from '@/utils'
 import BlockIntro from '@/components/shared/BlockIntro.astro'
-import type { BlockIntro as BlockIntroData } from '@/types/blockIntro'
+import type { BlockIntroData } from '@/types/blockIntro'
 import FaqItem from '@/components/shared/FaqItem.astro'
 import { faqAccordionGroupName } from '@/scripts/faq-accordion'
 
@@ -31,11 +31,13 @@ interface Props {
 
 const { items } = Astro.props
 const intro = resolveBlockIntro(Astro.props.intro, Astro.props.heading)
-const headingId = blockIntroLabel(intro)
-  ? `faq-heading-${crypto.randomUUID()}`
-  : undefined
 const { routeLocale } = Astro.locals
 const t = useTranslations(routeLocale)
+const { headingId, ariaLabel } = blockIntroA11y(
+  intro,
+  'faq',
+  t('faq.block_label')
+)
 
 // Unique so two Faq blocks on one page don't exclusive-close each other
 // when JS is off. Locals lets MDX-slotted <FaqItem> children share this
@@ -63,7 +65,7 @@ const renderedItems = items
   data-component="Faq"
   data-intro-variant="universal"
   aria-labelledby={headingId}
-  aria-label={headingId ? undefined : t('faq.block_label')}
+  aria-label={ariaLabel}
 >
   <BlockIntro intro={intro} headingId={headingId} />
   <div class="flex w-full flex-col gap-xl" data-faq-accordion>

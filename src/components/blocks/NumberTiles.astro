@@ -11,11 +11,11 @@
 // default behavior, no extra CSS needed).
 import StatCard from '@/components/shared/StatCard.astro'
 import BlockIntro from '@/components/shared/BlockIntro.astro'
-import type { BlockIntro as BlockIntroData } from '@/types/blockIntro'
+import type { BlockIntroData } from '@/types/blockIntro'
 import {
   buildNumberTileAriaLabel,
   formatStatNumber,
-  blockIntroLabel,
+  blockIntroA11y,
   parseStatNumber,
   resolveBlockIntro
 } from '@/utils'
@@ -37,9 +37,7 @@ interface Props {
 
 const { tiles } = Astro.props
 const intro = resolveBlockIntro(Astro.props.intro, Astro.props.title)
-const headingId = blockIntroLabel(intro)
-  ? `number-tiles-heading-${crypto.randomUUID()}`
-  : undefined
+const { headingId } = blockIntroA11y(intro, 'number-tiles')
 
 // Number tiles use the h2 heading scale (56px at desktop), smaller than
 // StatsSection's homepage h1. Suffix steps down one type size and sits

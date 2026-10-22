@@ -14,11 +14,11 @@
  * Heading sizes are explicit so the intro reads the same on narrow templates,
  * where reset.css drops bare headings one tier.
  */
-import type { BlockIntro } from '@/types/blockIntro'
+import type { BlockIntroData } from '@/types/blockIntro'
 import { normalizeBlockIntro, parseMarkdown } from '@/utils'
 
 interface Props {
-  intro?: BlockIntro | null
+  intro?: BlockIntroData | null
   /**
    * Lets the block's `<section aria-labelledby>` point at the intro. Goes on
    * the heading, or on the subheading when there is no heading.
@@ -36,7 +36,7 @@ const description = await parseMarkdown(normalized?.description, {
 })
 ---
 
-{normalized && <header class="pt-(--intro-top)">
+{normalized && <header data-block-intro class="pt-(--intro-top)">
   {normalized.heading && <h2
     id={headingId}
     class="m-0 pt-(--intro-h2-pt) pb-(--intro-h2-h3) text-neutral-900 dark:text-neutral-0"

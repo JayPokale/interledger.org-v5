@@ -2046,6 +2046,11 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'image', size: 6 }],
       [{ name: 'alternativeText', size: 6 }]
     ],
+    'blocks.faq': [
+      [{ name: 'intro', size: 12 }],
+      [{ name: 'heading', size: 12 }],
+      [{ name: 'items', size: 12 }]
+    ],
     'blocks.number-tiles': [
       [{ name: 'intro', size: 12 }],
       [{ name: 'title', size: 12 }],
