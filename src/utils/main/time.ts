@@ -51,8 +51,15 @@ export function formatAgendaDate(isoDate: string, lang = defaultLocale) {
   if (!match) return ''
 
   const [, year, month, day] = match.map(Number)
+  // Date rolls an impossible day over (2026-02-30 → March 2, 2026-13-01 →
+  // the next January), so check every part survived.
   const date = new Date(Date.UTC(year!, month! - 1, day!))
-  if (date.getUTCDate() !== day) return ''
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month! - 1 ||
+    date.getUTCDate() !== day
+  )
+    return ''
 
   const localeMap: Record<Locale, string> = {
     es: 'es-ES',
