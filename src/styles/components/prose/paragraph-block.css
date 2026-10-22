@@ -114,13 +114,20 @@
   /* A CTA belongs to the paragraph above it (B2): the pair keeps its tight
      24 / 32 gap instead of a block break. CtaButtons without an intro sets
      that gap as its own top margin, so the Paragraph gives up its bottom
-     padding; a CtaLink has no top margin, so the Paragraph's bottom padding
-     becomes the gap. */
+     padding. A CtaLink has no top margin, so the Paragraph's bottom padding
+     becomes the gap. Each case is its own rule: one `:has()` listing both
+     would take the more specific branch's weight and override the other.
+
+     The second selector of each is the Strapi preview, where DynamicZone
+     wraps every block in its own element. */
   :is([data-prose], [data-prose-blog], [data-prose-summit])
     > [data-intro-variant='paragraph']:has(
-      + [data-component='CtaButtons']:not([data-intro-variant]),
-      + .cta-link
-    ) {
+      + [data-component='CtaButtons']:not([data-intro-variant])
+    ),
+  :has(> [data-intro-variant='paragraph']):has(
+      + * > [data-component='CtaButtons']:not([data-intro-variant])
+    )
+    > [data-intro-variant='paragraph'] {
     padding-block-end: 0;
 
     & > :last-child {
@@ -129,11 +136,17 @@
   }
 
   :is([data-prose], [data-prose-blog], [data-prose-summit])
-    > [data-intro-variant='paragraph']:has(+ .cta-link) {
+    > [data-intro-variant='paragraph']:has(+ .cta-link),
+  :has(> [data-intro-variant='paragraph']):has(+ * > .cta-link)
+    > [data-intro-variant='paragraph'] {
     padding-block-end: var(--spacing-xl);
 
     @variant desktop {
       padding-block-end: var(--spacing-2xl);
+    }
+
+    & > :last-child {
+      padding-block-end: 0;
     }
   }
 
