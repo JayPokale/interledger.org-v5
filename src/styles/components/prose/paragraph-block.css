@@ -156,6 +156,15 @@
     margin-block-start: 0;
   }
 
+  /* At the end of the prose the page pads its own bottom, and rhythm.css
+     drops the block's --block-pb; its last child's padding would still add
+     to the page's. */
+  :is([data-prose], [data-prose-blog], [data-prose-summit])
+    > [data-intro-variant='paragraph']:not(:has(~ :not(script)))
+    > :last-child {
+    padding-block-end: 0;
+  }
+
   /* A Paragraph that ends on a heading titles the legacy block after it (a
      "fake intro"). The pair keeps the heading gap it has today rather than
      a block break. A block with an intro of its own is spaced normally.
