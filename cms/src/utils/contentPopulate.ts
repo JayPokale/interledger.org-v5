@@ -307,6 +307,7 @@ export const PODCAST_PAGE_CONTENT_POPULATE = {
   },
   titleCards: {
     populate: {
+      intro: true,
       titleCards: { populate: { secondaryCta: true, secondSecondaryCta: true } }
     }
   },

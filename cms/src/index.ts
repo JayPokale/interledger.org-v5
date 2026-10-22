@@ -1096,7 +1096,7 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description:
         'Short description used for SEO. Aim for 120–160 characters.',
       textSection:
-        'Optional paragraph shown below the hero, above the title cards. Only appears on the bare landing view — hidden on paginated or filtered views, same as the title cards.',
+        'Optional paragraph shown below the hero, above the title cards. Put the heading that titles the cards in Title Cards → Intro, not here. Only appears on the bare landing view — hidden on paginated or filtered views, same as the title cards.',
       titleCards:
         'List every featured podcast series shown at the top of the page.',
       podcasts:
@@ -1450,6 +1450,12 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       quoteSource: 'Quote Attribution',
       cta: 'Call-to-action Button (deprecated)'
     },
+    'blocks.title-card-grid': {
+      intro: 'Intro',
+      titleCards: 'Title Cards',
+      columns: 'Columns',
+      ariaLabel: 'Accessible label'
+    },
     'blocks.title-card': {
       heading: 'Heading',
       subHeading: 'Sub heading',
@@ -1591,6 +1597,8 @@ async function configureFieldLabels(strapi: StrapiInstance) {
         'Rich text for the content column. Leave empty when using a Quote.'
     },
     'blocks.title-card-grid': {
+      intro:
+        'Optional heading, subheading and description above the cards. On the podcast page it titles the featured series.',
       ariaLabel:
         'Used by screen readers to describe this group of cards. This text is not visible on the page. Example: "Grant options" or "Ways to get involved".'
     },
@@ -2253,6 +2261,14 @@ async function configureLayouts(strapi: StrapiInstance) {
       ],
       [{ name: 'buttons', size: 12 }],
       [{ name: 'cta', size: 12 }]
+    ],
+    'blocks.title-card-grid': [
+      [{ name: 'intro', size: 12 }],
+      [
+        { name: 'columns', size: 6 },
+        { name: 'ariaLabel', size: 6 }
+      ],
+      [{ name: 'titleCards', size: 12 }]
     ],
     'blocks.title-card': [
       [{ name: 'heading', size: 12 }],

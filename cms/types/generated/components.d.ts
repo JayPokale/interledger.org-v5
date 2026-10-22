@@ -1539,6 +1539,7 @@ export interface BlocksTitleCardGrid extends Struct.ComponentSchema {
     columns: Schema.Attribute.Enumeration<['Three', 'Two']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'Three'>
+    intro: Schema.Attribute.Component<'shared.block-intro', false>
     titleCards: Schema.Attribute.Component<'blocks.title-card', true> &
       Schema.Attribute.Required &
       Schema.Attribute.SetMinMax<
