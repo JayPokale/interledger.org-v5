@@ -94,7 +94,11 @@ const noindex = isDemoPathSlug(mdxData?.pathSlug)
         sectionStyle={heroSectionStyle}
       />
     )}
-    <section class="px-content py-4xl">
+    {/* A Paragraph block opening the prose brings its own "first" padding,
+      which is the gap under the page header (ADR-009, A3). */}
+    <section
+      class="px-content py-4xl [&:has([data-prose-summit]>[data-intro-variant=paragraph]:first-child)]:pt-0 [&:has([data-prose-summit]>[data-intro-variant=paragraph]:first-child)]:[--para-lead-pt:var(--para-first-pt)]"
+    >
       <!--
         Content-width shell (@container) with narrow prose inside. Full-width
         blocks (EventCard, CardGrid) break out to 100cqw so multi-column layouts
