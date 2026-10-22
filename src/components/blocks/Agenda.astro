@@ -3,10 +3,11 @@ import BlockIntro from '@/components/shared/BlockIntro.astro'
 import type { BlockIntroData } from '@/types/blockIntro'
 import {
   blockIntroA11y,
+  createDisplayPlainText,
   formatAgendaDate,
-  normalizeBlockIntro,
   parseMarkdown,
   parseMarkdownInline,
+  resolveBlockIntro,
   useTranslations
 } from '@/utils'
 
@@ -25,7 +26,10 @@ interface AgendaDay {
 interface Props {
   intro?: BlockIntroData | null
   days?: AgendaDay[] | null
-  /** @deprecated One day per block, before `days`. Used when `days` is empty. */
+  /**
+   * @deprecated The block's heading before `days`, rendered as the intro
+   * heading when the intro has none. Markdown, shown as plain text.
+   */
   heading?: string
   /** @deprecated One day per block, before `days`. Used when `days` is empty. */
   items?: AgendaItem[] | null
@@ -50,7 +54,10 @@ const markdownContext = {
   lang: routeLocale
 }
 
-const intro = normalizeBlockIntro(introProp)
+const intro = resolveBlockIntro(
+  introProp,
+  heading ? createDisplayPlainText(heading) : null
+)
 const { headingId, ariaLabel } = blockIntroA11y(
   intro,
   'agenda',
@@ -58,36 +65,25 @@ const { headingId, ariaLabel } = blockIntroA11y(
 )
 
 /**
- * A day's heading: "Day N" from its position and the formatted date (B4), or,
- * for a legacy single-day agenda, its free-text heading.
+ * A day's heading: "Day N" from its position and the formatted date (B4). A
+ * legacy agenda is one undated list with no day heading.
  */
-type DayHeading =
-  | { kind: 'numbered'; label: string; date: string }
-  | { kind: 'legacy'; html: string }
-  | null
+interface DayHeading {
+  label: string
+  date: string
+}
 
-const scheduledDays: { heading: DayHeading; items: AgendaItem[] }[] =
+const scheduledDays: { heading: DayHeading | null; items: AgendaItem[] }[] =
   days?.length
     ? days.map((day, index) => ({
         heading: {
-          kind: 'numbered',
           label: t('agenda.day', { n: index + 1 }),
           date: formatAgendaDate(day.date, routeLocale)
         },
         items: day.items ?? []
       }))
     : items?.length
-      ? [
-          {
-            heading: heading
-              ? {
-                  kind: 'legacy',
-                  html: parseMarkdownInline(heading, markdownContext)
-                }
-              : null,
-            items
-          }
-        ]
+      ? [{ heading: null, items }]
       : []
 
 if (scheduledDays.length === 0) return
@@ -112,8 +108,9 @@ const renderedDays = await Promise.all(
   }))
 )
 
-const dayHeadingClass =
-  'm-0 flex flex-wrap gap-x-lg py-[7px] tablet:py-lg font-medium text-h4 tablet:text-h4-md desktop:text-h4-lg'
+// Day headings sit under the intro heading (B4), or take its level when the
+// agenda has none, so the outline never skips from the page's h1 to an h3.
+const DayHeadingTag = intro?.heading ? 'h3' : 'h2'
 ---
 
 <section
@@ -126,23 +123,16 @@ const dayHeadingClass =
   <BlockIntro intro={intro} headingId={headingId} umamiContext={umamiContext} />
   <div class="flex flex-col gap-4xl">
     {renderedDays.map((day) => <div class="flex flex-col gap-xl">
-      {day.heading?.kind === 'numbered' && <h3 class={dayHeadingClass}>
+      {day.heading && <DayHeadingTag
+        class="m-0 flex flex-wrap gap-x-lg py-[7px] tablet:py-lg font-medium text-h4 tablet:text-h4-md desktop:text-h4-lg"
+      >
         <span class="text-neutral-900 dark:text-neutral-0"
           >{day.heading.label}</span
         >
         {day.heading.date && <span class="text-neutral-100 dark:text-neutral-25"
           ><span class="sr-only">, </span>{day.heading.date}</span
         >}
-      </h3>}
-      {day.heading?.kind === 'legacy' && day.heading.html && (
-        <h3
-          class:list={[
-            dayHeadingClass,
-            'text-neutral-900 dark:text-neutral-50'
-          ]}
-          set:html={day.heading.html}
-        />
-      )}
+      </DayHeadingTag>}
 
       <ol
         role="list"
