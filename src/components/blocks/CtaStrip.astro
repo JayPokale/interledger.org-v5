@@ -1,13 +1,13 @@
 ---
 import { buildUmamiAttrs, parseMarkdown, resolveCtaLink } from '@/utils'
 import IntroBlockFrame from '@/components/shared/IntroBlockFrame.astro'
-import type { BlockIntro } from '@/types/blockIntro'
+import type { BlockIntroData } from '@/types/blockIntro'
 import Icon from '@/components/shared/Icon.astro'
 import LinkButton from '@/components/shared/LinkButton.astro'
 
 interface Props {
   /** Block intro (ADR-009, D6): optional, above the strip, in page blocks. */
-  intro?: BlockIntro | null
+  intro?: BlockIntroData | null
   /** The CTA strip title, shown inside the strip. */
   heading?: string | null
   /**
