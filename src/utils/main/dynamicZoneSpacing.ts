@@ -68,9 +68,6 @@ export function getPreviewBlockGapClass(
 ): string | null {
   if (prevUid === null) return null
   if (OWNS_ITS_SPACING.has(uid)) return null
-  // Consecutive Paragraphs are running text, not section breaks. Inner `p`
-  // already carries the 32px prose gap (prose/default.css).
-  if (uid === 'blocks.paragraph' && prevUid === 'blocks.paragraph') return null
 
   const isSelfSpaced = selfSpacedBlocks.has(uid)
   const prevIsSelfSpaced = selfSpacedBlocks.has(prevUid)
