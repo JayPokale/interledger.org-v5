@@ -1344,7 +1344,13 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       description: 'Description'
     },
     'blocks.agenda': {
-      heading: 'Heading (optional)',
+      intro: 'Intro',
+      days: 'Days',
+      heading: 'Day heading (deprecated)',
+      items: 'Agenda items (deprecated)'
+    },
+    'blocks.agenda-day': {
+      date: 'Date',
       items: 'Agenda items (minimum 2)'
     },
     'blocks.agenda-item': {
@@ -1678,7 +1684,11 @@ async function configureFieldLabels(strapi: StrapiInstance) {
       suffix: 'Optional suffix shown after the number, e.g. "M+" or "+".'
     },
     'blocks.agenda': {
-      heading: 'Optional. E.g. "Day 1 – Nov 8, 2026".'
+      days: 'Each day is numbered automatically ("Day 1", "Day 2", …) and shows its date.',
+      heading:
+        'Deprecated: add a day under Days instead. Only used when Days is empty.',
+      items:
+        'Deprecated: add a day under Days instead. Only used when Days is empty.'
     },
     'blocks.event-card': {
       title: LEGACY_HEADING_DESCRIPTION,
@@ -2065,7 +2075,13 @@ async function configureLayouts(strapi: StrapiInstance) {
       [{ name: 'description', size: 12 }]
     ],
     'blocks.agenda': [
+      [{ name: 'intro', size: 12 }],
+      [{ name: 'days', size: 12 }],
       [{ name: 'heading', size: 12 }],
+      [{ name: 'items', size: 12 }]
+    ],
+    'blocks.agenda-day': [
+      [{ name: 'date', size: 6 }],
       [{ name: 'items', size: 12 }]
     ],
     'blocks.agenda-item': [
@@ -2304,6 +2320,7 @@ async function configureLayouts(strapi: StrapiInstance) {
     ]
   }
   const componentMainFields: Record<string, string> = {
+    'blocks.agenda-day': 'date',
     'blocks.agenda-item': 'time',
     'blocks.report-text': 'textType',
     // Collapsed repeatable rows show the button label rather than a generic
