@@ -274,11 +274,15 @@ const SPLIT_LAYOUT_CTA_ATTRS = [
   'ctaDocument'
 ] as const
 
-/** A valueless or `{true}` JSX attribute. */
+/**
+ * A JSX attribute set to true: valueless, `{true}` or `"true"`, the same
+ * forms `getBooleanAttr` accepts in the sync.
+ */
 function isTrueAttr(attr: MdxJsxAttribute | undefined): boolean {
   if (!attr) return false
   if (attr.value === null || attr.value === undefined) return true
-  return typeof attr.value === 'object' && attr.value.value.trim() === 'true'
+  if (typeof attr.value === 'string') return attr.value.trim() === 'true'
+  return attr.value.value.trim() === 'true'
 }
 
 function stringAttr(node: MdxJsxFlowElement, name: string): string | undefined {

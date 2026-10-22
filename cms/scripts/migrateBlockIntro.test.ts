@@ -121,6 +121,25 @@ describe('migrateBlockIntro: phase 2b blocks', () => {
     expect(result).toContain('imageSrc="/img/a.png"')
   })
 
+  it.each([
+    ['valueless', 'ctaExternal ctaDocument'],
+    ['expression', 'ctaExternal={true} ctaDocument={true}'],
+    ['quoted', 'ctaExternal="true" ctaDocument="true"']
+  ])('keeps %s true flags on the button', (_form, flags) => {
+    const result = migrate(
+      `<SplitLayout imageSrc="/a.png" ctaText="Go" ctaLink="/go/" ${flags}>\n\nBody.\n\n</SplitLayout>\n`
+    ).source
+    expect(result).toContain('"external":true')
+    expect(result).toContain('"document":true')
+  })
+
+  it('treats a quoted false flag as unset', () => {
+    const result = migrate(
+      '<SplitLayout imageSrc="/a.png" ctaText="Go" ctaLink="/go/" ctaExternal="false">\n\nBody.\n\n</SplitLayout>\n'
+    ).source
+    expect(result).not.toContain('"external"')
+  })
+
   it('leaves no space before the closing bracket of a one-line tag', () => {
     const result = migrate(
       '<SplitLayout imageSrc="/a.png" ctaText="Go" ctaLink="/go/">\n\nBody.\n\n</SplitLayout>\n'
