@@ -145,6 +145,22 @@
     ) {
     margin-block-start: 0;
   }
+
+  /*
+   * The same when the section's prose opens with a Paragraph block: the
+   * first heading's "first" padding (A3) is the whole gap, so the stack
+   * gives none and the block reads --para-lead-pt.
+   */
+  &
+    > :first-child
+    + :has([data-prose] > [data-intro-variant='paragraph']:first-child),
+  &
+    > :first-child
+    + script
+    + :has([data-prose] > [data-intro-variant='paragraph']:first-child) {
+    margin-block-start: 0;
+    --para-lead-pt: var(--para-first-pt);
+  }
 }
 
 /*
