@@ -165,7 +165,7 @@ Padding-bottom is **8 / 12 / 16**. Paragraphs inside one container stack with ga
 
 | Above                                   | Mobile | Tablet | Desktop |
 | --------------------------------------- | ------ | ------ | ------- |
-| nothing (block starts with a paragraph) | 60     | 80     | 120     |
+| nothing (block starts with a paragraph) | 20     | 40     | 60      |
 | H2                                      | 24     | 32     | 40      |
 | H3                                      | 16     | 24     | 32      |
 | H4                                      | 12     | 16     | 24      |

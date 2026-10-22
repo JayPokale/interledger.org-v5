@@ -132,7 +132,7 @@ Implements [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-parag
 1. Zero the `default.css` bottom margins inside the block, and apply the [A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-paragraph-block-headings)/[A4](../decisions/009-block-intro-and-block-owned-spacing.md#a4-paragraph-block-body) values as padding.
 2. H3 and H4 inside the block use the header weight, SemiBold 600 ([A0](../decisions/009-block-intro-and-block-owned-spacing.md#a0-tokens)).
 3. Sibling selectors:
-   - `> :is(h2,h3,h4):first-child` and `> p:first-child` get the "first" values, only when the block is the first child of the prose container; otherwise the "not first" values.
+   - When the block is the first child of the prose container, its first element gets the "first" padding-top. A heading (`> :is(h2,h3,h4):first-child`) gets **60 / 80 / 120** ([A3](../decisions/009-block-intro-and-block-owned-spacing.md#a3-paragraph-block-headings)). A paragraph (`> p:first-child`) gets **20 / 40 / 60** ([A4](../decisions/009-block-intro-and-block-owned-spacing.md#a4-paragraph-block-body), designer, 2026-10-21). Otherwise the "not first" values apply.
    - `h2 + p`, `h3 + p`, `h4 + p`, `p + p` get the [A4](../decisions/009-block-intro-and-block-owned-spacing.md#a4-paragraph-block-body) values.
    - Media + p gets the "Image, table or list on top" padding-top (32 / 40 / 60). Media has no padding-bottom, so that padding is the whole gap.
 4. Media wrappers `> :is(ul, ol, figure, .table-wrapper, p:has(> img:only-child))` get `padding-block-start: var(--media-pt)` and no padding-bottom. Marked wraps a lone image in a `<p>`.
