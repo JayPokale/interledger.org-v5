@@ -78,7 +78,7 @@ const DISPLAY_RATIOS = ['3:2', '2:1', '1:1', '1:2'] as const
  * two columns plus the 120px gutter leave each side too narrow on a tablet.
  */
 const GRID_COLS_BY_ORDER_AND_RATIO = {
-  // media column first in the DOM (imagePosition=left)
+  // media in the first grid column (imagePosition=left; `desktop:order-first`)
   left: {
     // content:media 3:2 → media 2fr, content 3fr
     '3:2': 'desktop:grid-cols-[2fr_3fr]',
@@ -88,7 +88,7 @@ const GRID_COLS_BY_ORDER_AND_RATIO = {
     // content:media 1:2 → media 2fr, content 1fr
     '1:2': 'desktop:grid-cols-[2fr_1fr]'
   },
-  // content column first in the DOM (imagePosition=right)
+  // content in the first grid column (imagePosition=right)
   right: {
     '3:2': 'desktop:grid-cols-[3fr_2fr]',
     '1:1': 'desktop:grid-cols-2',
@@ -193,11 +193,12 @@ const ownsSpacing = Boolean(intro) || isDesignRatio
 
 const columnClass = 'w-full min-w-0'
 const contentColumnClass = `${columnClass} flex flex-col`
-// Stacked (below desktop) the text always comes first, then the buttons, then
-// the media, whichever side the media takes on desktop.
+// The text column always comes first in the DOM, so the reading and focus
+// order match the stacked layout (text, buttons, media). Media on the left
+// moves to the first grid column on desktop only.
 const mediaColumnClass = [
   columnClass,
-  mediaFirst && 'order-last desktop:order-none',
+  mediaFirst && 'desktop:order-first',
   isDesignRatio && 'desktop:self-center',
   // The design ratio pads the media like a paragraph image, only when there
   // are buttons (ADR-009, B5).
@@ -225,25 +226,6 @@ const imageClass = isDesignRatio
     gridColsClass
   ]}
 >
-  {mediaFirst && hasMedia && <div class={mediaColumnClass}>
-    {isVideoLayout && videoUrl ? (
-      <VideoEmbed
-        url={videoUrl}
-        title={imageAlt?.trim() || 'Video'}
-        poster={imageSrc}
-      />
-    ) : imageSrc ? (
-      <OptimizedImage
-        src={imageSrc}
-        alt={imageAlt ?? ''}
-        width={640}
-        height={480}
-        loading="lazy"
-        class={imageClass}
-      />
-    ) : null}
-  </div>}
-
   <div class={contentColumnClass}>
     <BlockIntro intro={intro} headingId={headingId} />
     {isQuoteLayout && quote ? (
@@ -269,7 +251,7 @@ const imageClass = isDesignRatio
     </div>}
   </div>
 
-  {!mediaFirst && hasMedia && <div class={mediaColumnClass}>
+  {hasMedia && <div class={mediaColumnClass}>
     {isVideoLayout && videoUrl ? (
       <VideoEmbed
         url={videoUrl}
