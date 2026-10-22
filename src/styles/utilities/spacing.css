@@ -63,7 +63,8 @@
    *
    * - A section opening on such a block gets --block-pb above it, standing in
    *   for the padding-bottom the section above doesn't have; the block's
-   *   intro supplies the rest of the gap.
+   *   intro supplies the rest of the gap. A block with an empty intro has no
+   *   top, so it sits --block-pb below, the minimum A2 gives every block.
    * - A section that is such a block ends on its --block-pb, so the section
    *   after it takes --space-section less that padding, or nothing when it
    *   opens on an intro of its own.
@@ -114,8 +115,9 @@
    * (`[data-block-intro]`, set by BlockIntro), that intro is the whole gap.
    * The block is the section's own, or the first in its prose; the intro is
    * the block's child, or one level down where the block puts it in a column
-   * (SplitLayout). A block without an intro and a legacy first block keep
-   * the stack gap, the last until the Paragraph spacing lands (Phase 3).
+   * (SplitLayout). A block without an intro takes the --block-pb rule
+   * above; a legacy first block keeps the stack gap until the Paragraph
+   * spacing lands (Phase 3).
    * PageHero emits its `<script>` as the next sibling, so reach across one.
    */
   &
