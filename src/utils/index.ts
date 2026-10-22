@@ -239,7 +239,12 @@ export {
 } from './main/reportSections'
 
 // Main site: Formatting
-export { formatDateTime, formatDate, getDurationInMinutes } from './main/time'
+export {
+  formatAgendaDate,
+  formatDateTime,
+  formatDate,
+  getDurationInMinutes
+} from './main/time'
 
 // Main site: Media & UI
 export { detectVideoProvider } from './main/video'
